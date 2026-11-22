@@ -90,6 +90,7 @@ function FileVideo({
       className="h-full w-full bg-black object-contain"
       src={program.playUrl}
       playsInline
+      preload="auto"
       autoPlay
       muted={muted}
       onLoadedMetadata={(event) => seekAndPlay(event.currentTarget, offsetSec, rate)}
@@ -117,9 +118,19 @@ function HlsVideo(props: EngineProps) {
         let mediaRecoveries = 0
         const hls = new Hls({
           capLevelToPlayerSize: true,
-          maxBufferLength: 20,
-          backBufferLength: 30,
-          maxMaxBufferLength: 30,
+          // Keep a useful forward buffer for variable home/TV Wi-Fi while
+          // limiting memory use on low-RAM Fire TV and Android TV devices.
+          lowLatencyMode: false,
+          maxBufferLength: 30,
+          maxMaxBufferLength: 60,
+          maxBufferSize: 30 * 1000 * 1000,
+          backBufferLength: 20,
+          maxBufferHole: 0.5,
+          manifestLoadingMaxRetry: 4,
+          levelLoadingMaxRetry: 4,
+          fragLoadingMaxRetry: 6,
+          fragLoadingRetryDelay: 1000,
+          fragLoadingMaxRetryTimeout: 64000,
         })
         detach = () => hls.destroy()
         hls.loadSource(url)
@@ -161,6 +172,7 @@ function HlsVideo(props: EngineProps) {
       data-testid="live-video"
       className="h-full w-full bg-black object-contain"
       playsInline
+      preload="auto"
       autoPlay
       muted={props.muted}
       onPlaying={props.onStarted}
@@ -409,6 +421,7 @@ export function Player({
   const frame = screenRef ?? shell
   const [staticOn, setStaticOn] = useState(false)
   const [started, setStarted] = useState(false)
+  const [buffering, setBuffering] = useState(false)
   const [failed, setFailed] = useState(false)
   const [reason, setReason] = useState('')
   const [held, setHeld] = useState(false)
@@ -434,6 +447,7 @@ export function Player({
 
   useEffect(() => {
     setStarted(false)
+    setBuffering(false)
     setFailed(false)
     setHeld(false)
     setPlayed(target?.offsetSec ?? 0)
@@ -463,7 +477,7 @@ export function Player({
     ? Math.min(duration, Math.max(0, (now - live.startMs) / 1000))
     : Math.min(duration, played)
   const progress = duration ? Math.min(100, (position / duration) * 100) : 0
-  const state = !target ? 'idle' : failed ? 'failed' : staticOn || !started ? 'tuning' : 'playing'
+  const state = !target ? 'idle' : failed ? 'failed' : buffering ? 'buffering' : staticOn || !started ? 'tuning' : 'playing'
   const look = channel ? lookById(channel.look).bug : ''
 
   return (
@@ -483,12 +497,15 @@ export function Player({
                 muted={muted}
                 volume={volume}
                 rate={rate}
-                onStarted={() => setStarted(true)}
+                onStarted={() => {
+                  setStarted(true)
+                  setBuffering(false)
+                }}
                 onError={(message) => {
                   setReason(message ?? 'error')
                   setFailed(true)
                 }}
-                onBuffering={() => setStarted(false)}
+                onBuffering={() => setBuffering(true)}
                 onEnded={() => setHeld(true)}
               />
             )}
@@ -600,7 +617,7 @@ export function Player({
             TAP FOR SOUND
           </button>
         )}
-        {state === 'tuning' && target && !staticOn && (
+        {(state === 'tuning' || state === 'buffering') && target && !staticOn && (
           <span
             data-testid="buffering-indicator"
             className="pointer-events-none absolute bottom-3 left-3 z-20 bg-black/70 px-2 py-1 font-mono text-[10px] font-bold text-yellow-300"
