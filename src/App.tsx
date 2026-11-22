@@ -196,7 +196,7 @@ export default function App() {
               {dial}
             </div>
           )}
-          <main className="mx-auto grid w-full max-w-none grid-cols-1 gap-4 px-3 py-4">
+          <main className="mx-auto grid w-full max-w-none grid-cols-1 items-start gap-4 px-3 py-4 lg:grid-cols-[minmax(0,2fr)_minmax(280px,0.85fr)] lg:gap-5">
             <Player
               screenRef={screenRef}
               channel={current}
