@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type RefObject } from 'react'
-import { ExternalLink, Play, RotateCcw } from 'lucide-react'
+import { Cast, ExternalLink, Play, RotateCcw } from 'lucide-react'
 import type { Channel, Program } from '../types.ts'
 import { lookById } from '../lib/looks.ts'
 import { clock, mmss, padChannel } from '../lib/format.ts'
@@ -367,6 +367,87 @@ function DailymotionVideo(props: EngineProps) {
   )
 }
 
+
+function CastButton({ program, offsetSec }: { program: Program; offsetSec: number }) {
+  const [available, setAvailable] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [message, setMessage] = useState('')
+  const castRef = useRef<any>(null)
+
+  useEffect(() => {
+    const w = window as any
+    const ready = () => {
+      if (!w.cast?.framework) return
+      castRef.current = w.cast.framework.CastContext.getInstance()
+      castRef.current.setOptions({
+        receiverApplicationId: 'CC1AD845',
+        autoJoinPolicy: w.chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED,
+      })
+      setAvailable(true)
+    }
+    if (w.cast?.framework) {
+      ready()
+      return
+    }
+    w.__onGCastApiAvailable = (isAvailable: boolean) => {
+      if (isAvailable) ready()
+    }
+    const existing = document.querySelector('script[data-google-cast-sdk]')
+    if (!existing) {
+      const script = document.createElement('script')
+      script.dataset.googleCastSdk = 'true'
+      script.src = 'https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1'
+      script.async = true
+      document.head.appendChild(script)
+    }
+    return () => { w.__onGCastApiAvailable = undefined }
+  }, [])
+
+  if (!program.playUrl) return null
+
+  async function cast() {
+    const w = window as any
+    const context = castRef.current
+    if (!context || !available) {
+      setMessage('Cast requires a supported Chrome browser.')
+      return
+    }
+    setBusy(true)
+    setMessage('')
+    try {
+      const session = await context.requestSession()
+      const url = new URL(program.playUrl!, window.location.href).href
+      const path = new URL(url).pathname.toLowerCase()
+      const mimeType = path.endsWith('.m3u8') ? 'application/x-mpegURL'
+        : path.endsWith('.webm') ? 'video/webm'
+          : path.endsWith('.mpd') ? 'application/dash+xml'
+            : 'video/mp4'
+      const media = new w.chrome.cast.media.MediaInfo(url, mimeType)
+      media.streamType = w.chrome.cast.media.StreamType.BUFFERED
+      const metadata = new w.chrome.cast.media.GenericMediaMetadata()
+      metadata.title = program.title
+      media.metadata = metadata
+      media.startTime = Math.max(0, offsetSec)
+      await session.loadMedia(new w.chrome.cast.media.LoadRequest(media))
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Could not start casting.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="flex flex-col items-end gap-1">
+      <button type="button" data-testid="cast-button" disabled={busy}
+        onClick={() => void cast()}
+        className="bevel flex items-center gap-1 rounded-sm bg-[#1b2333] px-3 py-2 font-mono text-[10px] font-bold text-yellow-300 disabled:opacity-50">
+        <Cast className="size-4" /> {busy ? 'CONNECTING' : 'CAST'}
+      </button>
+      {message && <span role="status" className="max-w-40 text-right font-mono text-[9px] text-amber-200">{message}</span>}
+    </div>
+  )
+}
+
 interface EngineProps {
   program: Program
   offsetSec: number
@@ -652,6 +733,7 @@ export function Player({
                 BACK TO LIVE
               </button>
             )}
+            {target && <CastButton program={target.program} offsetSec={position} />}
             {target && !vod && started && position > 8 && (
               <button
                 type="button"
