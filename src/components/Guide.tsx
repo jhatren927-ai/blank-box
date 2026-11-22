@@ -43,13 +43,14 @@ export function Guide({
   favs: string[]
   onTune: (id: string) => void
 }) {
-  const [scroll, setScroll] = useState(true)
+  const [scroll, setScroll] = useState(false)
   const [favOnly, setFavOnly] = useState(false)
   const guide = guideWindow(now)
   const shown = (favOnly ? channels.filter((channel) => favs.includes(channel.id)) : channels)
     .slice()
     .sort((a, b) => a.number - b.number)
   const columns = 6
+  const channelColumn = '160px'
   const span = guide.end - guide.start
   const marker = ((now - guide.start) / span) * 100
   const scrolling = scroll && shown.length > 4
@@ -134,8 +135,8 @@ export function Guide({
             })}
           </ul>
           <div className="hidden overflow-x-auto sm:block">
-            <div className="min-w-[680px]">
-              <div className="grid grid-cols-[120px_1fr] border-y-2 border-black bg-[#001144]">
+            <div className="min-w-[900px]">
+              <div className="grid grid-cols-[160px_minmax(0,1fr)] border-y-2 border-black bg-[#001144]">
                 <div data-testid="guide-time-label" className="border-r-2 border-black px-2 py-1 font-mono text-xs font-bold text-yellow-300">
                   {dayLabel(guide.start)}
                 </div>
@@ -180,7 +181,7 @@ export function Guide({
                       />
                     ))}
                 </div>
-                <div className="pointer-events-none absolute inset-y-0 left-[120px] right-0">
+                <div className="pointer-events-none absolute inset-y-0 left-[160px] right-0">
                   <div
                     data-testid="guide-now-marker"
                     className="absolute inset-y-0 w-0.5 bg-red-500 shadow-[0_0_8px_#ef4444]"
