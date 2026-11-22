@@ -234,25 +234,27 @@ function YouTubeVideo(props: EngineProps) {
   useEffect(() => {
     let dead = false
     const videoId = props.program.youtubeId
+    const playlistId = props.program.youtubePlaylistId
     const offset = props.offsetSec
-    if (!videoId) return
+    if (!videoId && !playlistId) return
     void loadYouTubeAPI()
       .then((YT) => {
         if (dead || !host.current) return
         player.current = new YT.Player(host.current, {
-          videoId,
+          ...(videoId ? { videoId } : {}),
           playerVars: {
             autoplay: 1,
             playsinline: 1,
             rel: 0,
+            ...(playlistId ? { listType: 'playlist', list: playlistId } : {}),
             origin: window.location.origin,
           },
           events: {
             onReady: (event) => {
               const current = propsRef.current
               const real = event.target.getDuration() || 0
-              const wanted = current.program.durationGuess ? 0 : offset
-              if (real > 1 && wanted > 1 && wanted < real - 1) event.target.seekTo(wanted, true)
+              const wanted = current.program.durationGuess || playlistId ? 0 : offset
+              if (!playlistId && real > 1 && wanted > 1 && wanted < real - 1) event.target.seekTo(wanted, true)
               if (current.muted) event.target.mute()
               else {
                 event.target.unMute()
@@ -267,7 +269,17 @@ function YouTubeVideo(props: EngineProps) {
             },
             onStateChange: (event) => {
               if (event.data === YT.PlayerState.PLAYING) propsRef.current.onStarted()
-              if (event.data === YT.PlayerState.ENDED) propsRef.current.onEnded()
+              if (event.data === YT.PlayerState.ENDED) {
+                const active = propsRef.current.program.youtubePlaylistId
+                if (active) {
+                  const ids = event.target.getPlaylist() ?? []
+                  const index = event.target.getPlaylistIndex()
+                  // The iframe API advances through the playlist itself. Only
+                  // leave the channel when the final playlist item has ended.
+                  if (index < ids.length - 1) return
+                }
+                propsRef.current.onEnded()
+              }
             },
             onError: (event) => propsRef.current.onError(`youtube ${event.data}`),
           },
@@ -283,7 +295,7 @@ function YouTubeVideo(props: EngineProps) {
       }
       player.current = null
     }
-  }, [props.program.youtubeId])
+  }, [props.program.youtubeId, props.program.youtubePlaylistId])
   useEffect(() => {
     const current = player.current
     if (!current?.mute) return
