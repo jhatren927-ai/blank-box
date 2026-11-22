@@ -149,7 +149,7 @@ export function Guide({
               </div>
               <div
                 data-testid="guide-viewport"
-                className={`relative ${scrolling ? 'h-[336px] overflow-hidden' : 'max-h-[420px] overflow-y-auto'}`}
+                className={`relative ${scrolling ? 'h-[min(70vh,720px)] min-h-[480px] overflow-hidden' : 'max-h-[min(70vh,720px)] min-h-[480px] overflow-y-auto'}`}
               >
                 <div
                   className={scrolling ? 'animate-guide-scroll hover:[animation-play-state:paused]' : ''}
