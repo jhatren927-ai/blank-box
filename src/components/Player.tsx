@@ -238,6 +238,25 @@ function YouTubeVideo(props: EngineProps) {
     const playlistId = props.program.youtubePlaylistId
     const offset = props.offsetSec
     if (!videoId && !playlistId) return
+    let durationPoll: number | null = null
+    const reportDuration = (target: YTPlayer) => {
+      const current = propsRef.current
+      const real = target.getDuration() || 0
+      if (
+        videoId &&
+        Number.isFinite(real) &&
+        real >= 15 &&
+        Math.abs(real - current.program.durationSec) > 2 &&
+        reportedDuration.current !== real
+      ) {
+        reportedDuration.current = real
+        current.onDurationDetected(real)
+      }
+      if (real >= 15 && durationPoll !== null) {
+        window.clearInterval(durationPoll)
+        durationPoll = null
+      }
+    }
     void loadYouTubeAPI()
       .then((YT) => {
         if (dead || !host.current) return
@@ -253,10 +272,12 @@ function YouTubeVideo(props: EngineProps) {
           events: {
             onReady: (event) => {
               const current = propsRef.current
-              const real = event.target.getDuration() || 0
-              if (videoId && Number.isFinite(real) && real >= 15 && Math.abs(real - current.program.durationSec) > 2 && reportedDuration.current !== real) {
-                reportedDuration.current = real
-                current.onDurationDetected(real)
+              reportDuration(event.target)
+              if (videoId && durationPoll === null) {
+                durationPoll = window.setInterval(() => {
+                  if (dead || !player.current) return
+                  reportDuration(player.current)
+                }, 1000)
               }
               const wanted = current.program.durationGuess || playlistId ? 0 : offset
               if (!playlistId && real > 1 && wanted > 1 && wanted < real - 1) event.target.seekTo(wanted, true)
@@ -274,12 +295,7 @@ function YouTubeVideo(props: EngineProps) {
             },
             onStateChange: (event) => {
               if (event.data === YT.PlayerState.PLAYING) {
-                const current = propsRef.current
-                const real = event.target.getDuration() || 0
-                if (current.program.youtubeId && Number.isFinite(real) && real >= 15 && Math.abs(real - current.program.durationSec) > 2 && reportedDuration.current !== real) {
-                  reportedDuration.current = real
-                  current.onDurationDetected(real)
-                }
+                reportDuration(event.target)
                 current.onStarted()
               }
               if (event.data === YT.PlayerState.ENDED) {
@@ -301,6 +317,7 @@ function YouTubeVideo(props: EngineProps) {
       .catch(() => propsRef.current.onError())
     return () => {
       dead = true
+      if (durationPoll !== null) window.clearInterval(durationPoll)
       try {
         player.current?.destroy()
       } catch {
