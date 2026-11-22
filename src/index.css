@@ -109,3 +109,52 @@ textarea {
     animation: none;
   }
 }
+
+
+/* High-contrast focus treatment and spatial navigation for TV remotes. */
+:focus-visible {
+  outline: 3px solid #ffff00;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 2px #000, 0 0 18px rgba(255, 255, 0, 0.55);
+}
+
+html.tv-mode body {
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+html.tv-mode button,
+html.tv-mode a,
+html.tv-mode input,
+html.tv-mode select {
+  min-height: 44px;
+}
+
+html.tv-mode button:focus-visible,
+html.tv-mode a:focus-visible,
+html.tv-mode input:focus-visible,
+html.tv-mode select:focus-visible {
+  outline-width: 4px;
+  outline-offset: 4px;
+}
+
+html.tv-mode header .mx-auto,
+html.tv-mode main,
+html.tv-mode #guide {
+  max-width: 1440px;
+}
+
+html.tv-mode nav button {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  font-size: 1rem;
+}
+
+html.tv-mode [data-testid="guide-mobile-list"] {
+  max-height: 60vh;
+}
+
+html.tv-mode button,
+html.tv-mode a {
+  -webkit-tap-highlight-color: transparent;
+}
