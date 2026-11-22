@@ -196,7 +196,7 @@ export default function App() {
               {dial}
             </div>
           )}
-          <main className="mx-auto grid max-w-6xl grid-cols-1 gap-4 px-3 py-4">
+          <main className="mx-auto grid w-full max-w-none grid-cols-1 gap-4 px-3 py-4">
             <Player
               screenRef={screenRef}
               channel={current}
@@ -251,7 +251,7 @@ export default function App() {
               onClearRecent={() => store.patchPrefs({ recent: [] })}
             />
           </main>
-          <div className="mx-auto max-w-6xl px-3 pb-10">
+          <div className="mx-auto w-full max-w-none px-3 pb-10">
             <Guide
               channels={ordered}
               currentId={current?.id ?? null}
