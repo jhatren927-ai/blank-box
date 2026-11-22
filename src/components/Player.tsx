@@ -272,6 +272,7 @@ function YouTubeVideo(props: EngineProps) {
           events: {
             onReady: (event) => {
               const current = propsRef.current
+              const real = event.target.getDuration() || 0
               reportDuration(event.target)
               if (videoId && durationPoll === null) {
                 durationPoll = window.setInterval(() => {
@@ -295,6 +296,7 @@ function YouTubeVideo(props: EngineProps) {
             },
             onStateChange: (event) => {
               if (event.data === YT.PlayerState.PLAYING) {
+                const current = propsRef.current
                 reportDuration(event.target)
                 current.onStarted()
               }
