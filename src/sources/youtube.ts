@@ -1,5 +1,5 @@
 import type { Program } from '../types.ts'
-import { mapPool, uid } from '../lib/format.ts'
+import { uid } from '../lib/format.ts'
 import type { SourceAdapter } from './types.ts'
 
 interface OEmbed {
@@ -78,8 +78,8 @@ export function youtubeProgram(id: string, meta: OEmbed | null): Program {
     remoteId: id,
     source: 'youtube',
     title: meta?.title || 'YouTube video',
-    durationSec: 10 * 60,
-    durationGuess: true,
+    durationSec: 24 * 60 * 60,
+    durationGuess: false,
     youtubeId: id,
     pageUrl: `https://www.youtube.com/watch?v=${id}`,
     thumbnail: meta?.thumbnail_url || `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
@@ -87,56 +87,24 @@ export function youtubeProgram(id: string, meta: OEmbed | null): Program {
   }
 }
 
-export function youtubePlaylistIds(listId: string): Promise<string[]> {
-  return new Promise((resolve, reject) => {
-    void loadYouTubeAPI().then((YT) => {
-      const host = document.createElement('div')
-      host.style.cssText = 'position:fixed;left:-9999px;top:0;width:320px;height:180px'
-      document.body.appendChild(host)
-      let player: YTPlayer | null = null
-      const finish = (error: Error | null, ids: string[]) => {
-        window.clearTimeout(timer)
-        try {
-          player?.destroy()
-        } catch {
-          /* already gone */
-        }
-        host.remove()
-        if (error) reject(error)
-        else resolve(ids)
-      }
-      const timer = window.setTimeout(
-        () => finish(new Error('YouTube did not share that playlist. Paste one video link at a time.'), []),
-        20000,
-      )
-      player = new YT.Player(host, {
-        width: 320,
-        height: 180,
-        playerVars: {
-          listType: 'playlist',
-          list: listId,
-          autoplay: 0,
-          controls: 0,
-          origin: window.location.origin,
-        },
-        events: {
-          onReady: (event) => {
-            const read = () => event.target.getPlaylist() ?? []
-            const ids = read()
-            if (ids.length > 0) finish(null, ids)
-            else window.setTimeout(() => finish(null, read()), 1200)
-          },
-          onError: () =>
-            finish(new Error('YouTube did not open that playlist. Paste one video link at a time.'), []),
-        },
-      })
-    })
-  })
+export function youtubePlaylistProgram(listId: string): Program {
+  return {
+    id: uid(),
+    remoteId: listId,
+    source: 'youtube',
+    title: 'YouTube playlist',
+    // A playlist is one continuous scheduled item. YouTube owns each video's
+    // actual duration and advances to the next item without a guessed cutoff.
+    durationSec: 24 * 60 * 60,
+    durationGuess: false,
+    youtubePlaylistId: listId,
+    pageUrl: `https://www.youtube.com/playlist?list=${listId}`,
+  }
 }
 
 async function programsFromPaste(text: string): Promise<Program[]> {
   const lines = text
-    .split(/\s+/)
+    .split(/\\s+/)
     .map((line) => line.trim())
     .filter(Boolean)
   const programs: Program[] = []
@@ -144,9 +112,7 @@ async function programsFromPaste(text: string): Promise<Program[]> {
     const parsed = parseYouTube(line)
     if (!parsed) continue
     if (parsed.kind === 'playlist') {
-      const ids = (await youtubePlaylistIds(parsed.id)).slice(0, 60)
-      const metas = await mapPool(ids, 4, (id) => oEmbed(id))
-      ids.forEach((id, index) => programs.push(youtubeProgram(id, metas[index])))
+      programs.push(youtubePlaylistProgram(parsed.id))
       continue
     }
     programs.push(youtubeProgram(parsed.id, await oEmbed(parsed.id)))
