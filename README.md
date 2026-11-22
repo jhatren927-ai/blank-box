@@ -2,7 +2,7 @@
 
 Blank Box is a blank cable network you fill yourself. It opens with a made-up network name and empty channel slots. Type a theme, pick videos, and the channel plays 24/7 on a schedule computed in the browser from the clock. The guide, the cable box, and the picture use the same 90s Prevue look as a retro cable channel: blue grid, yellow type, CRT glass, channel up and down, now and next, and On Demand.
 
-There is no server. The lineup lives in `localStorage`.
+Blank Box works offline-first: the current lineup lives in `localStorage`. Optional Cloud Save uses a small Cloudflare Worker and D1 database so a lineup can be saved once and reopened on another device with a private link. No visitor account, email address, or sign-in is required.
 
 ## Run it
 
@@ -67,13 +67,19 @@ The player never talks to those sites except to resolve a program and then play 
 
 `src/lib/schedule.ts` walks each channel’s durations from a phase derived from the channel id and the wall clock. Two devices with the same lineup are on the same moment of the same show. Unknown lengths are stored as a guess (10 minutes, or 30 for a live-style HLS link) and can be nudged with the − and + buttons before you watch.
 
-## Sync code, lock, accounts
+## Cloud save, sync code, lock, accounts
 
-Settings builds a `BB1.` code: the lineup JSON, gzipped, then base64url. Paste it on another device, or scan the QR when the code is short enough to fit. A long lineup still copies as text.
+Settings includes **Save lineup online**. The first save creates a private restore link backed by Cloudflare D1; later saves update that same cloud copy. Open the link on another device to restore the lineup. The link contains a long random secret, so anyone who has it can view and overwrite that saved lineup. Keep it private. The cloud API is hosted by the `blank-box-save` Cloudflare Worker at `https://blank-box-save.blankbox-tv.workers.dev`; the public GitHub Pages site calls it directly. A separate save is created for each browser until the user transfers or opens the private link.
+
+The cloud service stores lineup JSON only. It does not proxy, download, or host video content.
+
+### Manual sync code
+
+Settings also builds a `BB1.` code: the lineup JSON, gzipped, then base64url. Paste it on another device, or scan the QR when the code is short enough to fit. A long lineup still copies as text.
 
 The optional 4-digit lock is a tap guard stored as a salted SHA-256 hash on the lineup. Hold the lock screen for 3 seconds to erase the lock without deleting channels. It is not account security.
 
-`src/auth/accounts.ts` is the seam for passwordless email-code accounts later (Supabase `signInWithOtp` / `verifyOtp` plus a `networks` row). It is not implemented. `accounts.enabled` is `false`.
+`src/auth/accounts.ts` is a placeholder for optional passwordless accounts later. Accounts are not required for Cloud Save.
 
 ## What the browser check covered
 
