@@ -193,11 +193,6 @@ export default function App() {
               setView('tv')
               window.setTimeout(() => {
                 document.getElementById('guide')?.scrollIntoView({ behavior: 'smooth' })
-                // Put D-pad focus in the scrollable guide so the next Up/Down
-                // press scrolls rows instead of changing channels.
-                document.querySelector<HTMLElement>(
-                  '[data-testid="guide-viewport"], [data-testid="guide-mobile-list"]',
-                )?.focus({ preventScroll: true })
               }, 50)
             }}
           >
