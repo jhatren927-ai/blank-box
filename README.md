@@ -11,7 +11,7 @@ npm install
 npm run dev
 ```
 
-Open http://127.0.0.1:5199.
+Open http://127.0.0.1:5199.\n\nFor a television browser or the Downloader app on Fire TV / Android TV, open the deployed site with `?tv=1` appended. Example: `https://jhatren927-ai.github.io/blank-box/?tv=1`. The TV mode adds high-contrast focus styling and directional remote navigation. It remains a website; no APK or video-downloader feature is required.
 
 ```bash
 npm run build
@@ -42,7 +42,7 @@ The build does not need a backend.
 
 **Vercel:** import the repo, framework Vite, output `dist`. Leave the install and build commands as `npm install` and `npm run build`.
 
-**GitHub Pages:** build `dist/` and publish that folder. Relative asset URLs mean a project site (`https://user.github.io/repo/`) works without a special base path. In the repo’s Pages settings, serve the `dist` artifact (or copy `dist/` to the publishing branch).
+**GitHub Pages:** the included Actions workflow builds `dist/` and deploys it. Relative asset URLs mean a project site (`https://user.github.io/repo/`) works without a special base path. In repository Settings → Pages, select **GitHub Actions** as the build and deployment source.
 
 ## Where videos come from
 
@@ -87,3 +87,10 @@ The optional 4-digit lock is a tap guard stored as a salted SHA-256 hash on the 
 - Export, erase, and paste of the sync code restores the three channels.
 
 NASA, Wikimedia Commons, Vimeo, and Dailymotion were checked against their public APIs (search or oEmbed, CORS, and a playable file or player id). Pexels and Pixabay need API keys, so they are not included. DASH (`.mpd`) uses dash.js when the manifest allows browser fetches.
+
+
+## Fire TV and Android TV browser mode
+
+Blank Box is designed to run as a hosted website in a compatible browser, including the built-in browser in Downloader where supported. Enter the deployed HTTPS website URL, preferably with `?tv=1` appended. The TV mode provides directional focus navigation, visible focus rings, and channel-up/down behavior when focus is not on a control.
+
+Browser playback still depends on the device's browser engine, supported codecs, stream CORS policy, and each provider's embed restrictions. The web app cannot override those restrictions or guarantee background / uninterrupted 24-hour playback. Test the actual target device and streams before relying on a channel lineup.
