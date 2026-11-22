@@ -230,6 +230,7 @@ function YouTubeVideo(props: EngineProps) {
   const host = useRef<HTMLDivElement>(null)
   const player = useRef<YTPlayer | null>(null)
   const propsRef = useRef(props)
+  const reportedDuration = useRef(0)
   propsRef.current = props
   useEffect(() => {
     let dead = false
@@ -253,6 +254,10 @@ function YouTubeVideo(props: EngineProps) {
             onReady: (event) => {
               const current = propsRef.current
               const real = event.target.getDuration() || 0
+              if (videoId && Number.isFinite(real) && real >= 15 && Math.abs(real - current.program.durationSec) > 2 && reportedDuration.current !== real) {
+                reportedDuration.current = real
+                current.onDurationDetected(real)
+              }
               const wanted = current.program.durationGuess || playlistId ? 0 : offset
               if (!playlistId && real > 1 && wanted > 1 && wanted < real - 1) event.target.seekTo(wanted, true)
               if (current.muted) event.target.mute()
@@ -268,7 +273,15 @@ function YouTubeVideo(props: EngineProps) {
               event.target.playVideo()
             },
             onStateChange: (event) => {
-              if (event.data === YT.PlayerState.PLAYING) propsRef.current.onStarted()
+              if (event.data === YT.PlayerState.PLAYING) {
+                const current = propsRef.current
+                const real = event.target.getDuration() || 0
+                if (current.program.youtubeId && Number.isFinite(real) && real >= 15 && Math.abs(real - current.program.durationSec) > 2 && reportedDuration.current !== real) {
+                  reportedDuration.current = real
+                  current.onDurationDetected(real)
+                }
+                current.onStarted()
+              }
               if (event.data === YT.PlayerState.ENDED) {
                 const active = propsRef.current.program.youtubePlaylistId
                 if (active) {
@@ -475,6 +488,7 @@ interface EngineProps {
   onError: (message?: string) => void
   onBuffering: () => void
   onEnded: () => void
+  onDurationDetected: (seconds: number) => void
 }
 
 function Engine(props: EngineProps) {
@@ -502,6 +516,7 @@ export function Player({
   onUnmute,
   screenRef,
   onCastTargetChange,
+  onProgramDuration,
 }: {
   channel: Channel | null
   now: number
@@ -516,6 +531,7 @@ export function Player({
   onUnmute: () => void
   screenRef?: RefObject<HTMLDivElement | null>
   onCastTargetChange?: (target: { program: Program; offsetSec: number } | null) => void
+  onProgramDuration: (programId: string, seconds: number) => void
 }) {
   const shell = useRef<HTMLDivElement>(null)
   const frame = screenRef ?? shell
@@ -611,6 +627,7 @@ export function Player({
                 }}
                 onBuffering={() => setBuffering(true)}
                 onEnded={() => setHeld(true)}
+                onDurationDetected={(seconds) => onProgramDuration(target.program.id, seconds)}
               />
             )}
           </div>
