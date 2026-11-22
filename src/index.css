@@ -123,21 +123,6 @@ html.tv-mode body {
   -webkit-text-size-adjust: 100%;
 }
 
-html.tv-mode button,
-html.tv-mode a,
-html.tv-mode input,
-html.tv-mode select {
-  min-height: 44px;
-}
-
-html.tv-mode button:focus-visible,
-html.tv-mode a:focus-visible,
-html.tv-mode input:focus-visible,
-html.tv-mode select:focus-visible {
-  outline-width: 4px;
-  outline-offset: 4px;
-}
-
 html.tv-mode header .mx-auto {
   max-width: 1440px;
 }
@@ -153,12 +138,6 @@ html.tv-mode main + div {
 html.tv-mode #guide {
   width: 100%;
   max-width: none;
-}
-
-html.tv-mode nav button {
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-  font-size: 1rem;
 }
 
 html.tv-mode [data-testid="guide-mobile-list"] {
