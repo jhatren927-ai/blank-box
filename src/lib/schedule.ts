@@ -16,7 +16,10 @@ export interface AirSlot {
 
 export function programDuration(program: Program): number {
   const seconds = Math.round(program.durationSec)
-  if (program.youtubeId || program.youtubePlaylistId) return 24 * 60 * 60
+  // A playlist is one continuous item; individual YouTube videos use their
+  // measured duration (or a short fallback until the iframe API reports it).
+  if (program.youtubePlaylistId) return 24 * 60 * 60
+  if (program.youtubeId && seconds >= 24 * 60 * 60) return 10 * 60
   if (seconds >= 15) return seconds
   return 10 * 60
 }
