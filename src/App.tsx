@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Channel, Program } from './types.ts'
 import { useStore } from './state.tsx'
 import { clock } from './lib/format.ts'
@@ -21,6 +21,10 @@ export default function App() {
   const [currentId, setCurrentId] = useState<string | null>(null)
   const [editing, setEditing] = useState<Channel | null>(null)
   const [vod, setVod] = useState<Program | null>(null)
+  const [castTarget, setCastTarget] = useState<{ program: Program; offsetSec: number } | null>(null)
+  const updateCastTarget = useCallback((target: { program: Program; offsetSec: number } | null) => {
+    setCastTarget((current) => current?.program.id === target?.program.id && current?.offsetSec === target?.offsetSec ? current : target)
+  }, [])
   const [now, setNow] = useState(() => Date.now())
   const [help, setHelp] = useState(false)
   const [dial, setDial] = useState('')
@@ -229,11 +233,13 @@ export default function App() {
               aspect={prefs.aspect}
               showLogo={prefs.logo}
               onUnmute={() => store.patchPrefs({ muted: false, volume: Math.max(prefs.volume, 0.4) })}
+              onCastTargetChange={updateCastTarget}
             />
             <CableBox
               channels={ordered}
               currentId={current?.id ?? null}
               prefs={prefs}
+              castTarget={castTarget}
               onTune={tune}
               onStep={step}
               onNew={() => {
