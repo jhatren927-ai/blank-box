@@ -79,8 +79,9 @@ export function youtubeProgram(id: string, meta: OEmbed | null): Program {
     remoteId: id,
     source: 'youtube',
     title: meta?.title || 'YouTube video',
-    durationSec: 24 * 60 * 60,
-    durationGuess: false,
+    // Replaced with the real duration as soon as the YouTube player reports it.
+    durationSec: 10 * 60,
+    durationGuess: true,
     youtubeId: id,
     pageUrl: `https://www.youtube.com/watch?v=${id}`,
     thumbnail: meta?.thumbnail_url || `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
