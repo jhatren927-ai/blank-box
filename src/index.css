@@ -105,7 +105,6 @@ textarea {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-guide-scroll,
   .animate-ticker,
   .animate-flicker,
   .animate-blink {
