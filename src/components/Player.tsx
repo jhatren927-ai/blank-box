@@ -13,14 +13,18 @@ interface PlayTarget {
   live: boolean
 }
 
-function seekAndPlay(video: HTMLVideoElement, offset: number, rate: number) {
+function seekAndPlay(video: HTMLVideoElement, offset: number, rate: number, onPlayBlocked?: () => void) {
   const apply = () => {
     video.playbackRate = rate
     const duration = video.duration
     if (offset > 1 && Number.isFinite(duration) && offset < duration - 1) {
-      video.currentTime = offset
+      try {
+        video.currentTime = offset
+      } catch {
+        // Some live and segmented streams do not expose a seekable range yet.
+      }
     }
-    void video.play().catch(() => undefined)
+    void video.play().catch(() => onPlayBlocked?.())
   }
   if (video.readyState >= 1) apply()
   else video.addEventListener('loadedmetadata', apply, { once: true })
@@ -74,6 +78,7 @@ function FileVideo({
   rate,
   onStarted,
   onError,
+  onBuffering,
   onEnded,
 }: EngineProps) {
   const ref = useRef<HTMLVideoElement>(null)
@@ -89,6 +94,7 @@ function FileVideo({
       muted={muted}
       onLoadedMetadata={(event) => seekAndPlay(event.currentTarget, offsetSec, rate)}
       onPlaying={onStarted}
+      onWaiting={onBuffering}
       onError={() => onError('file')}
       onEnded={onEnded}
     />
@@ -107,19 +113,41 @@ function HlsVideo(props: EngineProps) {
     void import('hls.js').then(({ default: Hls }) => {
       if (dead) return
       if (Hls.isSupported()) {
-        const hls = new Hls()
+        let networkRetries = 0
+        let mediaRecoveries = 0
+        const hls = new Hls({
+          capLevelToPlayerSize: true,
+          maxBufferLength: 20,
+          backBufferLength: 30,
+          maxMaxBufferLength: 30,
+        })
         detach = () => hls.destroy()
         hls.loadSource(url)
         hls.attachMedia(video)
-        hls.on(Hls.Events.MANIFEST_PARSED, () => seekAndPlay(video, props.offsetSec, props.rate))
-        hls.on(Hls.Events.ERROR, (_event, data) => {
-          if (data.fatal) props.onError()
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          seekAndPlay(video, props.offsetSec, props.rate, () => props.onError('autoplay-blocked'))
         })
-      } else {
+        hls.on(Hls.Events.ERROR, (_event, data) => {
+          if (!data.fatal) return
+          if (data.type === Hls.ErrorTypes.NETWORK_ERROR && networkRetries < 2) {
+            networkRetries += 1
+            hls.startLoad()
+            return
+          }
+          if (data.type === Hls.ErrorTypes.MEDIA_ERROR && mediaRecoveries < 1) {
+            mediaRecoveries += 1
+            hls.recoverMediaError()
+            return
+          }
+          props.onError(`hls-${data.details}`)
+        })
+      } else if (video.canPlayType('application/vnd.apple.mpegurl') || video.canPlayType('application/x-mpegURL')) {
         video.src = url
-        seekAndPlay(video, props.offsetSec, props.rate)
+        seekAndPlay(video, props.offsetSec, props.rate, () => props.onError('autoplay-blocked'))
+      } else {
+        props.onError('hls-unsupported')
       }
-    }).catch(() => props.onError())
+    }).catch(() => props.onError('hls-engine-unavailable'))
     return () => {
       dead = true
       detach?.()
@@ -136,6 +164,7 @@ function HlsVideo(props: EngineProps) {
       autoPlay
       muted={props.muted}
       onPlaying={props.onStarted}
+      onWaiting={props.onBuffering}
       onError={() => props.onError('hls')}
       onEnded={props.onEnded}
     />
@@ -174,6 +203,7 @@ function DashVideo(props: EngineProps) {
       autoPlay
       muted={props.muted}
       onPlaying={props.onStarted}
+      onWaiting={props.onBuffering}
       onError={() => props.onError('dash')}
       onEnded={props.onEnded}
     />
@@ -333,6 +363,7 @@ interface EngineProps {
   rate: number
   onStarted: () => void
   onError: (message?: string) => void
+  onBuffering: () => void
   onEnded: () => void
 }
 
@@ -406,9 +437,20 @@ export function Player({
     setFailed(false)
     setHeld(false)
     setPlayed(target?.offsetSec ?? 0)
+    setReason('')
     // Offset is only the entry point. The live clock keeps moving after that.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [target?.key, retry])
+
+  // A player that never reaches "playing" should not spin forever on a TV browser.
+  useEffect(() => {
+    if (!target || started || failed || held) return
+    const timer = window.setTimeout(() => {
+      setReason('startup-timeout')
+      setFailed(true)
+    }, 25000)
+    return () => window.clearTimeout(timer)
+  }, [target?.key, retry, started, failed, held])
 
   useEffect(() => {
     if (!started || !target || target.live) return
@@ -446,6 +488,7 @@ export function Player({
                   setReason(message ?? 'error')
                   setFailed(true)
                 }}
+                onBuffering={() => setStarted(false)}
                 onEnded={() => setHeld(true)}
               />
             )}
@@ -468,7 +511,11 @@ export function Player({
               {failed
                 ? reason.startsWith('youtube')
                   ? 'YouTube blocked this picture. Try another video, or open it on YouTube.'
-                  : 'This one will not play in the browser. Try again, or flip the channel.'
+                  : reason === 'startup-timeout'
+                    ? 'The stream did not start in time. Try again or flip the channel.'
+                    : reason === 'autoplay-blocked'
+                      ? 'The browser blocked automatic playback. Press Try Again, or start playback from the player.'
+                      : 'This one will not play in the browser. Try again, or flip the channel.'
                 : !target
                   ? 'Nothing is scheduled. Tap a channel and add some shows.'
                   : upcoming
