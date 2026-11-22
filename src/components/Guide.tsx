@@ -34,6 +34,8 @@ export function Guide({
   now,
   title,
   favs,
+  autoScroll,
+  onAutoScrollChange,
   onTune,
 }: {
   channels: Channel[]
@@ -41,9 +43,10 @@ export function Guide({
   now: number
   title: string
   favs: string[]
+  autoScroll: boolean
+  onAutoScrollChange: (enabled: boolean) => void
   onTune: (id: string) => void
 }) {
-  const [scroll, setScroll] = useState(false)
   const [favOnly, setFavOnly] = useState(false)
   const guide = guideWindow(now)
   const shown = (favOnly ? channels.filter((channel) => favs.includes(channel.id)) : channels)
@@ -52,7 +55,7 @@ export function Guide({
   const columns = 6
   const span = guide.end - guide.start
   const marker = ((now - guide.start) / span) * 100
-  const scrolling = scroll && shown.length > 4
+  const scrolling = autoScroll && shown.length > 4
 
   return (
     <section
@@ -78,10 +81,10 @@ export function Guide({
           <button
             type="button"
             data-testid="guide-autoscroll-toggle"
-            onClick={() => setScroll((value) => !value)}
+            onClick={() => onAutoScrollChange(!autoScroll)}
             className="bevel hidden rounded-sm bg-[#001144] px-2 py-1 font-mono text-[10px] font-bold text-yellow-300 sm:inline-block"
           >
-            SCROLL: {scroll ? 'ON' : 'OFF'}
+            AUTO: {autoScroll ? 'ON' : 'OFF'}
           </button>
         </div>
       </div>
@@ -149,7 +152,7 @@ export function Guide({
               </div>
               <div
                 data-testid="guide-viewport"
-                className={`relative ${scrolling ? 'h-[min(70vh,720px)] min-h-[480px] overflow-hidden' : 'max-h-[min(70vh,720px)] min-h-[480px] overflow-y-auto'}`}
+                className="relative h-[min(70vh,720px)] min-h-[480px] overflow-y-auto"
               >
                 <div
                   className={scrolling ? 'animate-guide-scroll hover:[animation-play-state:paused]' : ''}
