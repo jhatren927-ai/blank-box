@@ -73,6 +73,23 @@ export default function App() {
       const target = event.target as HTMLElement | null
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return
 
+      // The TV remote's D-pad must scroll the guide when focus is anywhere
+      // inside it; otherwise the global channel/focus navigation consumes Up/Down.
+      const guideScroller = target?.closest<HTMLElement>(
+        '[data-testid="guide-viewport"], [data-testid="guide-mobile-list"]',
+      )
+      if (guideScroller && ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End'].includes(event.key)) {
+        event.preventDefault()
+        const amount = Math.max(120, Math.round(guideScroller.clientHeight * 0.8))
+        if (event.key === 'Home') guideScroller.scrollTo({ top: 0, behavior: 'auto' })
+        else if (event.key === 'End') guideScroller.scrollTo({ top: guideScroller.scrollHeight, behavior: 'auto' })
+        else guideScroller.scrollBy({
+          top: event.key === 'ArrowUp' || event.key === 'PageUp' ? -amount : amount,
+          behavior: 'auto',
+        })
+        return
+      }
+
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
         const controls = Array.from(document.querySelectorAll<HTMLElement>(
           'button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), [tabindex]:not([tabindex="-1"])',
