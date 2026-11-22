@@ -673,6 +673,11 @@ export function Player({
             </span>
           </button>
         )}
+        {target?.program.playUrl && !failed && !staticOn && (
+          <div className="absolute bottom-3 left-3 z-40">
+            <CastButton program={target.program} offsetSec={position} />
+          </div>
+        )}
         {channel && (
           <div className="pointer-events-none absolute left-3 top-3 z-20 flex items-center gap-2 font-mono text-xs sm:text-sm">
             <span data-testid="osd-channel" className="bg-black/60 px-2 py-0.5 font-bold text-green-400">
