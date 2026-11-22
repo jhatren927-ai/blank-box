@@ -35,6 +35,13 @@ export default function App() {
   }, [])
 
   useEffect(() => {
+    const tvMode = new URLSearchParams(window.location.search).get('tv') === '1'
+      || /AFTT|Fire TV|Android TV|GoogleTV|BRAVIA/i.test(navigator.userAgent)
+    document.documentElement.classList.toggle('tv-mode', tvMode)
+    return () => document.documentElement.classList.remove('tv-mode')
+  }, [])
+
+  useEffect(() => {
     if (!currentId && ordered[0]) setCurrentId(ordered[0].id)
     if (currentId && !ordered.some((channel) => channel.id === currentId)) {
       setCurrentId(ordered[0]?.id ?? null)
@@ -65,17 +72,49 @@ export default function App() {
     const onKey = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return
-      if (event.key === 'ArrowUp') {
-        event.preventDefault()
-        step(1)
-      } else if (event.key === 'ArrowDown') {
-        event.preventDefault()
-        step(-1)
-      } else if (event.key === 'm' || event.key === 'M') {
+
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+        const controls = Array.from(document.querySelectorAll<HTMLElement>(
+          'button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), [tabindex]:not([tabindex="-1"])',
+        )).filter((element) => element.getClientRects().length > 0)
+        const active = document.activeElement as HTMLElement | null
+        if (active && controls.includes(active)) {
+          const origin = active.getBoundingClientRect()
+          const ox = origin.left + origin.width / 2
+          const oy = origin.top + origin.height / 2
+          const candidates = controls
+            .filter((element) => element !== active)
+            .map((element) => {
+              const rect = element.getBoundingClientRect()
+              const dx = rect.left + rect.width / 2 - ox
+              const dy = rect.top + rect.height / 2 - oy
+              const primary = event.key === 'ArrowLeft' ? -dx
+                : event.key === 'ArrowRight' ? dx
+                  : event.key === 'ArrowUp' ? -dy : dy
+              const cross = event.key === 'ArrowLeft' || event.key === 'ArrowRight' ? Math.abs(dy) : Math.abs(dx)
+              return { element, primary, score: primary + cross * 1.7 }
+            })
+            .filter((candidate) => candidate.primary > 4)
+            .sort((a, b) => a.score - b.score)
+          if (candidates[0]) {
+            event.preventDefault()
+            candidates[0].element.focus({ preventScroll: true })
+            candidates[0].element.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+          }
+          return
+        }
+        if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+          event.preventDefault()
+          step(event.key === 'ArrowUp' ? 1 : -1)
+        }
+        return
+      }
+
+      if (event.key === 'm' || event.key === 'M') {
         store.patchPrefs({ muted: !prefs.muted })
       } else if (event.key === 'f' || event.key === 'F') {
         void requestFullscreen(screenRef.current)
-      } else if (event.key === '?' ) {
+      } else if (event.key === '?') {
         setHelp(true)
       } else if (/^\d$/.test(event.key)) {
         const next = (dial + event.key).slice(-3)
