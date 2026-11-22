@@ -3,6 +3,7 @@ import type { Channel, Program } from './types.ts'
 import { useStore } from './state.tsx'
 import { clock } from './lib/format.ts'
 import { networkName } from './lib/names.ts'
+import { loadCloudNetwork } from './lib/cloudSave.ts'
 import { CableBox, nextRate, useShakeTune } from './components/CableBox.tsx'
 import { Builder } from './components/Builder.tsx'
 import { Guide, Ticker } from './components/Guide.tsx'
@@ -30,6 +31,7 @@ export default function App() {
   const [dial, setDial] = useState('')
   const screenRef = useRef<HTMLDivElement>(null)
   const dialTimer = useRef<number | null>(null)
+  const cloudRestoreStarted = useRef(false)
   const ordered = network.channels.slice().sort((a, b) => a.number - b.number)
   const current = ordered.find((channel) => channel.id === currentId) ?? null
 
@@ -37,6 +39,21 @@ export default function App() {
     const timer = window.setInterval(() => setNow(Date.now()), 1000)
     return () => window.clearInterval(timer)
   }, [])
+
+  useEffect(() => {
+    if (cloudRestoreStarted.current) return
+    const key = new URLSearchParams(window.location.search).get('load')
+    if (!key) return
+    cloudRestoreStarted.current = true
+    void loadCloudNetwork(key).then((next) => {
+      store.replaceNetwork(next)
+      const url = new URL(window.location.href)
+      url.searchParams.delete('load')
+      window.history.replaceState({}, '', url.toString())
+    }).catch((error: unknown) => {
+      window.alert(error instanceof Error ? error.message : 'Could not load that saved lineup.')
+    })
+  }, [store])
 
   useEffect(() => {
     const tvMode = new URLSearchParams(window.location.search).get('tv') === '1'
