@@ -51,18 +51,21 @@ export function Guide({
   const columns = 6
   const span = guide.end - guide.start
   const marker = ((now - guide.start) / span) * 100
-  const shouldAutoScroll = shown.length > 7
-  const scrollDuration = `${Math.max(28, shown.length * 3.2)}s`
-  const renderRows = (dup = false) => shown.map((channel) => (
+  // Fill at least the viewport with each loop segment, even for small channel
+  // lists, then duplicate that segment so the -50% animation is seamless.
+  const copiesPerLoop = shown.length > 0 ? Math.max(1, Math.ceil(8 / shown.length)) : 1
+  const shouldAutoScroll = shown.length > 0
+  const scrollDuration = `${Math.max(5, shown.length * 3.2)}s`
+  const renderRows = (dup = false, copy = 0) => shown.map((channel) => (
     <GuideRow
-      key={`${dup ? 'loop-' : ''}${channel.id}`}
+      key={`${dup ? 'loop-' : ''}${copy}-${channel.id}`}
       channel={channel}
       active={channel.id === currentId}
       now={now}
       windowStart={guide.start}
       span={span}
       onTune={onTune}
-      dup={dup}
+      dup={dup || copy > 0}
     />
   ))
 
@@ -160,8 +163,11 @@ export function Guide({
                   className={shouldAutoScroll ? 'animate-guide-scroll' : ''}
                   style={shouldAutoScroll ? { animationDuration: scrollDuration } : undefined}
                 >
-                  {renderRows()}
-                  {shouldAutoScroll && renderRows(true)}
+                  {Array.from({ length: copiesPerLoop }, (_, copy) => renderRows(false, copy))}
+                  {shouldAutoScroll && Array.from(
+                    { length: copiesPerLoop },
+                    (_, copy) => renderRows(true, copy),
+                  )}
                 </div>
                 <div className="pointer-events-none absolute inset-y-0 left-[160px] right-0">
                   <div
