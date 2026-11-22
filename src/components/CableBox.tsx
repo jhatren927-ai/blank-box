@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import {
   ChevronDown,
   ChevronUp,
+  Cast,
   HelpCircle,
   Maximize,
   Monitor,
@@ -13,7 +14,8 @@ import {
   Volume2,
   VolumeX,
 } from 'lucide-react'
-import type { Channel, Prefs } from '../types.ts'
+import type { Channel, Prefs, Program } from '../types.ts'
+import { CastButton } from './Player.tsx'
 import { lengthLabel, padChannel } from '../lib/format.ts'
 import { lookById } from '../lib/looks.ts'
 import { loopSeconds } from '../lib/schedule.ts'
@@ -26,6 +28,7 @@ export function CableBox({
   channels,
   currentId,
   prefs,
+  castTarget,
   onTune,
   onStep,
   onNew,
@@ -47,6 +50,7 @@ export function CableBox({
   channels: Channel[]
   currentId: string | null
   prefs: Prefs
+  castTarget: { program: Program; offsetSec: number } | null
   onTune: (id: string) => void
   onStep: (dir: 1 | -1) => void
   onNew: () => void
@@ -157,6 +161,11 @@ export function CableBox({
           <Maximize className="size-5" /> FULL
         </button>
       </div>
+      {castTarget && (
+        <div data-testid="remote-cast-option" className="mt-2">
+          <CastButton program={castTarget.program} offsetSec={castTarget.offsetSec} />
+        </div>
+      )}
       <div className="mt-2 flex items-center gap-3">
         <span className="font-mono text-[10px] font-bold text-slate-400">VOL</span>
         <div data-testid="volume-meter" className="flex flex-1 gap-1">
