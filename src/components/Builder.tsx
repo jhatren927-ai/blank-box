@@ -343,7 +343,7 @@ export function Builder({
                 {busy ? 'Adding…' : 'Add it'}
               </Button>
               {picker === 'youtube' && (
-                <p className="font-mono text-xs text-slate-400">YouTube plays in YouTube’s player, ads included. A playlist link adds up to 60 videos. Lengths are a guess until you change them.</p>
+                <p className="font-mono text-xs text-slate-400">YouTube plays in YouTube’s player, ads included. A playlist stays together and automatically advances through its videos.</p>
               )}
             </div>
           )}
@@ -419,16 +419,22 @@ export function Builder({
                   <span data-testid="picked-title" className="min-w-0 flex-1 truncate font-mono text-sm text-white">
                     {program.title}
                   </span>
-                  <button type="button" aria-label="Shorter" className="h-10 w-10 rounded-sm bg-[#1b2333]" onClick={() => setPrograms((current) => current.map((item) => item.id === program.id ? { ...item, durationSec: Math.max(60, item.durationSec - 300), durationGuess: true } : item))}>
-                    <Minus className="mx-auto size-4" />
-                  </button>
-                  <span className="w-16 text-center font-mono text-[11px] text-slate-300">
-                    {program.durationGuess ? '~' : ''}
-                    {lengthLabel(program.durationSec)}
-                  </span>
-                  <button type="button" aria-label="Longer" className="h-10 w-10 rounded-sm bg-[#1b2333]" onClick={() => setPrograms((current) => current.map((item) => item.id === program.id ? { ...item, durationSec: item.durationSec + 300, durationGuess: true } : item))}>
-                    <Plus className="mx-auto size-4" />
-                  </button>
+                  {program.youtubePlaylistId ? (
+                    <span className="w-16 text-center font-mono text-[10px] text-yellow-300">PLAYLIST</span>
+                  ) : (
+                    <>
+                      <button type="button" aria-label="Shorter" className="h-10 w-10 rounded-sm bg-[#1b2333]" onClick={() => setPrograms((current) => current.map((item) => item.id === program.id ? { ...item, durationSec: Math.max(60, item.durationSec - 300), durationGuess: true } : item))}>
+                        <Minus className="mx-auto size-4" />
+                      </button>
+                      <span className="w-16 text-center font-mono text-[11px] text-slate-300">
+                        {program.durationGuess ? '~' : ''}
+                        {lengthLabel(program.durationSec)}
+                      </span>
+                      <button type="button" aria-label="Longer" className="h-10 w-10 rounded-sm bg-[#1b2333]" onClick={() => setPrograms((current) => current.map((item) => item.id === program.id ? { ...item, durationSec: item.durationSec + 300, durationGuess: true } : item))}>
+                        <Plus className="mx-auto size-4" />
+                      </button>
+                    </>
+                  )}
                   <button type="button" aria-label="Remove" className="h-10 w-10 rounded-sm bg-[#1b2333] text-red-300" onClick={() => setPrograms((current) => current.filter((item) => item.id !== program.id))}>
                     <Trash2 className="mx-auto size-4" />
                   </button>
