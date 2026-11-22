@@ -29,10 +29,28 @@ export async function saveCloudNetwork(network: Network): Promise<string> {
     return saveCloudNetwork(network)
   }
   const result = await response.json() as { key?: string; error?: string }
-  if (!response.ok) throw new Error(result.error || 'Could not save this lineup.')
+  if (!response.ok) throw new Error(result.error || `Save request failed (HTTP ${response.status}).`)
   const key = result.key || existing
-  if (!key) throw new Error('The save service did not return a save code.')
+  if (!key || !/^[a-f0-9]{48}$/i.test(key)) {
+    throw new Error('The save service did not return a valid restore code.')
+  }
+
+  // Keep the key before checking the read-back. If verification fails, the next
+  // attempt updates this same record instead of creating a duplicate.
   localStorage.setItem(KEY_STORAGE, key)
+  const verifyResponse = await fetch(`${CLOUD_SAVE_URL}/api/networks/${key}`, { cache: 'no-store' })
+  let verified: { network?: Network; error?: string }
+  try {
+    verified = await verifyResponse.json() as { network?: Network; error?: string }
+  } catch {
+    throw new Error(`The save request returned, but verification could not read the saved lineup (HTTP ${verifyResponse.status}). Your restore code is retained; try Update saved lineup.`)
+  }
+  if (!verifyResponse.ok || !verified.network) {
+    throw new Error(verified.error || `The save request returned, but the lineup could not be read back (HTTP ${verifyResponse.status}). Your restore code is retained; try Update saved lineup.`)
+  }
+  if (JSON.stringify(verified.network) !== JSON.stringify(network)) {
+    throw new Error('The save request returned, but the lineup read back did not match what you sent. It has not been confirmed; please try again.')
+  }
   return key
 }
 
