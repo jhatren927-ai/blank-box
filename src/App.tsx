@@ -258,8 +258,6 @@ export default function App() {
               now={now}
               title={network.name || 'Your'}
               favs={prefs.favs}
-              autoScroll={prefs.guideScroll}
-              onAutoScrollChange={(guideScroll) => store.patchPrefs({ guideScroll })}
               onTune={tune}
             />
           </div>
