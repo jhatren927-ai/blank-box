@@ -34,8 +34,6 @@ export function Guide({
   now,
   title,
   favs,
-  autoScroll,
-  onAutoScrollChange,
   onTune,
 }: {
   channels: Channel[]
@@ -43,8 +41,6 @@ export function Guide({
   now: number
   title: string
   favs: string[]
-  autoScroll: boolean
-  onAutoScrollChange: (enabled: boolean) => void
   onTune: (id: string) => void
 }) {
   const [favOnly, setFavOnly] = useState(false)
@@ -76,14 +72,6 @@ export function Guide({
             className={`bevel rounded-sm px-2 py-1 font-mono text-[10px] font-bold ${favOnly ? 'bg-yellow-400 text-black' : 'bg-[#001144] text-yellow-300'}`}
           >
             ★ {favOnly ? `MY ${favs.length}` : 'FAVS'}
-          </button>
-          <button
-            type="button"
-            data-testid="guide-autoscroll-toggle"
-            onClick={() => onAutoScrollChange(!autoScroll)}
-            className="bevel hidden rounded-sm bg-[#001144] px-2 py-1 font-mono text-[10px] font-bold text-yellow-300 sm:inline-block"
-          >
-            AUTO: {autoScroll ? 'ON' : 'OFF'}
           </button>
         </div>
       </div>
