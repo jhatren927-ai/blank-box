@@ -1,0 +1,111 @@
+@import "tailwindcss";
+@import "@fontsource-variable/dm-sans";
+@import "@fontsource-variable/space-grotesk";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/600.css";
+@import "@fontsource/ibm-plex-mono/700.css";
+
+@theme {
+  --font-sans: "DM Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Space Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --color-prevue: #002288;
+  --color-prevue-deep: #000066;
+  --color-prevue-row: #000088;
+  --color-prevue-ticker: #001144;
+  --color-prevue-yellow: #ffff00;
+  --color-chassis: #0a0e18;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #0a0e18;
+  color: #e2e8f0;
+  font-family: var(--font-sans);
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+.bevel {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 1px 0 rgba(0, 0, 0, 0.65);
+}
+
+.text-glow {
+  text-shadow: 0 0 8px rgba(255, 255, 0, 0.45);
+}
+
+.crt-scanlines {
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.18) 0px,
+    rgba(0, 0, 0, 0.18) 1px,
+    transparent 2px,
+    transparent 4px
+  );
+}
+
+.crt-vignette {
+  box-shadow: inset 0 0 90px 16px rgba(0, 0, 0, 0.72);
+}
+
+.yt-slot iframe,
+.vm-slot iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+@keyframes guide-scroll {
+  from { transform: translateY(0); }
+  to { transform: translateY(-50%); }
+}
+
+.animate-guide-scroll {
+  animation: guide-scroll linear infinite;
+}
+
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.animate-ticker {
+  animation: ticker 40s linear infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0.25; }
+}
+
+.animate-blink {
+  animation: blink 1.1s steps(2) infinite;
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 0.9; }
+  92% { opacity: 0.78; }
+  93% { opacity: 0.95; }
+}
+
+.animate-flicker {
+  animation: flicker 4.5s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-guide-scroll,
+  .animate-ticker,
+  .animate-flicker,
+  .animate-blink {
+    animation: none;
+  }
+}

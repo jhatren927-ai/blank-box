@@ -1,0 +1,306 @@
+import { useEffect, useRef, useState } from 'react'
+import type { Channel, Program } from './types.ts'
+import { useStore } from './state.tsx'
+import { clock } from './lib/format.ts'
+import { networkName } from './lib/names.ts'
+import { CableBox, nextRate, useShakeTune } from './components/CableBox.tsx'
+import { Builder } from './components/Builder.tsx'
+import { Guide, Ticker } from './components/Guide.tsx'
+import { LockScreen } from './components/LockScreen.tsx'
+import { OnDemand } from './components/OnDemand.tsx'
+import { Player, requestFullscreen } from './components/Player.tsx'
+import { Settings } from './components/Settings.tsx'
+import { Modal } from './components/ui/dialog.tsx'
+
+type View = 'tv' | 'build' | 'demand' | 'settings'
+
+export default function App() {
+  const store = useStore()
+  const { network, prefs } = store
+  const [view, setView] = useState<View>('tv')
+  const [currentId, setCurrentId] = useState<string | null>(null)
+  const [editing, setEditing] = useState<Channel | null>(null)
+  const [vod, setVod] = useState<Program | null>(null)
+  const [now, setNow] = useState(() => Date.now())
+  const [help, setHelp] = useState(false)
+  const [dial, setDial] = useState('')
+  const screenRef = useRef<HTMLDivElement>(null)
+  const dialTimer = useRef<number | null>(null)
+  const ordered = network.channels.slice().sort((a, b) => a.number - b.number)
+  const current = ordered.find((channel) => channel.id === currentId) ?? null
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 1000)
+    return () => window.clearInterval(timer)
+  }, [])
+
+  useEffect(() => {
+    if (!currentId && ordered[0]) setCurrentId(ordered[0].id)
+    if (currentId && !ordered.some((channel) => channel.id === currentId)) {
+      setCurrentId(ordered[0]?.id ?? null)
+    }
+  }, [currentId, ordered])
+
+  function tune(id: string) {
+    setCurrentId(id)
+    setVod(null)
+    setView('tv')
+    store.remember(id)
+  }
+
+  function step(dir: 1 | -1) {
+    if (ordered.length === 0) return
+    const index = ordered.findIndex((channel) => channel.id === current?.id)
+    const next = ordered[(index + dir + ordered.length) % ordered.length]
+    tune(next.id)
+  }
+
+  useShakeTune(prefs.shake && view === 'tv', () => {
+    if (ordered.length === 0) return
+    const pick = ordered[Math.floor(Math.random() * ordered.length)]
+    tune(pick.id)
+  })
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return
+      if (event.key === 'ArrowUp') {
+        event.preventDefault()
+        step(1)
+      } else if (event.key === 'ArrowDown') {
+        event.preventDefault()
+        step(-1)
+      } else if (event.key === 'm' || event.key === 'M') {
+        store.patchPrefs({ muted: !prefs.muted })
+      } else if (event.key === 'f' || event.key === 'F') {
+        void requestFullscreen(screenRef.current)
+      } else if (event.key === '?' ) {
+        setHelp(true)
+      } else if (/^\d$/.test(event.key)) {
+        const next = (dial + event.key).slice(-3)
+        setDial(next)
+        if (dialTimer.current) window.clearTimeout(dialTimer.current)
+        dialTimer.current = window.setTimeout(() => {
+          const number = Number(next)
+          const match = ordered.find((channel) => channel.number === number)
+          if (match) tune(match.id)
+          setDial('')
+        }, 900)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  })
+
+  if (network.pin && !store.unlocked) {
+    return (
+      <LockScreen
+        network={network}
+        onUnlock={store.unlock}
+        onClear={() => {
+          void store.setPin(null)
+          store.unlock()
+        }}
+      />
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-chassis text-slate-100">
+      <header className="sticky top-0 z-40 border-b border-black bg-[#0c1220]/95 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-end gap-3 px-3 py-2">
+          <div className="min-w-0 flex-1">
+            <p className="font-heading text-[10px] font-black tracking-[0.28em] text-slate-500">BLANK BOX</p>
+            <input
+              data-testid="network-name"
+              aria-label="Network name"
+              value={network.name}
+              maxLength={40}
+              onChange={(event) => store.setName(event.target.value)}
+              onBlur={() => {
+                if (!network.name.trim()) store.setName(networkName(String(Date.now())))
+              }}
+              className="w-full bg-transparent font-heading text-2xl font-black uppercase tracking-tight text-white outline-none sm:text-3xl"
+            />
+          </div>
+          <p className="pb-1 font-mono text-sm text-yellow-300 tabular-nums">{clock(now)}</p>
+        </div>
+        <nav className="mx-auto flex max-w-6xl gap-2 overflow-x-auto px-3 pb-3">
+          <NavButton testId="nav-tv" active={view === 'tv'} onClick={() => setView('tv')}>
+            TV
+          </NavButton>
+          <NavButton
+            testId="nav-guide"
+            active={false}
+            onClick={() => {
+              setView('tv')
+              window.setTimeout(() => document.getElementById('guide')?.scrollIntoView({ behavior: 'smooth' }), 50)
+            }}
+          >
+            Guide
+          </NavButton>
+          <NavButton testId="nav-demand" active={view === 'demand'} onClick={() => setView('demand')}>
+            On Demand
+          </NavButton>
+          <NavButton testId="nav-settings" active={view === 'settings'} onClick={() => setView('settings')}>
+            Settings
+          </NavButton>
+        </nav>
+      </header>
+
+      {view === 'tv' && (
+        <>
+          <Ticker channels={ordered} now={now} />
+          {dial && (
+            <div data-testid="dial-osd" className="pointer-events-none fixed left-1/2 top-24 z-40 -translate-x-1/2 bg-black/80 px-6 py-3 font-mono text-5xl font-bold text-green-400">
+              {dial}
+            </div>
+          )}
+          <main className="mx-auto grid max-w-6xl gap-4 px-3 py-4 lg:grid-cols-[minmax(0,1fr)_360px]">
+            <Player
+              screenRef={screenRef}
+              channel={current}
+              now={now}
+              vod={vod}
+              onExitVod={() => setVod(null)}
+              muted={prefs.muted}
+              volume={prefs.volume}
+              rate={prefs.rate}
+              crt={prefs.crt}
+              aspect={prefs.aspect}
+              showLogo={prefs.logo}
+              onUnmute={() => store.patchPrefs({ muted: false, volume: Math.max(prefs.volume, 0.4) })}
+            />
+            <CableBox
+              channels={ordered}
+              currentId={current?.id ?? null}
+              prefs={prefs}
+              onTune={tune}
+              onStep={step}
+              onNew={() => {
+                setEditing(null)
+                setView('build')
+              }}
+              onEdit={(id) => {
+                setEditing(ordered.find((channel) => channel.id === id) ?? null)
+                setView('build')
+              }}
+              onMute={() => store.patchPrefs({ muted: !prefs.muted })}
+              onVolume={(volume) => store.patchPrefs({ volume, muted: false })}
+              onFullscreen={() => void requestFullscreen(screenRef.current)}
+              onCrt={() => store.patchPrefs({ crt: !prefs.crt })}
+              onAspect={() => store.patchPrefs({ aspect: prefs.aspect === '16:9' ? '4:3' : '16:9' })}
+              onRate={() => store.patchPrefs({ rate: nextRate(prefs.rate) })}
+              onLogo={() => store.patchPrefs({ logo: !prefs.logo })}
+              onLast={() => {
+                const last = prefs.recent.find((id) => id !== current?.id)
+                if (last) tune(last)
+              }}
+              onFav={store.toggleFav}
+              onSurprise={() => {
+                if (ordered.length === 0) return
+                tune(ordered[Math.floor(Math.random() * ordered.length)].id)
+              }}
+              onHelp={() => setHelp(true)}
+              onShake={() => {
+                const next = !prefs.shake
+                store.patchPrefs({ shake: next })
+                const motion = DeviceMotionEvent as unknown as { requestPermission?: () => Promise<string> }
+                if (next && motion.requestPermission) void motion.requestPermission().catch(() => undefined)
+              }}
+              onClearRecent={() => store.patchPrefs({ recent: [] })}
+            />
+          </main>
+          <div className="mx-auto max-w-6xl px-3 pb-10">
+            <Guide
+              channels={ordered}
+              currentId={current?.id ?? null}
+              now={now}
+              title={network.name || 'Your'}
+              favs={prefs.favs}
+              onTune={tune}
+            />
+          </div>
+        </>
+      )}
+
+      {view === 'build' && (
+        <Builder
+          channels={ordered}
+          initial={editing}
+          onClose={() => setView('tv')}
+          onDelete={(id) => {
+            store.deleteChannel(id)
+            setEditing(null)
+            setView('tv')
+          }}
+          onSave={(channel) => {
+            store.saveChannel(channel)
+            tune(channel.id)
+          }}
+        />
+      )}
+      {view === 'demand' && (
+        <OnDemand
+          channels={ordered}
+          onPlay={(channelId, program) => {
+            setCurrentId(channelId)
+            setVod(program)
+            store.remember(channelId)
+            setView('tv')
+          }}
+        />
+      )}
+      {view === 'settings' && (
+        <Settings
+          network={network}
+          onPin={store.setPin}
+          onImport={(next) => {
+            store.replaceNetwork(next)
+            setCurrentId(next.channels[0]?.id ?? null)
+            setView('tv')
+          }}
+          onReset={() => {
+            store.reset()
+            setCurrentId(null)
+            setVod(null)
+            setView('tv')
+          }}
+        />
+      )}
+
+      <Modal open={help} onOpenChange={setHelp} title="How the remote works">
+        <ul className="space-y-2 font-mono text-sm text-slate-200">
+          <li>Up and down change the channel.</li>
+          <li>Type a number, like 12, to jump.</li>
+          <li>M quiets the sound. F makes the picture big.</li>
+          <li>Tap an empty channel, type what you want, then tap Watch.</li>
+        </ul>
+      </Modal>
+    </div>
+  )
+}
+
+function NavButton({
+  children,
+  active,
+  onClick,
+  testId,
+}: {
+  children: string
+  active: boolean
+  onClick: () => void
+  testId: string
+}) {
+  return (
+    <button
+      type="button"
+      data-testid={testId}
+      onClick={onClick}
+      className={`h-11 shrink-0 rounded-sm px-4 font-mono text-sm font-bold ${active ? 'bg-yellow-400 text-black' : 'bg-[#1b2333] text-slate-100'}`}
+    >
+      {children}
+    </button>
+  )
+}
