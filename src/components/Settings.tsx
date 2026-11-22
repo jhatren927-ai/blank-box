@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { toDataURL } from 'qrcode'
 import { accounts } from '../auth/accounts.ts'
+import { cloudShareUrl, getCloudKeyFromInput, loadCloudNetwork, saveCloudNetwork } from '../lib/cloudSave.ts'
 import { isPin } from '../lib/pin.ts'
 import { decodeNetwork, encodeNetwork } from '../lib/sync.ts'
 import type { Network } from '../types.ts'
@@ -27,6 +28,9 @@ export function Settings({
   const [pinAgain, setPinAgain] = useState('')
   const [resetOpen, setResetOpen] = useState(false)
   const [scanning, setScanning] = useState(false)
+  const [cloudLink, setCloudLink] = useState('')
+  const [cloudQr, setCloudQr] = useState<string | null>(null)
+  const [cloudBusy, setCloudBusy] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
@@ -106,11 +110,33 @@ export function Settings({
 
   async function applyImport() {
     try {
+      const cloudKey = getCloudKeyFromInput(incoming)
+      if (cloudKey) {
+        const next = await loadCloudNetwork(cloudKey)
+        onImport(next)
+        setNote(`Loaded ${next.name} from cloud.`)
+        return
+      }
       const next = await decodeNetwork(incoming)
       onImport(next)
       setNote(`Loaded ${next.name}.`)
     } catch (error) {
       setNote(error instanceof Error ? error.message : 'That code did not work. Try copying it again.')
+    }
+  }
+
+  async function saveOnline() {
+    setCloudBusy(true)
+    try {
+      const key = await saveCloudNetwork(network)
+      const link = cloudShareUrl(key)
+      setCloudLink(link)
+      setCloudQr(await toDataURL(link, { errorCorrectionLevel: 'M', margin: 1, width: 280 }))
+      setNote('Saved online. Keep the link or scan its QR code on another device.')
+    } catch (error) {
+      setNote(error instanceof Error ? error.message : 'Could not save online.')
+    } finally {
+      setCloudBusy(false)
     }
   }
 
@@ -151,12 +177,28 @@ export function Settings({
       </div>
 
       <div className="rounded-md border border-[#1e293b] bg-[#101624] p-4">
+        <h3 className="font-heading text-xl font-bold uppercase text-prevue-yellow">Save this lineup online</h3>
+        <p className="mt-1 font-mono text-sm text-slate-400">Keep a cloud copy and open it on another TV, phone, or computer. No account or sign-in needed. Anyone with your private link can open the lineup, so keep it safe.</p>
+        <Button className="mt-3" onClick={() => void saveOnline()} disabled={cloudBusy}>
+          {cloudBusy ? 'Saving…' : cloudLink ? 'Update saved lineup' : 'Save lineup online'}
+        </Button>
+        {cloudLink && (
+          <>
+            <label className="mt-3 block font-mono text-xs text-slate-400">Your private restore link</label>
+            <textarea readOnly value={cloudLink} className="mt-1 h-16 w-full rounded-sm bg-black/50 p-2 font-mono text-xs text-slate-200" />
+            <Button variant="navy" className="mt-2" onClick={() => void navigator.clipboard.writeText(cloudLink).then(() => setNote('Restore link copied.'), () => setNote('Select the link and copy it.'))}>Copy restore link</Button>
+            {cloudQr && <img src={cloudQr} alt="Private cloud restore QR code" className="mt-4 h-56 w-56 bg-white p-2" />}
+          </>
+        )}
+      </div>
+
+      <div className="rounded-md border border-[#1e293b] bg-[#101624] p-4">
         <h3 className="font-heading text-xl font-bold uppercase text-prevue-yellow">Load a lineup</h3>
         <textarea
           data-testid="sync-import"
           value={incoming}
           onChange={(event) => setIncoming(event.target.value)}
-          placeholder="Paste a sync code"
+          placeholder="Paste a sync code or cloud restore link"
           className="mt-3 h-28 w-full rounded-sm bg-black/50 p-2 font-mono text-xs text-white outline-none focus:ring-1 focus:ring-yellow-300"
         />
         <div className="mt-2 flex flex-wrap gap-2">
@@ -213,7 +255,7 @@ export function Settings({
         <p className="mt-2">
           {accounts.enabled
             ? 'Signed in.'
-            : 'Saving with email is not on yet. The lineup stays on this device until you copy the sync code.'}
+            : 'Saving with email is not on yet. Your lineup stays on this device until you save it online or copy the sync code.'}
         </p>
       </div>
       {note && <p className="font-mono text-sm text-yellow-200">{note}</p>}
