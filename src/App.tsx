@@ -234,6 +234,17 @@ export default function App() {
               showLogo={prefs.logo}
               onUnmute={() => store.patchPrefs({ muted: false, volume: Math.max(prefs.volume, 0.4) })}
               onCastTargetChange={updateCastTarget}
+              onProgramDuration={(programId, seconds) => {
+                if (!current) return
+                const program = current.programs.find((item) => item.id === programId)
+                if (!program || Math.abs(program.durationSec - seconds) <= 2) return
+                store.saveChannel({
+                  ...current,
+                  programs: current.programs.map((item) => item.id === programId
+                    ? { ...item, durationSec: seconds, durationGuess: false }
+                    : item),
+                })
+              }}
             />
             <CableBox
               channels={ordered}
