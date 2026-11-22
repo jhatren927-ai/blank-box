@@ -17,6 +17,7 @@ export interface AirSlot {
 export function programDuration(program: Program): number {
   const seconds = Math.round(program.durationSec)
   if (seconds >= 15) return seconds
+  if (program.youtubeId || program.youtubePlaylistId) return 24 * 60 * 60
   return 10 * 60
 }
 
