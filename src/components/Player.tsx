@@ -427,8 +427,9 @@ function CastButton({ program, offsetSec }: { program: Program; offsetSec: numbe
       const metadata = new w.chrome.cast.media.GenericMediaMetadata()
       metadata.title = program.title
       media.metadata = metadata
-      media.startTime = Math.max(0, offsetSec)
-      await session.loadMedia(new w.chrome.cast.media.LoadRequest(media))
+      const request = new w.chrome.cast.media.LoadRequest(media)
+      request.currentTime = Math.max(0, offsetSec)
+      await session.loadMedia(request)
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Could not start casting.')
     } finally {
