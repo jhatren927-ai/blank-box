@@ -384,7 +384,7 @@ function DailymotionVideo(props: EngineProps) {
 }
 
 
-function CastButton({ program, offsetSec }: { program: Program; offsetSec: number }) {
+export function CastButton({ program, offsetSec }: { program: Program; offsetSec: number }) {
   const [available, setAvailable] = useState(false)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
@@ -501,6 +501,7 @@ export function Player({
   showLogo,
   onUnmute,
   screenRef,
+  onCastTargetChange,
 }: {
   channel: Channel | null
   now: number
@@ -514,6 +515,7 @@ export function Player({
   showLogo: boolean
   onUnmute: () => void
   screenRef?: RefObject<HTMLDivElement | null>
+  onCastTargetChange?: (target: { program: Program; offsetSec: number } | null) => void
 }) {
   const shell = useRef<HTMLDivElement>(null)
   const frame = screenRef ?? shell
@@ -575,6 +577,10 @@ export function Player({
     ? Math.min(duration, Math.max(0, (now - live.startMs) / 1000))
     : Math.min(duration, played)
   const progress = duration ? Math.min(100, (position / duration) * 100) : 0
+
+  useEffect(() => {
+    onCastTargetChange?.(target?.program.playUrl ? { program: target.program, offsetSec: position } : null)
+  }, [target?.key, target?.program, position, onCastTargetChange])
   const state = !target ? 'idle' : failed ? 'failed' : buffering ? 'buffering' : staticOn || !started ? 'tuning' : 'playing'
   const look = channel ? lookById(channel.look).bug : ''
 
@@ -689,11 +695,6 @@ export function Player({
             </span>
           </button>
         )}
-        {target?.program.playUrl && !failed && !staticOn && (
-          <div className="absolute bottom-3 left-3 z-40">
-            <CastButton program={target.program} offsetSec={position} />
-          </div>
-        )}
         {channel && (
           <div className="pointer-events-none absolute left-3 top-3 z-20 flex items-center gap-2 font-mono text-xs sm:text-sm">
             <span data-testid="osd-channel" className="bg-black/60 px-2 py-0.5 font-bold text-green-400">
@@ -755,7 +756,6 @@ export function Player({
                 BACK TO LIVE
               </button>
             )}
-            {target && <CastButton program={target.program} offsetSec={position} />}
             {target && !vod && started && position > 8 && (
               <button
                 type="button"
