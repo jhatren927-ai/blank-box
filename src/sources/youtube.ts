@@ -54,6 +54,7 @@ export function parseYouTube(
   const videoId = url.searchParams.get('v')
   const listId = url.searchParams.get('list')
   if (url.pathname.startsWith('/playlist') && listId) return { kind: 'playlist', id: listId }
+  if (listId) return { kind: 'playlist', id: listId }
   if (videoId && /^[\w-]{6,}$/.test(videoId)) return { kind: 'video', id: videoId }
   const parts = url.pathname.split('/').filter(Boolean)
   if ((parts[0] === 'embed' || parts[0] === 'shorts' || parts[0] === 'live') && parts[1]) {
