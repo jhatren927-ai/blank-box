@@ -217,7 +217,7 @@ function GuideRow({
   return (
     <div
       data-testid={dup ? undefined : 'guide-row'}
-      className={`grid grid-cols-[120px_1fr] border-b-2 border-black ${channel.number % 2 ? 'bg-prevue-deep' : 'bg-prevue-row'}`}
+      className={`grid grid-cols-[160px_minmax(0,1fr)] border-b-2 border-black ${channel.number % 2 ? 'bg-prevue-deep' : 'bg-prevue-row'}`}
     >
       <button
         type="button"
