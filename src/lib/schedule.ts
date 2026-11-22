@@ -38,7 +38,7 @@ export function liveSlot(channel: Channel, nowMs: number): LiveSlot | null {
   for (let index = 0; index < durations.length; index++) {
     const seconds = durations[index]
     if (elapsed < seconds) {
-      const startMs = nowMs - elapsed * 1000
+      const startMs = (Math.floor(nowMs / 1000) - elapsed) * 1000
       return {
         index,
         program: channel.programs[index],
