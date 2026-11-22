@@ -104,7 +104,7 @@ export function youtubePlaylistProgram(listId: string): Program {
 
 async function programsFromPaste(text: string): Promise<Program[]> {
   const lines = text
-    .split(/\\s+/)
+    .split(/\s+/)
     .map((line) => line.trim())
     .filter(Boolean)
   const programs: Program[] = []
