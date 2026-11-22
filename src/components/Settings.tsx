@@ -31,6 +31,7 @@ export function Settings({
   const [cloudLink, setCloudLink] = useState('')
   const [cloudQr, setCloudQr] = useState<string | null>(null)
   const [cloudBusy, setCloudBusy] = useState(false)
+  const [cloudNote, setCloudNote] = useState<string | null>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
@@ -127,14 +128,19 @@ export function Settings({
 
   async function saveOnline() {
     setCloudBusy(true)
+    setCloudNote('Saving lineup online…')
     try {
       const key = await saveCloudNetwork(network)
       const link = cloudShareUrl(key)
       setCloudLink(link)
-      setCloudQr(await toDataURL(link, { errorCorrectionLevel: 'M', margin: 1, width: 280 }))
-      setNote('Saved online. Keep the link or scan its QR code on another device.')
+      setCloudNote('✓ Saved online. Your private restore link is ready below.')
+      try {
+        setCloudQr(await toDataURL(link, { errorCorrectionLevel: 'M', margin: 1, width: 280 }))
+      } catch {
+        setCloudNote('✓ Saved online. Your private restore link is ready below. QR code unavailable; copy the link instead.')
+      }
     } catch (error) {
-      setNote(error instanceof Error ? error.message : 'Could not save online.')
+      setCloudNote(error instanceof Error ? error.message : 'Could not save online. Please try again.')
     } finally {
       setCloudBusy(false)
     }
@@ -182,6 +188,7 @@ export function Settings({
         <Button className="mt-3" onClick={() => void saveOnline()} disabled={cloudBusy}>
           {cloudBusy ? 'Saving…' : cloudLink ? 'Update saved lineup' : 'Save lineup online'}
         </Button>
+        {cloudNote && <p role="status" aria-live="polite" className="mt-3 rounded-sm border border-prevue-yellow/40 bg-black/40 p-3 font-mono text-sm text-yellow-100">{cloudNote}</p>}
         {cloudLink && (
           <>
             <label className="mt-3 block font-mono text-xs text-slate-400">Your private restore link</label>
