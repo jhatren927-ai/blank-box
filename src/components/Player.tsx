@@ -273,7 +273,7 @@ function YouTubeVideo(props: EngineProps) {
                 const active = propsRef.current.program.youtubePlaylistId
                 if (active) {
                   const ids = event.target.getPlaylist() ?? []
-                  const index = event.target.getPlaylistIndex()
+                  const index = (event.target as YTPlayer & { getPlaylistIndex: () => number }).getPlaylistIndex()
                   // The iframe API advances through the playlist itself. Only
                   // leave the channel when the final playlist item has ended.
                   if (index < ids.length - 1) return
