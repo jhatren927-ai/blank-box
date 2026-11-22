@@ -81,7 +81,7 @@ export function Guide({
         </p>
       ) : (
         <>
-          <ul data-testid="guide-mobile-list" className="max-h-[460px] divide-y-2 divide-black overflow-y-auto sm:hidden">
+          <ul data-testid="guide-mobile-list" tabIndex={0} aria-label="Channel guide; use up and down to scroll" className="max-h-[460px] divide-y-2 divide-black overflow-y-auto overscroll-y-contain touch-pan-y focus-visible:outline focus-visible:outline-yellow-300 sm:hidden">
             {shown.map((channel) => {
               const live = liveSlot(channel, now)
               const upcoming = slotsCovering(channel, now, now + 6 * 60 * 60 * 1000)[1]
@@ -139,7 +139,9 @@ export function Guide({
               </div>
               <div
                 data-testid="guide-viewport"
-                className="relative h-[min(70vh,720px)] min-h-[480px] overflow-y-auto overscroll-y-contain touch-pan-y"
+                tabIndex={0}
+                aria-label="Channel guide; use up and down to scroll"
+                className="relative h-[min(70vh,720px)] min-h-[480px] overflow-y-scroll overscroll-y-contain touch-pan-y focus-visible:outline focus-visible:outline-yellow-300"
               >
                 <div>
                   {shown.map((channel) => (
