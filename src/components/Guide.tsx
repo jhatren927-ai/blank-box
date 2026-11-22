@@ -55,7 +55,6 @@ export function Guide({
   const columns = 6
   const span = guide.end - guide.start
   const marker = ((now - guide.start) / span) * 100
-  const scrolling = autoScroll && shown.length > 4
 
   return (
     <section
@@ -152,12 +151,9 @@ export function Guide({
               </div>
               <div
                 data-testid="guide-viewport"
-                className="relative h-[min(70vh,720px)] min-h-[480px] overflow-y-auto"
+                className="relative h-[min(70vh,720px)] min-h-[480px] overflow-y-auto overscroll-y-contain touch-pan-y"
               >
-                <div
-                  className={scrolling ? 'animate-guide-scroll hover:[animation-play-state:paused]' : ''}
-                  style={scrolling ? { animationDuration: `${Math.max(30, shown.length * 4)}s` } : undefined}
-                >
+                <div>
                   {shown.map((channel) => (
                     <GuideRow
                       key={channel.id}
@@ -169,19 +165,6 @@ export function Guide({
                       onTune={onTune}
                     />
                   ))}
-                  {scrolling &&
-                    shown.map((channel) => (
-                      <GuideRow
-                        key={`dup-${channel.id}`}
-                        channel={channel}
-                        active={channel.id === currentId}
-                        now={now}
-                        windowStart={guide.start}
-                        span={span}
-                        onTune={onTune}
-                        dup
-                      />
-                    ))}
                 </div>
                 <div className="pointer-events-none absolute inset-y-0 left-[160px] right-0">
                   <div
