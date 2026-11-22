@@ -20,7 +20,7 @@ import { loopSeconds } from '../lib/schedule.ts'
 
 const RATES = [0.75, 1, 1.25, 1.5, 2]
 const button =
-  'bevel flex h-12 items-center justify-center gap-1.5 rounded-sm bg-[#1b2333] font-mono text-xs font-bold text-slate-100 hover:bg-[#263149] active:translate-y-0.5'
+  'bevel flex h-9 items-center justify-center gap-1.5 rounded-sm bg-[#1b2333] font-mono text-xs font-bold text-slate-100 hover:bg-[#263149] active:translate-y-0.5'
 
 export function CableBox({
   channels,
@@ -72,8 +72,8 @@ export function CableBox({
   const empties = Math.max(0, 4 - ordered.length)
 
   return (
-    <div data-testid="remote-deck" className="rounded-md border border-[#1e293b] bg-gradient-to-b from-[#121827] to-[#0a0e18] p-4">
-      <div className="mb-3 flex items-center justify-between">
+    <div data-testid="remote-deck" className="rounded-md border border-[#1e293b] bg-gradient-to-b from-[#121827] to-[#0a0e18] p-3">
+      <div className="mb-2 flex items-center justify-between">
         <p className="font-heading text-xs font-extrabold uppercase tracking-[0.25em] text-slate-400">Cable Box</p>
         <button type="button" data-testid="remote-help-button" onClick={onHelp} className="inline-flex items-center gap-1 font-mono text-[11px] text-slate-400 hover:text-yellow-300">
           <HelpCircle className="size-4" /> HELP
@@ -104,7 +104,7 @@ export function CableBox({
           </div>
         </div>
       )}
-      <div data-testid="channel-list" className="max-h-72 space-y-2 overflow-y-auto pr-1">
+      <div data-testid="channel-list" className="max-h-48 space-y-1.5 overflow-y-auto pr-1">
         {ordered.map((channel) => (
           <ChannelRow
             key={channel.id}
@@ -122,7 +122,7 @@ export function CableBox({
             type="button"
             data-testid={ordered.length === 0 && index === 0 ? 'new-channel' : 'empty-slot'}
             onClick={onNew}
-            className="flex h-14 w-full items-center gap-3 rounded-sm border border-dashed border-slate-600 px-3 text-left text-slate-300 hover:border-yellow-300 hover:text-yellow-200"
+            className="flex h-11 w-full items-center gap-3 rounded-sm border border-dashed border-slate-600 px-3 text-left text-slate-300 hover:border-yellow-300 hover:text-yellow-200"
           >
             <Plus className="size-5" />
             <span>
@@ -136,13 +136,13 @@ export function CableBox({
             type="button"
             data-testid="new-channel"
             onClick={onNew}
-            className="flex h-14 w-full items-center justify-center gap-2 rounded-sm bg-yellow-400 font-heading text-base font-black uppercase text-black"
+            className="flex h-11 w-full items-center justify-center gap-2 rounded-sm bg-yellow-400 font-heading text-base font-black uppercase text-black"
           >
             <Plus className="size-5" /> Add a channel
           </button>
         )}
       </div>
-      <div className="mt-3 grid grid-cols-2 gap-2">
+      <div className="mt-2 grid grid-cols-2 gap-1.5">
         <button type="button" data-testid="channel-up-button" className={button} onClick={() => onStep(1)}>
           <ChevronUp className="size-5" /> CH
         </button>
@@ -157,7 +157,7 @@ export function CableBox({
           <Maximize className="size-5" /> FULL
         </button>
       </div>
-      <div className="mt-3 flex items-center gap-3">
+      <div className="mt-2 flex items-center gap-3">
         <span className="font-mono text-[10px] font-bold text-slate-400">VOL</span>
         <div data-testid="volume-meter" className="flex flex-1 gap-1">
           {Array.from({ length: 10 }, (_, index) => {
@@ -177,7 +177,7 @@ export function CableBox({
           })}
         </div>
       </div>
-      <div className="mt-3 grid grid-cols-3 gap-2">
+      <div className="mt-2 grid grid-cols-3 gap-1.5">
         <button type="button" data-testid="last-channel-button" className={`${button} text-yellow-300`} onClick={onLast} disabled={recent.length === 0}>
           LAST
         </button>
@@ -188,7 +188,7 @@ export function CableBox({
           <Monitor className="size-4" /> {prefs.aspect}
         </button>
       </div>
-      <div className="mt-2 grid grid-cols-2 gap-2">
+      <div className="mt-1.5 grid grid-cols-2 gap-1.5">
         <button type="button" data-testid="speed-button" className={button} onClick={onRate}>
           SPEED {RATES.includes(prefs.rate) ? `${prefs.rate}×` : '1×'}
         </button>
@@ -238,7 +238,7 @@ function ChannelRow({
           type="button"
           data-testid={`channel-btn-${channel.number}`}
           onClick={() => onTune(channel.id)}
-          className="flex min-w-0 flex-1 items-center gap-2 px-2 py-3 text-left"
+          className="flex min-w-0 flex-1 items-center gap-2 px-2 py-1.5 text-left"
         >
           <span className="w-8 shrink-0 font-mono text-base font-bold tabular-nums">{padChannel(channel.number)}</span>
           <span className={`shrink-0 rounded-[2px] border px-1 font-mono text-[10px] font-bold ${active ? 'border-black bg-black text-yellow-300' : lookById(channel.look).bug}`}>
@@ -246,7 +246,7 @@ function ChannelRow({
           </span>
           <span className="min-w-0 truncate text-sm font-semibold">{channel.name}</span>
         </button>
-        <button type="button" aria-label={`Change ${channel.name}`} onClick={() => onEdit(channel.id)} className="px-2 py-3">
+        <button type="button" aria-label={`Change ${channel.name}`} onClick={() => onEdit(channel.id)} className="px-2 py-1.5">
           <Pencil className="size-4" />
         </button>
         <button
