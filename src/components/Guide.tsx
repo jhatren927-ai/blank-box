@@ -98,48 +98,59 @@ export function Guide({
         </p>
       ) : (
         <>
-          <ul data-testid="guide-mobile-list" className="max-h-[460px] divide-y-2 divide-black overflow-y-auto sm:hidden">
-            {shown.map((channel) => {
-              const live = liveSlot(channel, now)
-              const upcoming = slotsCovering(channel, now, now + 6 * 60 * 60 * 1000)[1]
-              const active = channel.id === currentId
-              const left = live ? Math.max(0, Math.round((live.endMs - now) / 60000)) : 0
-              return (
-                <li key={channel.id}>
-                  <button
-                    type="button"
-                    data-testid="guide-mobile-tune"
-                    onClick={() => onTune(channel.id)}
-                    className={`grid w-full grid-cols-[52px_1fr] gap-2 px-2 py-3 text-left ${active ? 'bg-yellow-400 text-black' : channel.number % 2 ? 'bg-prevue-deep' : 'bg-prevue-row'}`}
-                  >
-                    <span className="flex flex-col items-start gap-1">
-                      <span className={`font-mono text-lg font-bold leading-none ${active ? 'text-black' : 'text-prevue-yellow'}`}>
-                        {padChannel(channel.number)}
-                      </span>
-                      <span className={`max-w-full truncate rounded-[2px] border px-1 font-heading text-[9px] font-extrabold ${lookById(channel.look).bug}`}>
-                        {channel.callsign}
-                      </span>
-                    </span>
-                    <span className="min-w-0">
-                      <span className={`block truncate font-heading text-sm font-bold uppercase ${active ? 'text-black' : 'text-white'}`}>
-                        {live?.program.title ?? 'Off the air'}
-                      </span>
-                      {live && (
-                        <span className={`block truncate font-mono text-[11px] ${active ? 'text-black/70' : 'text-yellow-300'}`}>
-                          ON NOW · {left} min left
-                        </span>
-                      )}
-                      {upcoming && (
-                        <span className={`block truncate font-mono text-[11px] ${active ? 'text-black/70' : 'text-blue-200'}`}>
-                          {clock(upcoming.startMs)} NEXT · {upcoming.program.title}
-                        </span>
-                      )}
-                    </span>
-                  </button>
-                </li>
-              )
-            })}
-          </ul>
+          <div data-testid="guide-mobile-list" className="max-h-[min(60vh,460px)] divide-y-2 divide-black overflow-y-auto sm:hidden">
+            <div
+              data-testid="guide-mobile-auto-scroll"
+              className={shouldAutoScroll ? 'animate-guide-scroll' : ''}
+              style={shouldAutoScroll ? { animationDuration: scrollDuration } : undefined}
+            >
+              {Array.from({ length: copiesPerLoop * 2 }, (_, copy) => (
+                <ul key={copy} aria-hidden={copy >= copiesPerLoop} className="divide-y-2 divide-black">
+                  {shown.map((channel) => {
+                    const live = liveSlot(channel, now)
+                    const upcoming = slotsCovering(channel, now, now + 6 * 60 * 60 * 1000)[1]
+                    const active = channel.id === currentId
+                    const left = live ? Math.max(0, Math.round((live.endMs - now) / 60000)) : 0
+                    return (
+                      <li key={channel.id}>
+                        <button
+                          type="button"
+                          data-testid={copy === 0 ? 'guide-mobile-tune' : undefined}
+                          tabIndex={copy === 0 ? 0 : -1}
+                          onClick={() => onTune(channel.id)}
+                          className={`grid min-h-[82px] w-full grid-cols-[56px_1fr] gap-2 px-3 py-3 text-left ${active ? 'bg-yellow-400 text-black' : channel.number % 2 ? 'bg-prevue-deep' : 'bg-prevue-row'}`}
+                        >
+                          <span className="flex flex-col items-start gap-1">
+                            <span className={`font-mono text-xl font-bold leading-none ${active ? 'text-black' : 'text-prevue-yellow'}`}>
+                              {padChannel(channel.number)}
+                            </span>
+                            <span className={`max-w-full truncate rounded-[2px] border px-1 font-heading text-[9px] font-extrabold ${lookById(channel.look).bug}`}>
+                              {channel.callsign}
+                            </span>
+                          </span>
+                          <span className="min-w-0">
+                            <span className={`block truncate font-heading text-sm font-bold uppercase ${active ? 'text-black' : 'text-white'}`}>
+                              {live?.program.title ?? 'Off the air'}
+                            </span>
+                            {live && (
+                              <span className={`block truncate font-mono text-[11px] ${active ? 'text-black/70' : 'text-yellow-300'}`}>
+                                ON NOW · {left} min left
+                              </span>
+                            )}
+                            {upcoming && (
+                              <span className={`block truncate font-mono text-[11px] ${active ? 'text-black/70' : 'text-blue-200'}`}>
+                                {clock(upcoming.startMs)} NEXT · {upcoming.program.title}
+                              </span>
+                            )}
+                          </span>
+                        </button>
+                      </li>
+                    )
+                  })}
+                </ul>
+              ))}
+            </div>
+          </div>
           <div className="hidden overflow-x-auto sm:block">
             <div className="min-w-[900px]">
               <div className="grid grid-cols-[160px_minmax(0,1fr)] border-y-2 border-black bg-[#001144]">
