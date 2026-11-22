@@ -50,7 +50,6 @@ export function Guide({
     .slice()
     .sort((a, b) => a.number - b.number)
   const columns = 6
-  const channelColumn = '160px'
   const span = guide.end - guide.start
   const marker = ((now - guide.start) / span) * 100
   const scrolling = scroll && shown.length > 4
