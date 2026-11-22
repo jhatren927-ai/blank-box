@@ -3,7 +3,7 @@ import { Cast, ExternalLink, Play, RotateCcw } from 'lucide-react'
 import type { Channel, Program } from '../types.ts'
 import { lookById } from '../lib/looks.ts'
 import { clock, mmss, padChannel } from '../lib/format.ts'
-import { liveSlot, nextSlot, programDuration } from '../lib/schedule.ts'
+import { liveSlot, programDuration } from '../lib/schedule.ts'
 import { loadYouTubeAPI } from '../sources/youtube.ts'
 
 interface PlayTarget {
@@ -544,9 +544,82 @@ export function Player({
   const [rewind, setRewind] = useState(false)
   const [retry, setRetry] = useState(0)
   const [played, setPlayed] = useState(0)
+  const programIds = channel?.programs.map((program) => program.id).join('|') ?? ''
+  const durationSignature = channel?.programs.map(programDuration).join(',') ?? ''
+  const [liveAnchor, setLiveAnchor] = useState<{
+    channelId: string
+    programIds: string
+    index: number
+    startMs: number
+  } | null>(null)
 
-  const live = channel ? liveSlot(channel, now) : null
-  const upcoming = channel ? nextSlot(channel, now) : null
+  // Keep the active show's start time fixed when its real duration is learned.
+  // Recomputing the whole channel's modulo schedule on that update used to
+  // jump the live slot and repeatedly restart/clip the YouTube player.
+  useEffect(() => {
+    if (!channel || channel.programs.length === 0) {
+      setLiveAnchor(null)
+      return
+    }
+    const initial = liveSlot(channel, now)
+    if (!initial) {
+      setLiveAnchor(null)
+      return
+    }
+    setLiveAnchor({
+      channelId: channel.id,
+      programIds,
+      index: initial.index,
+      // Unknown-duration videos start at zero, so their real slot starts now.
+      startMs: initial.program.durationGuess ? now : initial.startMs,
+    })
+  }, [channel?.id, programIds])
+
+  const anchorIsCurrent = Boolean(
+    channel && liveAnchor && liveAnchor.channelId === channel.id && liveAnchor.programIds === programIds,
+  )
+  const live = channel && anchorIsCurrent && liveAnchor
+    ? (() => {
+        const program = channel.programs[liveAnchor.index]
+        const duration = programDuration(program)
+        return {
+          index: liveAnchor.index,
+          program,
+          startMs: liveAnchor.startMs,
+          endMs: liveAnchor.startMs + duration * 1000,
+          offsetSec: Math.max(0, (now - liveAnchor.startMs) / 1000),
+        }
+      })()
+    : channel ? liveSlot(channel, now) : null
+
+  useEffect(() => {
+    if (!channel || !anchorIsCurrent || !liveAnchor || channel.programs.length === 0) return
+    let index = liveAnchor.index
+    let startMs = liveAnchor.startMs
+    let endMs = startMs + programDuration(channel.programs[index]) * 1000
+    let steps = 0
+    while (now >= endMs && steps < channel.programs.length * 2) {
+      index = (index + 1) % channel.programs.length
+      startMs = endMs
+      endMs = startMs + programDuration(channel.programs[index]) * 1000
+      steps += 1
+    }
+    if (index !== liveAnchor.index || startMs !== liveAnchor.startMs) {
+      setLiveAnchor({ channelId: channel.id, programIds, index, startMs })
+    }
+  }, [channel?.id, programIds, durationSignature, now, liveAnchor?.index, liveAnchor?.startMs, anchorIsCurrent])
+
+  const upcoming = channel && live
+    ? (() => {
+        const nextIndex = (live.index + 1) % channel.programs.length
+        const program = channel.programs[nextIndex]
+        return {
+          program,
+          startMs: live.endMs,
+          endMs: live.endMs + programDuration(program) * 1000,
+        }
+      })()
+    : null
   const target: PlayTarget | null = vod
     ? { key: `vod-${vod.id}`, program: vod, offsetSec: 0, live: false }
     : rewind && live
@@ -626,7 +699,23 @@ export function Player({
                   setFailed(true)
                 }}
                 onBuffering={() => setBuffering(true)}
-                onEnded={() => setHeld(true)}
+                onEnded={() => {
+                  if (target.live && channel && channel.programs.length > 0) {
+                    setHeld(false)
+                    setLiveAnchor((current) => {
+                      if (!current || current.channelId !== channel.id) return current
+                      const nextIndex = (current.index + 1) % channel.programs.length
+                      return {
+                        channelId: channel.id,
+                        programIds,
+                        index: nextIndex,
+                        startMs: Date.now(),
+                      }
+                    })
+                  } else {
+                    setHeld(true)
+                  }
+                }}
                 onDurationDetected={(seconds) => onProgramDuration(target.program.id, seconds)}
               />
             )}
