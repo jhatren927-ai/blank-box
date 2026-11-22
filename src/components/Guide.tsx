@@ -55,7 +55,7 @@ export function Guide({
   // lists, then duplicate that segment so the -50% animation is seamless.
   const copiesPerLoop = shown.length > 0 ? Math.max(1, Math.ceil(8 / shown.length)) : 1
   const shouldAutoScroll = shown.length > 0
-  const scrollDuration = `${Math.max(5, shown.length * 3.2)}s`
+  const scrollDuration = `${Math.max(20, copiesPerLoop * shown.length * 3.2)}s`
   const renderRows = (dup = false, copy = 0) => shown.map((channel) => (
     <GuideRow
       key={`${dup ? 'loop-' : ''}${copy}-${channel.id}`}
