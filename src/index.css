@@ -71,7 +71,10 @@ textarea {
 }
 
 .animate-guide-scroll {
-  animation: guide-scroll linear infinite;
+  animation-name: guide-scroll;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
 }
 
 @keyframes ticker {
