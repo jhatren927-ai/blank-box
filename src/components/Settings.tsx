@@ -185,10 +185,25 @@ export function Settings({
       <div className="rounded-md border border-[#1e293b] bg-[#101624] p-4">
         <h3 className="font-heading text-xl font-bold uppercase text-prevue-yellow">Save this lineup online</h3>
         <p className="mt-1 font-mono text-sm text-slate-400">Keep a cloud copy and open it on another TV, phone, or computer. No account or sign-in needed. Anyone with your private link can open the lineup, so keep it safe.</p>
-        <Button className="mt-3" onClick={() => void saveOnline()} disabled={cloudBusy}>
+        <Button
+          type="button"
+          data-testid="cloud-save"
+          className="mt-3 min-h-12"
+          onPointerDown={() => setCloudNote('Starting online save…')}
+          onClick={() => void saveOnline()}
+          disabled={cloudBusy}
+        >
           {cloudBusy ? 'Saving…' : cloudLink ? 'Update saved lineup' : 'Save lineup online'}
         </Button>
-        {cloudNote && <p role="status" aria-live="polite" className="mt-3 rounded-sm border border-prevue-yellow/40 bg-black/40 p-3 font-mono text-sm text-yellow-100">{cloudNote}</p>}
+        <p
+          data-testid="cloud-save-status"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          className="mt-3 min-h-12 rounded-sm border border-prevue-yellow/40 bg-black/40 p-3 font-mono text-sm text-yellow-100"
+        >
+          {cloudNote ?? 'Tap “Save lineup online” to create a private restore link.'}
+        </p>
         {cloudLink && (
           <>
             <label className="mt-3 block font-mono text-xs text-slate-400">Your private restore link</label>
