@@ -138,10 +138,21 @@ html.tv-mode select:focus-visible {
   outline-offset: 4px;
 }
 
-html.tv-mode header .mx-auto,
-html.tv-mode main,
-html.tv-mode #guide {
+html.tv-mode header .mx-auto {
   max-width: 1440px;
+}
+
+html.tv-mode main,
+html.tv-mode main + div {
+  width: 100%;
+  max-width: none;
+  padding-left: clamp(12px, 2vw, 32px);
+  padding-right: clamp(12px, 2vw, 32px);
+}
+
+html.tv-mode #guide {
+  width: 100%;
+  max-width: none;
 }
 
 html.tv-mode nav button {
