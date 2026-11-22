@@ -18,6 +18,7 @@ export interface Program {
   durationGuess: boolean
   playUrl?: string
   youtubeId?: string
+  youtubePlaylistId?: string
   vimeoId?: string
   dailymotionId?: string
   pageUrl?: string
