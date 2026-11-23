@@ -658,6 +658,7 @@ function NavButton({
     <button
       type="button"
       data-testid={testId}
+      aria-pressed={active}
       onClick={onClick}
       className={`h-11 shrink-0 rounded-sm px-4 font-mono text-sm font-bold ${active ? 'bg-yellow-400 text-black' : 'bg-[#1b2333] text-slate-100'}`}
     >
