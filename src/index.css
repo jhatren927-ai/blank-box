@@ -1981,15 +1981,35 @@ html.tv-mode .bb-tv-menu-current {
   white-space: nowrap;
 }
 
+html.tv-mode .bb-tv-menu-sound-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 15px;
+}
+
+html.tv-mode .bb-tv-menu-sound-actions button {
+  min-width: 0;
+  min-height: 42px;
+  border: 1px solid #9aabca;
+  border-bottom: 3px solid #050d20;
+  background: linear-gradient(180deg, #536a91, #2b426b);
+  padding: 6px 5px;
+  color: #fff2bc;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .04em;
+}
+
 html.tv-mode .bb-tv-menu-actions {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 8px;
-  margin-top: 18px;
+  gap: 6px;
+  margin-top: 12px;
 }
 
 html.tv-mode .bb-tv-menu-actions button {
-  min-height: 52px;
+  min-height: 46px;
   border: 1px solid #8395b3;
   border-bottom: 4px solid #050d20;
   background: linear-gradient(180deg, #3c527c, #20365d);
