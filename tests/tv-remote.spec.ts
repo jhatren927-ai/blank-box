@@ -271,6 +271,7 @@ test('laptop receiver row expands with the viewport instead of leaving wide empt
       }
       return {
         viewport: window.innerWidth,
+        console: measure('.bb-tv-console'),
         grid: measure('.bb-tv-main-grid'),
         broadcast: measure('.bb-tv-broadcast'),
         player: measure('.bb-tv-screen-bezel'),
@@ -291,7 +292,10 @@ test('laptop receiver row expands with the viewport instead of leaving wide empt
     expect(layout.guide.y).toBeLessThan(viewport.height - 100)
     expect(layout.remote.x).toBeGreaterThan(layout.player.x)
     expect(layout.remote.x - (layout.player.x + layout.player.width)).toBe(0)
-    expect(layout.guide.width).toBeGreaterThan(layout.viewport * 0.94)
+    expect(layout.console.x).toBe(0)
+    expect(layout.console.width).toBe(layout.viewport)
+    expect(layout.guide.x).toBe(0)
+    expect(layout.guide.width).toBe(layout.viewport)
     expect(layout.documentWidth).toBeLessThanOrEqual(layout.viewport)
   }
 })
@@ -537,6 +541,7 @@ test('desktop website keeps the player and remote compact together and makes the
       player: rect('.bb-tv-screen-bezel'),
       remote: rect('[data-testid="cable-remote"]'),
       guide: rect('.bb-tv-guide-section'),
+      console: rect('.bb-tv-console'),
       grid: rect('.bb-tv-main-grid'),
       guideTitleSize: programTitle ? getComputedStyle(programTitle).fontSize : null,
       guideTimeSize: programTime ? getComputedStyle(programTime).fontSize : null,
@@ -554,7 +559,10 @@ test('desktop website keeps the player and remote compact together and makes the
   expect(layout.remote.x).toBeGreaterThan(layout.player.x)
   expect(layout.remote.x - layout.player.right).toBeLessThanOrEqual(20)
   expect(Math.abs((layout.grid.x + layout.grid.width / 2) - layout.viewportWidth / 2)).toBeLessThan(3)
-  expect(layout.guide.width).toBeGreaterThan(layout.viewportWidth * 0.92)
+  expect(layout.console.x).toBe(0)
+  expect(layout.console.width).toBe(layout.viewportWidth)
+  expect(layout.guide.x).toBe(0)
+  expect(layout.guide.width).toBe(layout.viewportWidth)
   expect(layout.guide.y).toBeLessThan(620)
   expect(layout.guide.y).toBeGreaterThan(layout.player.bottom - 8)
   expect(layout.guideTitleSize).toBe('14px')
