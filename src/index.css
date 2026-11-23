@@ -3206,3 +3206,26 @@ html.tv-mode .bb-tv-statusline {
   .bb-web-guide-wrap #guide > div:nth-child(2) { overflow-x: auto; }
   .bb-web-guide-wrap #guide [data-testid="guide-viewport"] { height: min(58vh, 520px); min-height: 320px; }
 }
+
+
+/* The website Prevue guide is a broadcast crawl, never a user-scroll pane.
+   Keep this rule global: the public browser layout does not always set
+   html.tv-mode, while the crawl hook still drives scrollTop programmatically. */
+.bb-guide-scroll {
+  height: min(72vh, 760px);
+  min-height: 420px;
+  overflow-y: hidden !important;
+  overscroll-behavior-y: none;
+  scrollbar-width: none;
+  touch-action: pan-x;
+}
+@media (max-width: 820px) {
+  .bb-guide-scroll {
+    height: min(65vh, 620px);
+    min-height: 320px;
+  }
+  .bb-tv-guide-section [data-testid="guide-mobile-list"] {
+    max-height: min(65vh, 620px);
+    overflow: hidden;
+  }
+}
