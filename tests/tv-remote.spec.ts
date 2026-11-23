@@ -52,6 +52,11 @@ test('guide D-pad changes the selected channel and OK tunes it', async ({ page }
   await expect(guide).toBeVisible()
   const channelButtons = guide.getByTestId('tv-guide-channel')
   await expect(channelButtons).toHaveCount(2)
+  const rowBoxes = await guide.getByTestId('tv-guide-rows').locator('.bb-tv-guide-row').evaluateAll((rows) =>
+    rows.map((row) => row.getBoundingClientRect().height),
+  )
+  expect(rowBoxes[0]).toBeGreaterThan(100)
+  expect(Math.abs(rowBoxes[0] - rowBoxes[1])).toBeLessThan(2)
   await expect(channelButtons.nth(0)).toBeFocused()
 
   await page.keyboard.press('ArrowDown')
