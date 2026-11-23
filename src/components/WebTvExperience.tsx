@@ -72,17 +72,6 @@ export function WebTvExperience({
 
   return (
     <div className="bb-tv-console" data-testid="web-tv-receiver">
-      <section className="bb-tv-guide-section">
-        <Guide
-          channels={channels}
-          currentId={currentId}
-          now={now}
-          title="PREVUE"
-          favs={prefs.favs}
-          onTune={onTune}
-          onNew={onNew}
-        />
-      </section>
       <div className="bb-tv-main-grid">
         <section className="bb-tv-broadcast">
           <div className="bb-tv-screen-bezel">
@@ -202,6 +191,18 @@ export function WebTvExperience({
           </div>
         </aside>
       </div>
+
+      <section className="bb-tv-guide-section">
+        <Guide
+          channels={channels}
+          currentId={currentId}
+          now={now}
+          title="PREVUE"
+          favs={prefs.favs}
+          onTune={onTune}
+          onNew={onNew}
+        />
+      </section>
 
     </div>
   )
