@@ -623,6 +623,54 @@ export function Player({
   const [rewind, setRewind] = useState(false)
   const [retry, setRetry] = useState(0)
   const [played, setPlayed] = useState(0)
+  const [isPlayerFullscreen, setIsPlayerFullscreen] = useState(false)
+  const [showFullscreenInfo, setShowFullscreenInfo] = useState(true)
+  const fullscreenInfoTimer = useRef<number | null>(null)
+
+  useEffect(() => {
+    const playerFrame = frame.current
+    const clearHideTimer = () => {
+      if (fullscreenInfoTimer.current !== null) {
+        window.clearTimeout(fullscreenInfoTimer.current)
+        fullscreenInfoTimer.current = null
+      }
+    }
+    const revealAndScheduleHide = () => {
+      setShowFullscreenInfo(true)
+      clearHideTimer()
+      fullscreenInfoTimer.current = window.setTimeout(() => {
+        setShowFullscreenInfo(false)
+        fullscreenInfoTimer.current = null
+      }, 7000)
+    }
+    const handleFullscreenChange = () => {
+      const active = document.fullscreenElement === playerFrame
+      setIsPlayerFullscreen(active)
+      if (active) {
+        revealAndScheduleHide()
+      } else {
+        clearHideTimer()
+        setShowFullscreenInfo(true)
+      }
+    }
+    const handleFullscreenActivity = () => {
+      if (document.fullscreenElement === playerFrame) revealAndScheduleHide()
+    }
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
+    playerFrame?.addEventListener('pointermove', handleFullscreenActivity)
+    playerFrame?.addEventListener('pointerdown', handleFullscreenActivity)
+    document.addEventListener('keydown', handleFullscreenActivity)
+    handleFullscreenChange()
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange)
+      playerFrame?.removeEventListener('pointermove', handleFullscreenActivity)
+      playerFrame?.removeEventListener('pointerdown', handleFullscreenActivity)
+      document.removeEventListener('keydown', handleFullscreenActivity)
+      clearHideTimer()
+    }
+  }, [frame])
   const programIds = channel?.programs.map((program) => program.id).join('|') ?? ''
   const durationSignature = channel?.programs.map(programDuration).join(',') ?? ''
   const [liveAnchor, setLiveAnchor] = useState<{
@@ -931,7 +979,8 @@ export function Player({
         {crt && <div data-testid="crt-overlay" className="pointer-events-none absolute inset-0 z-10 crt-scanlines animate-flicker" />}
         {crt && <div className="pointer-events-none absolute inset-0 z-10 crt-vignette" />}
       </div>
-      <div className="relative z-10 border-t-2 border-black bg-gradient-to-r from-[#001144] via-[#002288] to-[#001144] px-4 py-2.5">
+      {(!isPlayerFullscreen || showFullscreenInfo) && (
+      <div data-testid="now-playing-bar" className="relative z-10 border-t-2 border-black bg-gradient-to-r from-[#001144] via-[#002288] to-[#001144] px-4 py-2.5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-blue-200">
@@ -986,7 +1035,8 @@ export function Player({
         <div className="mt-1.5 h-1.5 w-full overflow-hidden bg-black/50">
           <div data-testid="now-playing-progress" className="h-full bg-yellow-400" style={{ width: `${progress}%` }} />
         </div>
-      </div>
+        </div>
+      )}
     </div>
   )
 }
