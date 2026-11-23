@@ -1967,3 +1967,50 @@ html.tv-mode:not([data-tv-app="true"]) .bb-guide-scroll {
     padding: 10px;
   }
 }
+
+
+/* Laptop composition: the picture and receiver are adjoining parts of one
+   continuous console. No centered max-width island and no inter-widget gutter. */
+@media (min-width: 761px) and (max-width: 1439px) {
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console {
+    width: calc(100% - 32px);
+    max-width: none;
+    gap: 0;
+    row-gap: 0;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-tv-main-grid {
+    width: 100%;
+    max-width: none;
+    grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+    column-gap: 0;
+    row-gap: 0;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-tv-broadcast,
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-cable-receiver {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    margin: 0;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-tv-broadcast {
+    gap: 0;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-tv-screen-bezel {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console > .bb-tv-guide-section {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+}
