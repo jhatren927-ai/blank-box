@@ -35,7 +35,7 @@ test('TV menu is a single remote-friendly column and D-pad selects actions', asy
   await expect(menu).toBeVisible()
   await expect(page.getByTestId('tv-menu-return')).toBeFocused()
 
-  await expect(menu.getByTestId('cast-button')).toHaveCount(0)
+  await expect(page.getByTestId('cast-button')).toHaveCount(0)
   await expect(page.getByTestId('tv-menu-sound')).toContainText('SOUND ON')
   await page.getByTestId('tv-menu-sound').click()
   await expect(page.getByTestId('tv-menu-sound')).toContainText('SOUND OFF')
