@@ -186,7 +186,7 @@ export function TvExperience({
                     <span className={'bb-station-callsign ' + lookById(item.look).bug}>{item.callsign}</span>
                     <span className="bb-station-name">{item.name}</span>
                   </button>
-                  <button type="button" className="bb-station-fav" aria-label={prefs.favs.includes(item.id) ? 'Unfavorite ' + item.name : 'Favorite ' + item.name} aria-pressed={prefs.favs.includes(item.id)} onClick={() => onFav(item.id)}>
+                  <button type="button" className="bb-station-edit bb-station-fav" aria-label={prefs.favs.includes(item.id) ? 'Unfavorite ' + item.name : 'Favorite ' + item.name} aria-pressed={prefs.favs.includes(item.id)} onClick={() => onFav(item.id)}>
                     <Star size={14} fill={prefs.favs.includes(item.id) ? 'currentColor' : 'none'} />
                   </button>
                   <button type="button" className="bb-station-edit" aria-label={'Edit ' + item.name} onClick={() => onEdit(item.id)}>
