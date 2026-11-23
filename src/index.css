@@ -4584,3 +4584,32 @@ html.tv-mode .bb-tv-console .bb-remote-advanced summary {
   color: #ffe58a;
   font: 800 8px/1.15 "Courier New", monospace;
 }
+
+
+/* Keep the hardware row genuinely compact: the guide is the primary surface. */
+html.tv-mode .bb-tv-console {
+  row-gap: 8px;
+}
+
+html.tv-mode .bb-tv-console .bb-tv-main-grid {
+  max-width: 760px;
+  grid-template-columns: minmax(0, 1.7fr) minmax(250px, .95fr);
+  gap: 12px;
+}
+
+html.tv-mode .bb-tv-console .bb-tv-broadcast {
+  gap: 4px;
+}
+
+html.tv-mode .bb-tv-console .bb-tv-now-playing {
+  min-height: 38px;
+  padding: 6px 8px;
+}
+
+html.tv-mode .bb-tv-console .bb-cable-receiver {
+  align-self: start;
+}
+
+html.tv-mode .bb-tv-console > .bb-tv-guide-section {
+  margin-block-start: 0 !important;
+}
