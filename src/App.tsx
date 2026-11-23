@@ -20,7 +20,7 @@ function AppContent() {
   const store = useStore()
   const { network, prefs } = store
   const [view, setView] = useState<View>('tv')
-  const [tvMode, setTvMode] = useState(false)
+  const [tvMode, setTvMode] = useState(() => document.documentElement.classList.contains('tv-mode'))
   const [currentId, setCurrentId] = useState<string | null>(null)
   const [editing, setEditing] = useState<Channel | null>(null)
   const [vod, setVod] = useState<Program | null>(null)
@@ -99,8 +99,10 @@ function AppContent() {
   }, [store])
 
   useEffect(() => {
-    const enabled = new URLSearchParams(window.location.search).get('tv') === '1'
+    const enabled = document.documentElement.classList.contains('tv-mode')
+      || new URLSearchParams(window.location.search).get('tv') === '1'
       || /AFTT|Fire TV|Android TV|GoogleTV|BRAVIA/i.test(navigator.userAgent)
+      || (window.location.hostname === 'localhost' && /Android/i.test(navigator.userAgent))
     setTvMode(enabled)
     document.documentElement.classList.toggle('tv-mode', enabled)
     return () => document.documentElement.classList.remove('tv-mode')
