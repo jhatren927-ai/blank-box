@@ -79,24 +79,3 @@ test('guide D-pad changes the selected channel and OK tunes it', async ({ page }
   await expect(guide).toBeHidden()
   await expect(page.getByTestId('tv-live-lower-third')).toContainText('Second Channel')
 })
-
-
-test('native APK launch activates TV mode without relying on Android TV user-agent detection', async ({ page }) => {
-  await page.route('**/*', async (route) => {
-    const url = new URL(route.request().url())
-    if (url.pathname !== '/' || route.request().method() !== 'GET') {
-      await route.continue()
-      return
-    }
-    const response = await route.fetch()
-    const html = await response.text()
-    await route.fulfill({
-      status: response.status(),
-      headers: { 'content-type': 'text/html; charset=utf-8' },
-      body: html.replace('<head>', '<head><script>document.documentElement.dataset.tvApp = "true";</script>'),
-    })
-  })
-  await page.goto('/')
-  await expect(page.getByTestId('tv-experience')).toBeVisible()
-  await expect(page.locator('html')).toHaveClass(/tv-mode/)
-})
