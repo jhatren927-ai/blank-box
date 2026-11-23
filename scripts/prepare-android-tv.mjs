@@ -98,6 +98,18 @@ if (mainActivity.endsWith('.java')) {
       '            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN',
       '        );',
       '    }',
+      '',
+      '    @Override',
+      '    public void onBackPressed() {',
+      '        if (bridge == null || bridge.getWebView() == null) {',
+      '            super.onBackPressed();',
+      '            return;',
+      '        }',
+      '        bridge.getWebView().evaluateJavascript(',
+      '            "(function(){var e=new KeyboardEvent(\'keydown\',{key:\'Escape\',cancelable:true,bubbles:true});window.dispatchEvent(e);return String(e.defaultPrevented);})()",',
+      '            handled -> { if (!"true".equals(handled)) MainActivity.super.onBackPressed(); }',
+      '        );',
+      '    }',
       '}',
     ].join('\n')
     source = source.replace(/public class MainActivity extends BridgeActivity\s*\{\s*\}/, javaClass)
