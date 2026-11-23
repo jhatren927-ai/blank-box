@@ -145,7 +145,7 @@ test('regular website uses the original Downloader receiver layout and remote-on
     const key = 'blankbox:network:v1'
     const value = JSON.parse(localStorage.getItem(key) || '{}')
     for (const channel of value.channels ?? []) {
-      for (const program of channel.programs ?? []) program.playUrl = 'data:video/mp4;base64,AAAA'
+      for (const program of channel.programs ?? []) program.playUrl = 'data:video/webm;base64,GkXfo59ChoEBQveBAULygQRC84EIQoKEd2VibUKHgQJChYECGFOAZwEAAAAAAAJYEU2bdLpNu4tTq4QVSalmU6yBoU27i1OrhBZUrmtTrIHWTbuMU6uEElTDZ1OsggEjTbuMU6uEHFO7a1OsggJC7AEAAAAAAABZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAVSalmsCrXsYMPQkBNgIxMYXZmNjEuNy4xMDNXQYxMYXZmNjEuNy4xMDNEiYhAj0AAAAAAABZUrmvIrgEAAAAAAAA/14EBc8WI3FjnpjDRCQScgQAitZyDdW5kiIEAhoVWX1ZQOIOBASPjg4QL68IA4JCwgSC6gSCagQJVsIRVuYEBElTDZ/tzc59jwIBnyJlFo4dFTkNPREVSRIeMTGF2ZjYxLjcuMTAzc3PWY8CLY8WI3FjnpjDRCQRnyKFFo4dFTkNPREVSRIeUTGF2YzYxLjE5LjEwMSBsaWJ2cHhnyKFFo4hEVVJBVElPTkSHkzAwOjAwOjAxLjAwMDAwMDAwMAAfQ7Z1QJnngQCjpIEAAIAwAgCdASogACAAAEcIhYWImYSIAgIAB5DzycD+/6tQgKOagQDIANEBAAEQEAAYAB5X9AwAD5gA/v+rUICjmoEBkADRAQABEBAAGAAeV/QMAA+YAP7/q1CAo5qBAlgA0QEAARAQABgAHlf0DAAPmAD+/6tQgKOagQMgANEBAAEQEAAYAB5X9AwAD5gA/v+rUIAcU7trkbuPs4EAt4r3gQHxggGj8IED'
     }
     localStorage.setItem(key, JSON.stringify(value))
   })
