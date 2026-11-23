@@ -54,7 +54,7 @@ export function Guide({
   const desktopViewportRef = useRef<HTMLDivElement>(null)
   const desktopFirstCopyRef = useRef<HTMLDivElement>(null)
   const mobileViewportRef = useRef<HTMLDivElement>(null)
-  const mobileFirstCopyRef = useRef<HTMLDivElement>(null)
+  const mobileFirstCopyRef = useRef<HTMLUListElement>(null)
   const desktopAutoScroll = usePrevueCrawl(desktopViewportRef, desktopFirstCopyRef, shown.length > 0)
   const mobileAutoScroll = usePrevueCrawl(mobileViewportRef, mobileFirstCopyRef, shown.length > 0)
 
