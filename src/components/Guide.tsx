@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Channel } from '../types.ts'
 import { clock, dayLabel, padChannel } from '../lib/format.ts'
 import { guideWindow, liveSlot, slotsCovering } from '../lib/schedule.ts'
@@ -56,6 +56,45 @@ export function Guide({
   const desktopViewportRef = useRef<HTMLDivElement>(null)
   const desktopFirstCopyRef = useRef<HTMLDivElement>(null)
   const desktopAutoScroll = usePrevueCrawl(desktopViewportRef, desktopFirstCopyRef, shown.length > 0)
+
+  // Prevent manual vertical scrolling without relying on React's passive
+  // touch listeners (which cannot reliably cancel native touch movement).
+  // Horizontal touch gestures remain available for the time-slot matrix.
+  useEffect(() => {
+    const viewport = desktopViewportRef.current
+    if (!viewport) return
+
+    const preventVerticalWheel = (event: WheelEvent) => {
+      if (event.deltaY !== 0 && event.cancelable) event.preventDefault()
+    }
+    let touchOrigin: { x: number; y: number } | null = null
+    const rememberTouchStart = (event: TouchEvent) => {
+      const touch = event.touches[0]
+      touchOrigin = touch ? { x: touch.clientX, y: touch.clientY } : null
+    }
+    const preventVerticalTouchMove = (event: TouchEvent) => {
+      const touch = event.touches[0]
+      if (!touch || !touchOrigin) return
+      const movedX = Math.abs(touch.clientX - touchOrigin.x)
+      const movedY = Math.abs(touch.clientY - touchOrigin.y)
+      if (movedY > movedX && event.cancelable) event.preventDefault()
+    }
+    const clearTouchOrigin = () => { touchOrigin = null }
+
+    viewport.addEventListener('wheel', preventVerticalWheel, { passive: false })
+    viewport.addEventListener('touchstart', rememberTouchStart, { passive: true })
+    viewport.addEventListener('touchmove', preventVerticalTouchMove, { passive: false })
+    viewport.addEventListener('touchend', clearTouchOrigin, { passive: true })
+    viewport.addEventListener('touchcancel', clearTouchOrigin, { passive: true })
+
+    return () => {
+      viewport.removeEventListener('wheel', preventVerticalWheel)
+      viewport.removeEventListener('touchstart', rememberTouchStart)
+      viewport.removeEventListener('touchmove', preventVerticalTouchMove)
+      viewport.removeEventListener('touchend', clearTouchOrigin)
+      viewport.removeEventListener('touchcancel', clearTouchOrigin)
+    }
+  }, [])
 
   const renderRows = (duplicate = false) => shown.map((channel) => (
     <GuideRow
@@ -128,8 +167,6 @@ export function Guide({
                 data-testid="guide-viewport"
                 role="region"
                 aria-label="Automatically advancing television program guide"
-                onWheelCapture={(event) => event.preventDefault()}
-                onTouchMove={(event) => event.preventDefault()}
                 style={{ overflowY: 'hidden', overscrollBehaviorY: 'none', touchAction: 'pan-x' }}
                 className="bb-guide-scroll relative h-[min(72vh,760px)] min-h-[420px] overflow-y-hidden overflow-x-hidden overscroll-y-none touch-pan-x"
               >
