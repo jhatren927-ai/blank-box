@@ -23,6 +23,7 @@ function AppContent() {
   const { network, prefs } = store
   // The native APK carries this marker before React starts. Browser visits use the original Downloader web receiver instead.
   const isNativeTvApp = document.documentElement.dataset.tvApp === 'true'
+    || new URLSearchParams(window.location.search).get('nativeTest') === '1'
   const [view, setView] = useState<View>('tv')
   // The approved TV receiver is now the normal website experience. Add ?classic=1 only to open the retired browser layout.
   const [tvMode, setTvMode] = useState(() => new URLSearchParams(window.location.search).get('classic') !== '1')
