@@ -1109,6 +1109,7 @@ html.tv-mode .bb-tv-guide-rows {
 }
 html.tv-mode .bb-tv-guide-crawl {
   width: 100%;
+  height: 100%;
 }
 html.tv-mode .bb-tv-guide-crawl-copy {
   display: grid;
