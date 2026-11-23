@@ -2,7 +2,7 @@ import { useEffect, useState, type RefObject } from 'react'
 import type { Channel, Prefs, Program } from '../types.ts'
 import { clock, padChannel } from '../lib/format.ts'
 import { guideWindow, liveSlot, nextSlot, slotsCovering } from '../lib/schedule.ts'
-import { CastButton, Player } from './Player.tsx'
+import { Player } from './Player.tsx'
 
 interface TvExperienceProps {
   channels: Channel[]
@@ -11,7 +11,6 @@ interface TvExperienceProps {
   now: number
   vod: Program | null
   prefs: Prefs
-  castTarget: { program: Program; offsetSec: number } | null
   screenRef: RefObject<HTMLDivElement | null>
   guideOpen: boolean
   selectedGuideId: string | null
@@ -23,7 +22,6 @@ interface TvExperienceProps {
   onUnmute: () => void
   onCloseMenu: () => void
   onExitVod: () => void
-  onCastTargetChange: (target: { program: Program; offsetSec: number } | null) => void
   onProgramDuration: (programId: string, seconds: number) => void
   onTune: (id: string) => void
   onNew: () => void
@@ -45,7 +43,6 @@ export function TvExperience({
   now,
   vod,
   prefs,
-  castTarget,
   screenRef,
   guideOpen,
   selectedGuideId,
@@ -57,7 +54,6 @@ export function TvExperience({
   onUnmute,
   onCloseMenu,
   onExitVod,
-  onCastTargetChange,
   onProgramDuration,
   onTune,
   onNew,
@@ -126,7 +122,6 @@ export function TvExperience({
           aspect={prefs.aspect}
           showLogo={prefs.logo}
           onUnmute={onUnmute}
-          onCastTargetChange={onCastTargetChange}
           onProgramDuration={onProgramDuration}
         />
         {!guideOpen && (
@@ -192,11 +187,6 @@ export function TvExperience({
                   <h2>Your TV lineup is empty</h2>
                   <p className="bb-tv-guide-description">Open the menu to add your first channel.</p>
                 </>
-              )}
-              {castTarget && (
-                <div className="bb-tv-guide-cast">
-                  <CastButton program={castTarget.program} offsetSec={castTarget.offsetSec} />
-                </div>
               )}
             </div>
           </header>
