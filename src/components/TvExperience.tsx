@@ -8,6 +8,7 @@ import {
   Minus,
   Plus,
   Power,
+  Pencil,
   Tv,
   Volume2,
   VolumeX,
@@ -176,16 +177,16 @@ export function TvExperience({
                   <Plus size={18} /> CREATE YOUR FIRST CHANNEL
                 </button>
               ) : channels.slice().sort((a, b) => a.number - b.number).map((item) => (
-                <button
-                  type="button"
-                  key={item.id}
-                  onClick={() => onTune(item.id)}
-                  className={'bb-station-card' + (item.id === currentId ? ' is-current' : '')}
-                >
-                  <span className="bb-station-number">{padChannel(item.number)}</span>
-                  <span className={'bb-station-callsign ' + lookById(item.look).bug}>{item.callsign}</span>
-                  <span className="bb-station-name">{item.name}</span>
-                </button>
+                <div key={item.id} className={'bb-station-card' + (item.id === currentId ? ' is-current' : '')}>
+                  <button type="button" onClick={() => onTune(item.id)} className="bb-station-tune">
+                    <span className="bb-station-number">{padChannel(item.number)}</span>
+                    <span className={'bb-station-callsign ' + lookById(item.look).bug}>{item.callsign}</span>
+                    <span className="bb-station-name">{item.name}</span>
+                  </button>
+                  <button type="button" className="bb-station-edit" aria-label={'Edit ' + item.name} onClick={() => onEdit(item.id)}>
+                    <Pencil size={15} />
+                  </button>
+                </div>
               ))}
             </div>
           </div>
