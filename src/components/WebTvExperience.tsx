@@ -168,6 +168,12 @@ export function WebTvExperience({
             ))}
           </div>
 
+            {castTarget && (
+              <div className="bb-receiver-cast" data-testid="remote-cast-slot">
+                <CastButton program={castTarget.program} offsetSec={castTarget.offsetSec} />
+              </div>
+            )}
+
           <details className="bb-remote-advanced">
             <summary>MORE CONTROLS</summary>
             <div className="bb-remote-section-label">SOUND & PICTURE</div>
@@ -181,11 +187,6 @@ export function WebTvExperience({
               <button type="button" onClick={onRate} data-testid="tv-speed">RATE {prefs.rate}×</button>
               <button type="button" onClick={onLogo} data-testid="tv-logo">LOGO {prefs.logo ? 'ON' : 'OFF'}</button>
             </div>
-            {castTarget && (
-              <div className="bb-receiver-cast" data-testid="remote-cast-slot">
-                <CastButton program={castTarget.program} offsetSec={castTarget.offsetSec} />
-              </div>
-            )}
             <div className="bb-receiver-tiny">
               <button type="button" onClick={onHelp}>REMOTE HELP</button>
             </div>
