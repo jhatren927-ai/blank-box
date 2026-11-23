@@ -21,7 +21,8 @@ function AppContent() {
   const store = useStore()
   const { network, prefs } = store
   const [view, setView] = useState<View>('tv')
-  const [tvMode, setTvMode] = useState(() => document.documentElement.classList.contains('tv-mode'))
+  // The approved TV receiver is now the normal website experience. Add ?classic=1 only to open the retired browser layout.
+  const [tvMode, setTvMode] = useState(() => new URLSearchParams(window.location.search).get('classic') !== '1')
   const [currentId, setCurrentId] = useState<string | null>(null)
   const [editing, setEditing] = useState<Channel | null>(null)
   const [vod, setVod] = useState<Program | null>(null)
@@ -32,7 +33,12 @@ function AppContent() {
   const [now, setNow] = useState(() => Date.now())
   const [help, setHelp] = useState(false)
   const [dial, setDial] = useState('')
-  const [tvGuideOpen, setTvGuideOpen] = useState(false)
+  // Desktop browsers open directly into the EPG; TV browsers and the explicit ?tv=1 player route start on live picture.
+  const [tvGuideOpen, setTvGuideOpen] = useState(() => {
+    const params = new URLSearchParams(window.location.search)
+    const tvBrowser = /AFTT|Fire TV|Android TV|GoogleTV|BRAVIA/i.test(navigator.userAgent)
+    return params.get('classic') !== '1' && params.get('tv') !== '1' && !tvBrowser
+  })
   const [tvMenuOpen, setTvMenuOpen] = useState(false)
   const [guideSelectedId, setGuideSelectedId] = useState<string | null>(null)
   const [guidePage, setGuidePage] = useState(0)
@@ -107,10 +113,7 @@ function AppContent() {
   }, [store])
 
   useEffect(() => {
-    const enabled = document.documentElement.classList.contains('tv-mode')
-      || new URLSearchParams(window.location.search).get('tv') === '1'
-      || /AFTT|Fire TV|Android TV|GoogleTV|BRAVIA/i.test(navigator.userAgent)
-      || (window.location.hostname === 'localhost' && /Android/i.test(navigator.userAgent))
+    const enabled = new URLSearchParams(window.location.search).get('classic') !== '1'
     setTvMode(enabled)
     document.documentElement.classList.toggle('tv-mode', enabled)
     return () => document.documentElement.classList.remove('tv-mode')
