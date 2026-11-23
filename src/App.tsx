@@ -3,7 +3,7 @@ import type { Channel, Program } from './types.ts'
 import { useStore } from './state.tsx'
 import { clock } from './lib/format.ts'
 import { networkName } from './lib/names.ts'
-import { loadCloudNetwork } from './lib/cloudSave.ts'
+import { getAccountNetwork, loadCloudNetwork, saveAccountNetwork } from './lib/cloudSave.ts'
 import { CableBox, nextRate, useShakeTune } from './components/CableBox.tsx'
 import { Builder } from './components/Builder.tsx'
 import { Guide, Ticker } from './components/Guide.tsx'
@@ -32,8 +32,46 @@ function AppContent() {
   const screenRef = useRef<HTMLDivElement>(null)
   const dialTimer = useRef<number | null>(null)
   const cloudRestoreStarted = useRef(false)
+  const accountSyncStarted = useRef(false)
+  const [accountSyncReady, setAccountSyncReady] = useState(false)
   const ordered = network.channels.slice().sort((a, b) => a.number - b.number)
   const current = ordered.find((channel) => channel.id === currentId) ?? null
+
+  useEffect(() => {
+    if (accountSyncStarted.current) return
+    accountSyncStarted.current = true
+    let live = true
+    const token = localStorage.getItem('blankbox-license-session')
+    if (!token) return
+    void (async () => {
+      try {
+        const cloudNetwork = await getAccountNetwork(token)
+        if (!live) return
+        if (cloudNetwork) {
+          store.replaceNetwork(cloudNetwork)
+        } else {
+          // First sign-in on this account: preserve the channels already on this device.
+          await saveAccountNetwork(token, network)
+        }
+        if (live) setAccountSyncReady(true)
+      } catch (error) {
+        console.error('Blank Box account restore failed:', error)
+      }
+    })()
+    return () => { live = false }
+  }, [network, store])
+
+  useEffect(() => {
+    if (!accountSyncReady) return
+    const token = localStorage.getItem('blankbox-license-session')
+    if (!token) return
+    const timer = window.setTimeout(() => {
+      void saveAccountNetwork(token, network).catch((error: unknown) => {
+        console.error('Blank Box automatic save failed:', error)
+      })
+    }, 900)
+    return () => window.clearTimeout(timer)
+  }, [accountSyncReady, network])
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 1000)
