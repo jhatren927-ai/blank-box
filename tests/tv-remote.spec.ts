@@ -91,7 +91,8 @@ test('native APK launch activates TV mode without relying on Android TV user-age
     const response = await route.fetch()
     const html = await response.text()
     await route.fulfill({
-      response,
+      status: response.status(),
+      headers: { 'content-type': 'text/html; charset=utf-8' },
       body: html.replace('<head>', '<head><script>document.documentElement.dataset.tvApp = "true";</script>'),
     })
   })
