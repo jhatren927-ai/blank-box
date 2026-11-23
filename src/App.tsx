@@ -462,7 +462,6 @@ function AppContent() {
               guidePage={guidePage}
               menuOpen={tvMenuOpen}
               onSelectGuideChannel={setGuideSelectedId}
-              onChangeGuidePage={(direction) => setGuidePage((page) => page + direction)}
               onCloseMenu={() => setTvMenuOpen(false)}
               onExitVod={() => setVod(null)}
               onUnmute={() => store.patchPrefs({ muted: false, volume: Math.max(prefs.volume, 0.4) })}
