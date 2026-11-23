@@ -1,0 +1,1090 @@
+/* Blank Box late-1990s cable TV skin.
+   Period split: a Prevue-style 90-minute navy grid and dark digital cable
+   receiver hardware. Fonts are local assets so WebView works offline. */
+
+@font-face {
+  font-family: "BB Oswald";
+  src: url("./assets/fonts/Oswald-Regular.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "BB Oswald";
+  src: url("./assets/fonts/Oswald-Bold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "BB VT323";
+  src: url("./assets/fonts/VT323-Regular.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+:root {
+  --bb90-case: #252d33;
+  --bb90-case-mid: #343e46;
+  --bb90-case-hi: #596571;
+  --bb90-case-edge: #89949c;
+  --bb90-glass: #050b09;
+  --bb90-phosphor: #9bc86f;
+  --bb90-phosphor-dim: #718f51;
+  --bb90-key: #bfc4c6;
+  --bb90-key-hi: #e5e7e2;
+  --bb90-key-low: #68737b;
+  --bb90-epg: #000060;
+  --bb90-epg-head: #000044;
+  --bb90-epg-cell: #0000a8;
+  --bb90-epg-alt: #000088;
+  --bb90-epg-now: #2222c8;
+  --bb90-epg-rule: #74829a;
+  --bb90-white: #eeeeef;
+  --bb90-soft: #d4d4ff;
+  --bb90-yellow: #ffff00;
+  --bb90-green: #00ff66;
+  --bb90-red: #ff0033;
+  --bb90-focus: #fff4a8;
+}
+
+/* The regular hosted web view and bundled APK start from the same receiver skin. */
+html.tv-mode body {
+  margin: 0;
+  overflow-x: hidden;
+  background: #171d22;
+  color: #e8e8e2;
+  font-family: "IBM Plex Mono", "Courier New", monospace;
+  -webkit-text-size-adjust: 100%;
+}
+html.tv-mode .bb-app-root {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #303941 0, #20272c 220px, #171d22 100%);
+  color: #e8e8e2;
+}
+
+/* Cable-provider header fascia: compact lettering, a phosphor clock, square keys. */
+html.tv-mode .bb-tv-header {
+  position: relative;
+  z-index: 40;
+  border-bottom: 2px solid #11171b;
+  background: linear-gradient(180deg, #4a555d 0%, #35414a 52%, #29333a 100%);
+  box-shadow: inset 0 1px rgba(255,255,255,.18), 0 3px 0 rgba(0,0,0,.42);
+}
+html.tv-mode .bb-tv-header > div:first-child {
+  width: min(calc(100% - 40px), 1640px);
+  max-width: 1640px;
+  min-height: 62px;
+  align-items: center;
+  padding: 8px 0 6px;
+}
+html.tv-mode .bb-tv-header > div:first-child p,
+html.tv-mode .bb-tv-header > div:first-child > p {
+  color: #c2c9cd;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-shadow: none;
+}
+html.tv-mode .bb-tv-header input[data-testid="network-name"] {
+  max-width: 100%;
+  color: #f0efe7;
+  font-family: "BB Oswald", "Arial Narrow", sans-serif;
+  font-size: clamp(23px, 2.5vw, 35px);
+  font-weight: 700;
+  letter-spacing: .055em;
+  line-height: 1;
+  text-shadow: 0 1px 1px #15191c;
+  caret-color: #efdb8c;
+}
+html.tv-mode .bb-tv-header nav {
+  width: min(calc(100% - 40px), 1640px);
+  max-width: 1640px;
+  gap: 6px;
+  padding: 0 0 8px;
+}
+html.tv-mode .bb-tv-header nav button {
+  min-width: 92px;
+  min-height: 33px;
+  border: 1px solid #7f8b93;
+  border-bottom: 3px solid #161d22;
+  border-radius: 2px;
+  background: linear-gradient(#66737c, #414e57);
+  box-shadow: inset 0 1px rgba(255,255,255,.22);
+  padding: 0 13px;
+  color: #eff0ed;
+  font-family: "BB Oswald", "Arial Narrow", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+html.tv-mode .bb-tv-header nav button[aria-current="page"],
+html.tv-mode .bb-tv-header nav button:focus-visible {
+  border-color: #d7c58c;
+  border-bottom-color: #766744;
+  background: linear-gradient(#e2d8b9, #b4a77f);
+  color: #20262a;
+  box-shadow: inset 0 1px rgba(255,255,255,.68);
+}
+html.tv-mode .bb-tv-clock,
+html.tv-mode .bb-web-clock {
+  color: var(--bb90-phosphor);
+  font-family: "BB VT323", "IBM Plex Mono", monospace;
+  font-size: 25px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 5px rgba(155,200,111,.32);
+}
+
+/* Browser / Downloader: live picture left, receiver fascia right, guide across the bottom. */
+html.tv-mode .bb-tv-console {
+  width: min(calc(100% - 48px), 1640px);
+  max-width: 1640px;
+  margin: 0 auto;
+  padding: 18px 0 30px;
+}
+html.tv-mode .bb-tv-main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.9fr) minmax(300px, .74fr);
+  align-items: start;
+  gap: 20px;
+  padding: 0;
+}
+html.tv-mode .bb-tv-broadcast,
+html.tv-mode .bb-cable-receiver {
+  min-width: 0;
+}
+html.tv-mode .bb-tv-screen-bezel {
+  border: 9px solid #343d44;
+  border-radius: 5px;
+  background: linear-gradient(145deg, #68747c 0%, #303940 25%, #1d252b 100%);
+  padding: 4px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.27), inset 0 -2px 0 rgba(0,0,0,.72), 0 7px 15px rgba(0,0,0,.5);
+}
+html.tv-mode .bb-tv-screen-inner {
+  border: 3px solid #10171b;
+  border-radius: 1px;
+  background: #000;
+  box-shadow: inset 0 0 18px #000;
+}
+html.tv-mode .bb-tv-screen-inner [data-testid="crt-player"] {
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+html.tv-mode .bb-tv-now-playing {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) minmax(150px, .48fr);
+  align-items: center;
+  gap: 13px;
+  margin-top: 8px;
+  border: 1px solid #586771;
+  border-left: 4px solid #c8b778;
+  border-radius: 1px;
+  background: linear-gradient(180deg, #313c44, #252f36);
+  padding: 9px 12px;
+  box-shadow: inset 0 1px rgba(255,255,255,.08), 0 2px 0 #151b1f;
+}
+html.tv-mode .bb-program-live {
+  border: 1px solid #a86758;
+  border-radius: 1px;
+  background: #773d35;
+  padding: 4px 7px;
+  color: #fff0e7;
+  font-family: "BB Oswald", sans-serif;
+  font-size: 10px;
+  letter-spacing: .12em;
+}
+html.tv-mode .bb-program-channel {
+  color: #e5d28c;
+  font-family: "BB VT323", monospace;
+  font-size: 19px;
+}
+html.tv-mode .bb-program-copy strong {
+  color: #f1eee5;
+  font-family: "BB Oswald", "Arial Narrow", sans-serif;
+  font-size: clamp(17px, 1.8vw, 25px);
+  font-weight: 700;
+  letter-spacing: .015em;
+}
+html.tv-mode .bb-program-copy span,
+html.tv-mode .bb-program-next span:last-child {
+  color: #bbc4c9;
+  font-size: 10px;
+}
+html.tv-mode .bb-program-next {
+  border-left: 1px solid #59666f;
+  padding-left: 12px;
+}
+html.tv-mode .bb-program-next .bb-micro-label,
+html.tv-mode .bb-program-next span:first-child {
+  color: #d6c47f;
+  font-family: "BB VT323", monospace;
+  font-size: 16px;
+  letter-spacing: .08em;
+}
+html.tv-mode .bb-program-next strong {
+  color: #f0ebda;
+  font-family: "BB Oswald", "Arial Narrow", sans-serif;
+  font-size: 15px;
+}
+html.tv-mode .bb-program-progress {
+  height: 3px;
+  overflow: hidden;
+  background: #10171a;
+}
+html.tv-mode .bb-program-progress span {
+  background: #d6c17b;
+  box-shadow: none;
+}
+
+/* The 1998 digital terminal: dark graphite / blue-black shell, smoked glass,
+   green segmented numerals, small tactile grey keys and restrained amber controls. */
+html.tv-mode .bb-cable-receiver {
+  overflow: hidden;
+  border: 2px solid #75828d;
+  border-radius: 3px;
+  background: linear-gradient(155deg, #43515e 0%, #303c47 28%, #202b34 72%, #19232b 100%);
+  padding: 12px;
+  color: #e9e9df;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.3), inset 0 -2px 0 rgba(0,0,0,.62), 0 7px 16px rgba(0,0,0,.48);
+}
+html.tv-mode .bb-receiver-brand {
+  gap: 10px;
+  border-bottom: 1px solid #6a7883;
+  padding: 1px 2px 9px;
+}
+html.tv-mode .bb-receiver-brand-copy {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+}
+html.tv-mode .bb-receiver-brand strong {
+  color: #f1eee5;
+  font-family: "BB Oswald", "Arial Narrow", sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: .11em;
+  line-height: 1;
+}
+html.tv-mode .bb-receiver-brand small {
+  color: #b9c4cb;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 7px;
+  letter-spacing: .1em;
+}
+html.tv-mode .bb-power-led,
+html.tv-mode .bb-green-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #75a75a;
+  box-shadow: 0 0 4px rgba(117,167,90,.6);
+}
+html.tv-mode .bb-receiver-display {
+  display: flex;
+  min-height: 62px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 10px 0 8px;
+  border: 3px inset #101915;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #030907, #0a1410);
+  padding: 5px 10px;
+  box-shadow: inset 0 0 10px #000, 0 1px rgba(255,255,255,.07);
+}
+html.tv-mode .bb-led-channel {
+  color: var(--bb90-phosphor);
+  font-family: "BB VT323", "IBM Plex Mono", monospace;
+  font-size: 46px;
+  line-height: .9;
+  letter-spacing: .04em;
+  text-shadow: 0 0 5px rgba(155,200,111,.5);
+}
+html.tv-mode .bb-led-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  color: #8da968;
+  font-family: "BB VT323", monospace;
+  font-size: 15px;
+  line-height: 1;
+}
+html.tv-mode .bb-led-clock {
+  color: #bad58d;
+  font-size: 19px;
+  font-variant-numeric: tabular-nums;
+}
+html.tv-mode .bb-remote-section-label {
+  margin: 10px 0 5px;
+  color: #c1c9cc;
+  font-family: "BB Oswald", "Arial Narrow", sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .15em;
+}
+html.tv-mode .bb-remote-footer {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin: 8px 0 10px;
+}
+html.tv-mode .bb-remote-footer button {
+  min-width: 0;
+  min-height: 36px;
+  border: 1px solid #b2a47e;
+  border-bottom: 3px solid #5d543e;
+  border-radius: 2px;
+  background: linear-gradient(#ded3b3, #aaa080);
+  padding: 4px 6px;
+  color: #20252a;
+  font-family: "BB Oswald", "Arial Narrow", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+}
+html.tv-mode .bb-channel-rockers {
+  gap: 6px;
+}
+html.tv-mode .bb-channel-rockers button {
+  min-height: 44px;
+  border: 1px solid #8b99a3;
+  border-bottom: 3px solid #19232a;
+  border-radius: 2px;
+  background: linear-gradient(#6b7881, #414e57);
+  color: #f1f0e8;
+  box-shadow: inset 0 1px rgba(255,255,255,.3);
+  font-family: "BB Oswald", "Arial Narrow", sans-serif;
+  font-size: 12px;
+  letter-spacing: .08em;
+}
+html.tv-mode .bb-channel-rockers button svg {
+  width: 16px;
+  height: 16px;
+}
+html.tv-mode .bb-channel-rockers button b {
+  color: #e8d79f;
+  font-family: "BB VT323", monospace;
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: .03em;
+}
+html.tv-mode .bb-number-pad {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+html.tv-mode .bb-number-pad button {
+  min-height: 37px;
+  border: 1px solid #9da8ad;
+  border-bottom: 3px solid #38454c;
+  border-radius: 2px;
+  background: linear-gradient(#d0d3d0, #979fa1);
+  color: #20272b;
+  box-shadow: inset 0 1px rgba(255,255,255,.72);
+  font-family: "BB Oswald", "Arial Narrow", sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: none;
+}
+html.tv-mode .bb-number-pad button.bb-number-function {
+  border-color: #a58f60;
+  border-bottom-color: #66573a;
+  background: linear-gradient(#ded0a7, #b29d6d);
+  color: #29271f;
+  font-size: 11px;
+  letter-spacing: .05em;
+}
+html.tv-mode .bb-control-grid,
+html.tv-mode .bb-control-grid-wide {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+}
+html.tv-mode .bb-control-grid button {
+  min-width: 0;
+  min-height: 34px;
+  border: 1px solid #788790;
+  border-bottom: 3px solid #1b252b;
+  border-radius: 2px;
+  background: linear-gradient(#5b6a74, #3b4a53);
+  padding: 4px 5px;
+  color: #eef0eb;
+  font-family: "BB Oswald", "Arial Narrow", sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .055em;
+}
+html.tv-mode .bb-receiver-cast {
+  margin-top: 8px;
+  border-top: 1px solid #65747d;
+  padding-top: 8px;
+}
+html.tv-mode .bb-receiver-tiny {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+  border-top: 1px solid #65747d;
+  padding-top: 6px;
+  color: #c7cecf;
+  font-family: "BB Oswald", sans-serif;
+  font-size: 9px;
+  letter-spacing: .1em;
+}
+html.tv-mode .bb-receiver-tiny button {
+  color: #e9ece9;
+  font-size: 9px;
+}
+
+/* Prevue Grid: the 1993 New Look showed 90 minutes (three half-hour columns).
+   Raised grey-blue rules, deep navy cells, white titles, yellow time labels,
+   a red current-time line, and a single yellow focus state. */
+html.tv-mode .bb-tv-guide-section {
+  width: 100%;
+  max-width: none;
+  margin: 18px auto 0;
+  border: 2px solid #697680;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #68737b, #39444c);
+  padding: 6px;
+  box-shadow: inset 0 1px rgba(255,255,255,.25), 0 5px 12px rgba(0,0,0,.44);
+  scroll-margin-top: 8px;
+}
+html.tv-mode .bb-tv-guide-section #guide {
+  overflow: hidden;
+  border: 2px solid #8b9aa9;
+  border-radius: 1px;
+  background: var(--bb90-epg);
+  box-shadow: inset 0 1px #c1cbd3, inset 0 -2px #020824;
+}
+html.tv-mode .bb-tv-guide-section #guide > div:first-child {
+  min-height: 39px;
+  border-bottom: 2px solid #111d4d;
+  background: linear-gradient(#182f79, #081b60);
+  padding: 5px 10px;
+}
+html.tv-mode .bb-tv-guide-section #guide h2 {
+  color: var(--bb90-yellow);
+  font-family: "BB Oswald", "Arial Narrow", sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-shadow: 0 1px #101a32;
+}
+html.tv-mode .bb-tv-guide-section #guide [data-testid="guide-favs-toggle"] {
+  min-height: 26px;
+  border: 1px solid #8998a8;
+  border-bottom: 2px solid #273955;
+  border-radius: 1px;
+  background: linear-gradient(#687a8e, #43556e);
+  padding: 2px 8px;
+  color: #f3ecc4;
+  font-family: "BB Oswald", sans-serif;
+  font-size: 10px;
+  letter-spacing: .08em;
+}
+html.tv-mode .bb-tv-guide-section [data-testid="guide-time-label"],
+html.tv-mode .bb-tv-guide-section [data-testid="guide-time-label"] + div {
+  border-color: #71819a;
+  background: var(--bb90-epg-head);
+  color: var(--bb90-yellow);
+  font-family: "BB VT323", monospace;
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: .035em;
+}
+html.tv-mode .bb-tv-guide-section [data-testid="guide-time-label"] {
+  border-right: 2px solid #8b9aa9;
+}
+html.tv-mode .bb-tv-guide-section [data-testid="guide-time-label"] + div > div {
+  border-right: 1px solid #62749a;
+  padding: 2px 9px;
+}
+html.tv-mode .bb-guide-scroll {
+  height: clamp(300px, 49vh, 520px);
+  min-height: 300px;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;
+  scrollbar-color: #a4b1bd #000060;
+  scrollbar-width: thin;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+html.tv-mode .bb-tv-guide-section [data-testid="guide-row"] {
+  display: grid;
+  grid-template-columns: 174px minmax(0, 1fr);
+  min-height: 66px;
+  border-bottom: 1px solid #6e82ad;
+  background: var(--bb90-epg-cell);
+}
+html.tv-mode .bb-tv-guide-section [data-testid="guide-row"]:nth-child(even) {
+  background: var(--bb90-epg-alt);
+}
+html.tv-mode .bb-tv-guide-section [data-testid="guide-row"] > button {
+  display: grid;
+  min-width: 0;
+  min-height: 66px;
+  grid-template-columns: 48px minmax(0, 1fr);
+  grid-template-rows: 1fr 1fr;
+  align-content: center;
+  align-items: center;
+  column-gap: 5px;
+  border-right: 2px solid #93a0b2;
+  border-radius: 0;
+  padding: 4px 8px;
+  background: transparent;
+  color: var(--bb90-white);
+  text-align: left;
+}
+html.tv-mode .bb-tv-guide-section .bb-guide-channel-number {
+  grid-row: 1 / span 2;
+  color: var(--bb90-yellow);
+  font-family: "BB VT323", monospace;
+  font-size: 29px;
+  line-height: 1;
+}
+html.tv-mode .bb-tv-guide-section .bb-guide-channel-callsign {
+  overflow: hidden;
+  color: var(--bb90-white);
+  font-family: "BB Oswald", "Arial Narrow", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+html.tv-mode .bb-tv-guide-section .bb-guide-channel-name {
+  overflow: hidden;
+  color: var(--bb90-soft);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 8px;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+html.tv-mode .bb-tv-guide-section [data-testid="guide-row"] > button.bg-yellow-400,
+html.tv-mode .bb-tv-guide-section [data-testid="guide-row"] > button:focus-visible {
+  background: var(--bb90-yellow);
+  color: #101027;
+}
+html.tv-mode .bb-tv-guide-section [data-testid="guide-row"] > button.bg-yellow-400 .bb-guide-channel-number,
+html.tv-mode .bb-tv-guide-section [data-testid="guide-row"] > button.bg-yellow-400 .bb-guide-channel-callsign,
+html.tv-mode .bb-tv-guide-section [data-testid="guide-row"] > button.bg-yellow-400 .bb-guide-channel-name,
+html.tv-mode .bb-tv-guide-section [data-testid="guide-row"] > button:focus-visible .bb-guide-channel-number,
+html.tv-mode .bb-tv-guide-section [data-testid="guide-row"] > button:focus-visible .bb-guide-channel-callsign,
+html.tv-mode .bb-tv-guide-section [data-testid="guide-row"] > button:focus-visible .bb-guide-channel-name {
+  color: #101027;
+}
+html.tv-mode .bb-tv-guide-section [data-testid="guide-row"] > div {
+  position: relative;
+  min-width: 0;
+  min-height: 66px;
+  height: 66px;
+  overflow: hidden;
+}
+html.tv-mode .bb-tv-guide-section .bb-guide-program-cell {
+  border-right: 1px solid #7184aa;
+  border-radius: 0;
+  background: var(--bb90-epg-cell);
+  padding: 5px 9px;
+  color: var(--bb90-white);
+}
+html.tv-mode .bb-tv-guide-section [data-testid="guide-row"]:nth-child(even) .bb-guide-program-cell {
+  background: var(--bb90-epg-alt);
+}
+html.tv-mode .bb-tv-guide-section .bb-guide-program-cell[data-on-now="true"] {
+  border-left: 3px solid var(--bb90-red);
+  background: var(--bb90-epg-now);
+}
+html.tv-mode .bb-tv-guide-section .bb-guide-program-cell:hover,
+html.tv-mode .bb-tv-guide-section .bb-guide-program-cell:focus-visible {
+  z-index: 2;
+  outline: 2px solid var(--bb90-focus);
+  outline-offset: -3px;
+  background: var(--bb90-yellow);
+  color: #101027;
+}
+html.tv-mode .bb-tv-guide-section .bb-guide-program-cell p:first-child {
+  color: inherit;
+  font-family: "BB Oswald", "Arial Narrow", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: .015em;
+  text-transform: none;
+}
+html.tv-mode .bb-tv-guide-section .bb-guide-program-cell p:last-child {
+  margin-top: 2px;
+  color: var(--bb90-green);
+  font-family: "BB VT323", monospace;
+  font-size: 18px;
+  line-height: 1;
+}
+html.tv-mode .bb-tv-guide-section .bb-guide-program-cell:hover p:last-child,
+html.tv-mode .bb-tv-guide-section .bb-guide-program-cell:focus-visible p:last-child {
+  color: #242415;
+}
+html.tv-mode .bb-tv-guide-section [data-testid="guide-now-marker"] {
+  width: 2px;
+  background: var(--bb90-red);
+  box-shadow: 0 0 2px rgba(255,0,51,.72);
+}
+html.tv-mode .bb-tv-guide-section [data-testid="guide-mobile-list"] {
+  max-height: min(62vh, 520px);
+  background: var(--bb90-epg);
+}
+html.tv-mode .bb-tv-guide-section [data-testid="guide-mobile-list"] button {
+  min-height: 82px;
+  background: var(--bb90-epg-cell);
+}
+html.tv-mode .bb-tv-guide-section [data-testid="guide-mobile-list"] li:nth-child(even) button {
+  background: var(--bb90-epg-alt);
+}
+html.tv-mode .bb-tv-guide-section .bb-guide-mobile-callsign {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  border-bottom: 1px solid #7183a1;
+  color: #e4e4eb;
+  font-family: "BB Oswald", sans-serif;
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* APK / native Android-TV WebView: full-screen broadcast, shared palette and
+   type, a restrained lower-third, and the same three-column 90-minute guide. */
+html.tv-mode .bb-tv-experience {
+  background: #050a10;
+  color: var(--bb90-white);
+  font-family: "IBM Plex Mono", monospace;
+}
+html.tv-mode .bb-tv-stage {
+  background: #000;
+}
+html.tv-mode .bb-tv-corner-bug {
+  color: rgba(238,238,239,.84);
+  font-family: "BB Oswald", "Arial Narrow", sans-serif;
+  font-size: 13px;
+  letter-spacing: .12em;
+}
+html.tv-mode .bb-tv-corner-bug strong span {
+  color: var(--bb90-yellow);
+}
+html.tv-mode .bb-tv-corner-bug time {
+  color: var(--bb90-phosphor);
+  font-family: "BB VT323", monospace;
+  font-size: 23px;
+}
+html.tv-mode .bb-tv-live-lower-third {
+  border-left: 4px solid var(--bb90-yellow);
+  border-radius: 1px;
+  background: linear-gradient(90deg, rgba(5,8,33,.96), rgba(5,9,43,.9) 78%, rgba(5,9,43,0));
+  box-shadow: 0 5px 15px rgba(0,0,0,.45);
+}
+html.tv-mode .bb-tv-lower-channel {
+  background: var(--bb90-yellow);
+  color: #11112a;
+}
+html.tv-mode .bb-tv-lower-channel strong {
+  font-family: "BB VT323", monospace;
+  font-size: 47px;
+  font-weight: 400;
+}
+html.tv-mode .bb-tv-lower-channel span,
+html.tv-mode .bb-tv-lower-copy > span {
+  font-family: "BB Oswald", "Arial Narrow", sans-serif;
+}
+html.tv-mode .bb-tv-lower-copy strong {
+  color: var(--bb90-white);
+  font-family: "BB Oswald", "Arial Narrow", sans-serif;
+  font-size: clamp(24px, 2.5vw, 36px);
+  font-weight: 700;
+  letter-spacing: .015em;
+}
+html.tv-mode .bb-tv-lower-copy small {
+  color: #d4d4ff;
+  font-family: "BB VT323", monospace;
+  font-size: 19px;
+  letter-spacing: .03em;
+}
+html.tv-mode .bb-tv-watch-hint {
+  color: rgba(238,238,239,.75);
+  font-family: "BB VT323", monospace;
+  font-size: 17px;
+  letter-spacing: .05em;
+}
+html.tv-mode .bb-tv-watch-hint i {
+  background: var(--bb90-yellow);
+}
+html.tv-mode .bb-tv-experience.is-guide-open .bb-tv-stage {
+  border: 3px solid #78899d;
+  border-radius: 1px;
+  outline: 2px solid #080c13;
+  box-shadow: 0 5px 18px rgba(0,0,0,.8);
+}
+html.tv-mode .bb-tv-guide-overlay {
+  background: #00002e;
+  color: var(--bb90-white);
+  grid-template-rows: minmax(150px, 26vh) minmax(0, 1fr) 34px;
+  gap: 8px;
+  padding: 3.3vh 3.5vw 1.8vh;
+}
+html.tv-mode .bb-tv-guide-top {
+  padding-left: 37vw;
+}
+html.tv-mode .bb-tv-guide-selected {
+  border-left: 4px solid var(--bb90-yellow);
+  background: linear-gradient(90deg, rgba(0,0,65,.96), rgba(0,0,65,.35));
+  padding: 8px 2vw;
+}
+html.tv-mode .bb-tv-guide-brand {
+  color: #f0eee4;
+  font-family: "BB Oswald", "Arial Narrow", sans-serif;
+  font-size: 18px;
+  letter-spacing: .13em;
+}
+html.tv-mode .bb-tv-guide-brand b {
+  color: var(--bb90-yellow);
+}
+html.tv-mode .bb-tv-guide-date {
+  color: var(--bb90-soft);
+  font-family: "BB VT323", monospace;
+  font-size: 20px;
+}
+html.tv-mode .bb-tv-guide-station {
+  color: var(--bb90-yellow);
+  font-family: "BB VT323", monospace;
+  font-size: 30px;
+  letter-spacing: .04em;
+}
+html.tv-mode .bb-tv-guide-station span {
+  color: var(--bb90-white);
+  font-family: "BB Oswald", "Arial Narrow", sans-serif;
+  font-size: 23px;
+  letter-spacing: .05em;
+}
+html.tv-mode .bb-tv-guide-station small {
+  color: var(--bb90-soft);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+}
+html.tv-mode .bb-tv-guide-selected h2 {
+  color: var(--bb90-white);
+  font-family: "BB Oswald", "Arial Narrow", sans-serif;
+  font-size: clamp(24px, 2.6vw, 38px);
+  letter-spacing: .015em;
+}
+html.tv-mode .bb-tv-guide-description,
+html.tv-mode .bb-tv-guide-next {
+  color: var(--bb90-soft);
+  font-family: "BB VT323", monospace;
+  font-size: 19px;
+}
+html.tv-mode .bb-tv-guide-progress {
+  height: 4px;
+  background: #10104b;
+}
+html.tv-mode .bb-tv-guide-progress span {
+  background: var(--bb90-yellow);
+}
+html.tv-mode .bb-tv-guide-next span {
+  color: var(--bb90-green);
+  font-family: "BB Oswald", sans-serif;
+}
+html.tv-mode .bb-tv-guide-next strong {
+  color: var(--bb90-white);
+  font-family: "BB Oswald", sans-serif;
+  font-size: 16px;
+}
+html.tv-mode .bb-tv-guide-grid {
+  grid-template-rows: 40px minmax(0, 1fr);
+  border: 2px solid #8b9aa9;
+  border-radius: 1px;
+  background: var(--bb90-epg);
+  box-shadow: inset 0 1px #c4ced6, inset 0 -2px #020916, 0 4px 12px rgba(0,0,0,.4);
+}
+html.tv-mode .bb-tv-guide-time-row,
+html.tv-mode .bb-tv-guide-row {
+  grid-template-columns: minmax(168px, 18vw) minmax(0, 1fr);
+}
+html.tv-mode .bb-tv-guide-time-row {
+  border-bottom: 2px solid #8b9aa9;
+  background: var(--bb90-epg-head);
+  color: var(--bb90-yellow);
+  font-family: "BB VT323", monospace;
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: .03em;
+}
+html.tv-mode .bb-tv-guide-channel-heading {
+  border-right: 2px solid #8b9aa9;
+  padding: 0 14px;
+  font-family: "BB Oswald", sans-serif;
+  font-size: 13px;
+  letter-spacing: .12em;
+}
+html.tv-mode .bb-tv-guide-time-cells > div {
+  border-right: 1px solid #6879a0;
+  padding: 0 12px;
+  font-variant-numeric: tabular-nums;
+}
+html.tv-mode .bb-tv-guide-row {
+  border-bottom: 1px solid #7a88a5;
+  background: var(--bb90-epg-cell);
+}
+html.tv-mode .bb-tv-guide-row:nth-child(even) {
+  background: var(--bb90-epg-alt);
+}
+html.tv-mode .bb-tv-guide-row.is-selected {
+  background: #16168c;
+  box-shadow: inset 0 0 0 1px #e9dc77;
+}
+html.tv-mode .bb-tv-guide-channel {
+  grid-template-columns: 50px minmax(0, 1fr);
+  grid-template-rows: 1fr 1fr;
+  column-gap: 6px;
+  border-right: 2px solid #8b9aa9;
+  border-radius: 0;
+  padding: 4px 9px;
+}
+html.tv-mode .bb-tv-guide-channel strong {
+  grid-row: 1 / span 2;
+  color: var(--bb90-yellow);
+  font-family: "BB VT323", monospace;
+  font-size: 32px;
+  font-weight: 400;
+}
+html.tv-mode .bb-tv-guide-channel span {
+  color: var(--bb90-white);
+  font-family: "BB Oswald", "Arial Narrow", sans-serif;
+  font-size: 16px;
+  letter-spacing: .04em;
+}
+html.tv-mode .bb-tv-guide-channel small {
+  color: var(--bb90-soft);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 9px;
+}
+html.tv-mode .bb-tv-guide-row.is-selected .bb-tv-guide-channel {
+  background: var(--bb90-yellow);
+  color: #101027;
+}
+html.tv-mode .bb-tv-guide-row.is-selected .bb-tv-guide-channel strong,
+html.tv-mode .bb-tv-guide-row.is-selected .bb-tv-guide-channel span,
+html.tv-mode .bb-tv-guide-row.is-selected .bb-tv-guide-channel small {
+  color: #101027;
+}
+html.tv-mode .bb-tv-guide-track {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+}
+html.tv-mode .bb-tv-guide-program {
+  border-right: 1px solid #7183a6;
+  border-radius: 0;
+  background: var(--bb90-epg-cell);
+  padding: 5px 10px;
+}
+html.tv-mode .bb-tv-guide-row:nth-child(even) .bb-tv-guide-program {
+  background: var(--bb90-epg-alt);
+}
+html.tv-mode .bb-tv-guide-program.is-now {
+  border-left: 3px solid var(--bb90-red);
+  background: var(--bb90-epg-now);
+  box-shadow: none;
+}
+html.tv-mode .bb-tv-guide-program strong {
+  color: var(--bb90-white);
+  font-family: "BB Oswald", "Arial Narrow", sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+html.tv-mode .bb-tv-guide-program small {
+  margin-top: 3px;
+  color: var(--bb90-green);
+  font-family: "BB VT323", monospace;
+  font-size: 18px;
+  font-weight: 400;
+}
+html.tv-mode .bb-tv-guide-overlay button:focus-visible {
+  outline: 3px solid var(--bb90-focus);
+  outline-offset: -3px;
+  background-color: var(--bb90-yellow);
+  color: #101027;
+  box-shadow: inset 0 0 0 1px #101027;
+  transform: none;
+}
+
+/* Keep remote focus geometry still: no scale animation as focus moves. */
+html.tv-mode button:focus-visible,
+html.tv-mode a:focus-visible,
+html.tv-mode [tabindex]:focus-visible {
+  outline: 3px solid var(--bb90-focus);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px #090e17, 0 0 10px rgba(255,244,168,.35);
+  transform: none;
+}
+html.tv-mode .bb-tv-guide-footer {
+  color: var(--bb90-soft);
+  font-family: "BB VT323", monospace;
+  font-size: 18px;
+  letter-spacing: .04em;
+}
+html.tv-mode .bb-tv-guide-footer b {
+  color: var(--bb90-yellow);
+  font-family: "BB Oswald", sans-serif;
+}
+
+/* Menu stays within the same hardware / broadcast visual vocabulary. */
+html.tv-mode .bb-tv-menu-overlay {
+  background: rgba(3,5,18,.84);
+  backdrop-filter: none;
+}
+html.tv-mode .bb-tv-menu-panel {
+  width: min(620px, 78vw);
+  border: 2px solid #83909a;
+  border-top: 5px solid var(--bb90-yellow);
+  border-radius: 2px;
+  background: linear-gradient(160deg, #3a4852, #202b33 75%);
+  padding: clamp(22px, 3vw, 38px);
+  box-shadow: inset 0 1px rgba(255,255,255,.2), 0 15px 35px rgba(0,0,0,.65);
+}
+html.tv-mode .bb-tv-menu-brand {
+  color: #f0eee4;
+  font-family: "BB Oswald", sans-serif;
+  font-size: 23px;
+  letter-spacing: .15em;
+}
+html.tv-mode .bb-tv-menu-brand b {
+  color: var(--bb90-yellow);
+}
+html.tv-mode .bb-tv-menu-kicker,
+html.tv-mode .bb-tv-menu-current {
+  color: #c0cbd0;
+  font-family: "IBM Plex Mono", monospace;
+}
+html.tv-mode .bb-tv-menu-panel h2 {
+  color: #eddd94;
+  font-family: "BB Oswald", sans-serif;
+  font-size: clamp(28px, 3vw, 39px);
+  letter-spacing: .04em;
+}
+html.tv-mode .bb-tv-menu-sound-actions button,
+html.tv-mode .bb-tv-menu-actions button {
+  border: 1px solid #8997a0;
+  border-bottom: 3px solid #1b252b;
+  border-radius: 2px;
+  background: linear-gradient(#65747e, #41515a);
+  padding: 8px 12px;
+  color: #f1f0e9;
+  font-family: "BB Oswald", "Arial Narrow", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .06em;
+}
+html.tv-mode .bb-tv-menu-actions button:first-child {
+  border-color: #d3c286;
+  border-bottom-color: #766847;
+  background: linear-gradient(#e2d6ae, #b5a579);
+  color: #22282a;
+}
+html.tv-mode .bb-tv-menu-volume-status,
+html.tv-mode .bb-tv-menu-foot {
+  color: #d4d4ff;
+  font-family: "BB VT323", monospace;
+  font-size: 18px;
+}
+html.tv-mode .bb-tv-menu-actions button:focus-visible,
+html.tv-mode .bb-tv-menu-overlay button:focus-visible {
+  outline: 3px solid var(--bb90-focus);
+  outline-offset: 3px;
+  transform: none;
+}
+html.tv-mode .bb-tv-return-button {
+  border: 2px solid #aea078;
+  border-radius: 2px;
+  background: #394750;
+  padding: 10px 15px;
+  color: #f1ead6;
+  font-family: "BB Oswald", sans-serif;
+}
+
+/* Responsive browser/WebView layout: stack rather than squeeze at narrow widths. */
+@media (max-width: 1000px) {
+  html.tv-mode .bb-tv-console {
+    width: min(calc(100% - 28px), 1640px);
+  }
+  html.tv-mode .bb-tv-main-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  html.tv-mode .bb-cable-receiver {
+    max-width: none;
+  }
+  html.tv-mode .bb-number-pad {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  html.tv-mode .bb-control-grid-wide {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+@media (max-width: 640px) {
+  html.tv-mode .bb-tv-console {
+    width: calc(100% - 18px);
+    padding-top: 10px;
+  }
+  html.tv-mode .bb-tv-now-playing {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 8px;
+  }
+  html.tv-mode .bb-program-next {
+    display: none;
+  }
+  html.tv-mode .bb-tv-guide-section {
+    margin-top: 12px;
+    padding: 3px;
+  }
+  html.tv-mode .bb-tv-guide-section #guide > div:first-child {
+    min-height: 34px;
+  }
+  html.tv-mode .bb-tv-guide-section #guide h2 {
+    font-size: 15px;
+  }
+}
+@media (max-height: 700px) {
+  html.tv-mode .bb-tv-guide-overlay {
+    grid-template-rows: minmax(118px, 22vh) minmax(0, 1fr) 27px;
+    gap: 5px;
+    padding-top: 2.4vh;
+    padding-bottom: 1vh;
+  }
+  html.tv-mode .bb-tv-guide-grid {
+    grid-template-rows: 30px minmax(0, 1fr);
+  }
+  html.tv-mode .bb-tv-guide-program strong {
+    font-size: 14px;
+  }
+  html.tv-mode .bb-tv-guide-footer {
+    font-size: 15px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.tv-mode .bb-tv-stage,
+  html.tv-mode .bb-tv-live-lower-third,
+  html.tv-mode .bb-app-root button {
+    transition: none;
+    animation: none;
+  }
+}

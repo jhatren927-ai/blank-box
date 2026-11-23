@@ -187,7 +187,7 @@ export function Guide({
                     (_, copy) => renderRows(true, copy),
                   )}
                 </div>
-                <div className="pointer-events-none absolute inset-y-0 left-[160px] right-0">
+                <div className="pointer-events-none absolute inset-y-0 left-[174px] right-0">
                   <div
                     data-testid="guide-now-marker"
                     className="absolute inset-y-0 w-0.5 bg-red-500 shadow-[0_0_8px_#ef4444]"
