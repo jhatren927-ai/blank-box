@@ -150,3 +150,143 @@ html.tv-mode button,
 html.tv-mode a {
   -webkit-tap-highlight-color: transparent;
 }
+
+
+/* Dedicated television presentation. These rules only apply to ?tv=1 or a
+   detected TV browser; the phone layout remains unchanged. */
+html.tv-mode body {
+  font-size: 18px;
+}
+
+html.tv-mode header {
+  position: relative;
+}
+
+html.tv-mode header .mx-auto {
+  max-width: 1680px;
+}
+
+html.tv-mode header .mx-auto:first-child {
+  align-items: center;
+  padding: 18px 28px 12px;
+}
+
+html.tv-mode header input[data-testid="network-name"] {
+  font-size: clamp(28px, 3vw, 44px);
+  line-height: 1.1;
+}
+
+html.tv-mode header nav {
+  gap: 12px;
+  padding: 0 28px 16px;
+}
+
+html.tv-mode header nav button {
+  min-width: 112px;
+  min-height: 56px;
+  padding: 0 22px;
+  font-size: 18px;
+}
+
+html.tv-mode [data-testid="news-ticker"] {
+  height: 48px;
+}
+
+html.tv-mode [data-testid="news-ticker"] > span:first-child {
+  padding-left: 22px;
+  padding-right: 22px;
+  font-size: 15px;
+}
+
+html.tv-mode main {
+  grid-template-columns: minmax(0, 2.15fr) minmax(360px, 0.9fr);
+  gap: 22px;
+  padding: 22px 28px;
+}
+
+html.tv-mode [data-testid="crt-player"] {
+  border-width: 8px;
+  border-radius: 12px;
+}
+
+html.tv-mode [data-testid="remote-deck"] {
+  padding: 20px;
+  border-radius: 12px;
+}
+
+html.tv-mode [data-testid="remote-deck"] > div:first-child p {
+  font-size: 16px;
+}
+
+html.tv-mode [data-testid="channel-list"] {
+  max-height: 34vh;
+  padding-right: 6px;
+}
+
+html.tv-mode [data-testid="channel-list"] > div > div > button:first-child {
+  min-height: 54px;
+  padding: 10px 12px;
+}
+
+html.tv-mode [data-testid="channel-list"] > div > div > button:first-child span:first-child {
+  width: 48px;
+  font-size: 20px;
+}
+
+html.tv-mode [data-testid="channel-list"] > div > div > button:first-child span:last-child {
+  font-size: 17px;
+}
+
+html.tv-mode [data-testid="channel-list"] button,
+html.tv-mode [data-testid="remote-deck"] button {
+  min-height: 52px;
+  font-size: 15px;
+}
+
+html.tv-mode [data-testid="remote-deck"] button svg {
+  width: 22px;
+  height: 22px;
+}
+
+html.tv-mode [data-testid="volume-meter"] button {
+  min-height: 30px;
+}
+
+html.tv-mode #guide {
+  margin-top: 6px;
+  border-radius: 10px;
+}
+
+html.tv-mode #guide button {
+  min-height: 58px;
+  font-size: 15px;
+}
+
+html.tv-mode button:focus-visible,
+html.tv-mode a:focus-visible,
+html.tv-mode [tabindex]:focus-visible {
+  outline: 4px solid #ffe600;
+  outline-offset: 4px;
+  box-shadow: 0 0 0 3px #050505, 0 0 24px rgba(255, 230, 0, 0.85);
+  transform: scale(1.025);
+  position: relative;
+  z-index: 5;
+}
+
+html.tv-mode [data-testid="remote-deck"] button:disabled {
+  opacity: 0.45;
+}
+
+@media (max-width: 760px) {
+  html.tv-mode main {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  html.tv-mode [data-testid="remote-deck"] {
+    max-width: none;
+  }
+
+  html.tv-mode header nav button {
+    min-width: 92px;
+  }
+}
