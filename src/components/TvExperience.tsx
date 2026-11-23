@@ -1,7 +1,8 @@
-import { useEffect, useState, type RefObject } from 'react'
+import { useEffect, useRef, useState, type RefObject } from 'react'
 import type { Channel, Prefs, Program } from '../types.ts'
 import { clock, padChannel } from '../lib/format.ts'
 import { guideWindow, liveSlot, nextSlot, slotsCovering } from '../lib/schedule.ts'
+import { usePrevueCrawl } from '../lib/prevueCrawl.ts'
 import { Player } from './Player.tsx'
 
 interface TvExperienceProps {
@@ -65,6 +66,10 @@ export function TvExperience({
 }: TvExperienceProps) {
   const live = channel ? liveSlot(channel, now) : null
   const [showLowerThird, setShowLowerThird] = useState(true)
+  const guideRowsRef = useRef<HTMLDivElement>(null)
+  const guideFirstCopyRef = useRef<HTMLDivElement>(null)
+  const hasFullGuide = channels.length > GUIDE_ROWS
+  const guideAutoScroll = usePrevueCrawl(guideRowsRef, guideFirstCopyRef, guideOpen && hasFullGuide)
 
   useEffect(() => {
     setShowLowerThird(true)
@@ -95,12 +100,66 @@ export function TvExperience({
   useEffect(() => {
     if (!guideOpen) return
     const timer = window.setTimeout(() => {
+      if (hasFullGuide && guideRowsRef.current) {
+        const rowHeight = guideRowsRef.current.clientHeight / GUIDE_ROWS
+        guideRowsRef.current.scrollTop = Math.max(0, safeIndex * rowHeight - rowHeight * 3)
+      }
       const row = Array.from(document.querySelectorAll<HTMLElement>('.bb-tv-guide-row'))
         .find((item) => item.dataset.channelId === (selectedGuideId ?? currentId))
       row?.querySelector<HTMLElement>('[data-testid="tv-guide-channel"]')?.focus({ preventScroll: true })
     }, 0)
     return () => window.clearTimeout(timer)
-  }, [guideOpen, selectedGuideId, currentId, firstVisible])
+  }, [guideOpen, selectedGuideId, currentId, firstVisible, hasFullGuide, safeIndex])
+
+  const renderGuideRows = (items: Channel[], duplicate = false) => items.map((item) => {
+    const active = item.id === (selectedGuideId ?? currentId)
+    const slots = slotsCovering(item, windowStart, windowEnd)
+    return (
+      <div className={'bb-tv-guide-row' + (active ? ' is-selected' : '')} key={item.id} data-channel-id={item.id}>
+        <button
+          type="button"
+          className="bb-tv-guide-channel"
+          data-testid={duplicate ? undefined : 'tv-guide-channel'}
+          tabIndex={duplicate ? -1 : undefined}
+          aria-pressed={active}
+          onClick={() => onSelectGuideChannel(item.id)}
+          onFocus={() => onSelectGuideChannel(item.id)}
+          onDoubleClick={() => onTune(item.id)}
+        >
+          <strong>{padChannel(item.number)}</strong>
+          <span>{item.callsign}</span>
+          <small>{item.name}</small>
+        </button>
+        <div className="bb-tv-guide-track">
+          {slots.map((slot, index) => {
+            const left = Math.max(slot.startMs, windowStart)
+            const right = Math.min(slot.endMs, windowEnd)
+            const isNow = slot.startMs <= now && now < slot.endMs
+            return (
+              <button
+                key={slot.program.id + '-' + slot.startMs + '-' + index}
+                type="button"
+                className={'bb-tv-guide-program' + (isNow ? ' is-now' : '')}
+                data-testid={duplicate ? undefined : 'tv-guide-program'}
+                tabIndex={duplicate ? -1 : undefined}
+                style={{
+                  left: (((left - windowStart) / windowSpan) * 100) + '%',
+                  width: (((right - left) / windowSpan) * 100) + '%',
+                }}
+                title={slot.program.title}
+                onClick={() => onTune(item.id)}
+                onFocus={() => onSelectGuideChannel(item.id)}
+              >
+                <strong>{slot.program.title}</strong>
+                <small>{clock(slot.startMs)}</small>
+              </button>
+            )
+          })}
+          {markerVisible && <span className="bb-tv-guide-now-marker" style={{ left: marker + '%' }} />}
+        </div>
+      </div>
+    )
+  })
 
   const currentTitle = vod?.title || live?.program.title || 'NO PROGRAM SCHEDULED'
   const currentChannel = channel ? `CH ${padChannel(channel.number)}  ·  ${channel.callsign}` : 'NO CHANNEL SELECTED'
@@ -204,57 +263,46 @@ export function TvExperience({
             </div>
 
             <div
+              ref={guideRowsRef}
               className="bb-tv-guide-rows"
               data-testid="tv-guide-rows"
-              style={{ gridTemplateRows: `repeat(${Math.max(1, visibleChannels.length)}, minmax(0, 1fr))` }}
             >
-              {visibleChannels.map((item) => {
-                const active = item.id === (selectedGuideId ?? currentId)
-                const slots = slotsCovering(item, windowStart, windowEnd)
-                return (
-                  <div className={`bb-tv-guide-row${active ? ' is-selected' : ''}`} key={item.id} data-channel-id={item.id}>
-                    <button
-                      type="button"
-                      className="bb-tv-guide-channel"
-                      data-testid="tv-guide-channel"
-                      aria-pressed={active}
-                      onClick={() => onSelectGuideChannel(item.id)}
-                      onFocus={() => onSelectGuideChannel(item.id)}
-                      onDoubleClick={() => onTune(item.id)}
-                    >
-                      <strong>{padChannel(item.number)}</strong>
-                      <span>{item.callsign}</span>
-                      <small>{item.name}</small>
-                    </button>
-                    <div className="bb-tv-guide-track">
-                      {slots.map((slot, index) => {
-                        const left = Math.max(slot.startMs, windowStart)
-                        const right = Math.min(slot.endMs, windowEnd)
-                        const isNow = slot.startMs <= now && now < slot.endMs
-                        return (
-                          <button
-                            key={`${slot.program.id}-${slot.startMs}-${index}`}
-                            type="button"
-                            className={`bb-tv-guide-program${isNow ? ' is-now' : ''}`}
-                            data-testid="tv-guide-program"
-                            style={{
-                              left: `${((left - windowStart) / windowSpan) * 100}%`,
-                              width: `${((right - left) / windowSpan) * 100}%`,
-                            }}
-                            title={slot.program.title}
-                            onClick={() => onTune(item.id)}
-                            onFocus={() => onSelectGuideChannel(item.id)}
-                          >
-                            <strong>{slot.program.title}</strong>
-                            <small>{clock(slot.startMs)}</small>
-                          </button>
-                        )
-                      })}
-                      {markerVisible && <span className="bb-tv-guide-now-marker" style={{ left: `${marker}%` }} />}
-                    </div>
+              {hasFullGuide ? (
+                <div data-testid="tv-guide-auto-scroll" className="bb-tv-guide-crawl">
+                  <div
+                    ref={guideFirstCopyRef}
+                    className="bb-tv-guide-crawl-copy"
+                    style={{
+                      gridTemplateRows: 'repeat(' + channels.length + ', minmax(0, 1fr))',
+                      height: ((channels.length / GUIDE_ROWS) * 100) + '%',
+                    }}
+                  >
+                    {renderGuideRows(channels, false)}
                   </div>
-                )
-              })}
+                  {guideAutoScroll && (
+                    <div
+                      aria-hidden="true"
+                      className="bb-tv-guide-crawl-copy"
+                      style={{
+                        gridTemplateRows: 'repeat(' + channels.length + ', minmax(0, 1fr))',
+                        height: ((channels.length / GUIDE_ROWS) * 100) + '%',
+                      }}
+                    >
+                      {renderGuideRows(channels, true)}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div
+                  className="bb-tv-guide-crawl-copy"
+                  style={{
+                    gridTemplateRows: 'repeat(' + Math.max(1, visibleChannels.length) + ', minmax(0, 1fr))',
+                    height: '100%',
+                  }}
+                >
+                  {renderGuideRows(visibleChannels, false)}
+                </div>
+              )}
             </div>
           </div>
 
