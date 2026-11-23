@@ -211,7 +211,7 @@ function AppContent() {
                 if (ordered[nextIndex]) {
                   setGuideSelectedId(ordered[nextIndex].id)
                   window.setTimeout(() => {
-                    document.querySelector('[data-channel-id="' + ordered[nextIndex].id + '"] [data-testid="tv-guide-channel"]')?.focus({ preventScroll: true })
+                    document.querySelector<HTMLElement>('[data-channel-id="' + ordered[nextIndex].id + '"] [data-testid="tv-guide-channel"]')?.focus({ preventScroll: true })
                   }, 0)
                 }
               }
