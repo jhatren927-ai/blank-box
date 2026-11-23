@@ -153,6 +153,25 @@ test('regular website uses the original Downloader receiver layout and remote-on
 test('web guide scrolls with wheel, touch and remote arrow keys', async ({ page }) => {
   const response = await page.goto('/')
   expect(response?.ok()).toBe(true)
+  await page.evaluate(() => {
+    const key = 'blankbox:network:v1'
+    const value = JSON.parse(localStorage.getItem(key) || '{}')
+    const source = value.channels?.[0]
+    if (source) {
+      value.channels = Array.from({ length: 14 }, (_, index) => ({
+        ...source,
+        id: 'scroll-' + index,
+        number: index + 1,
+        name: 'Scroll Channel ' + (index + 1),
+        callsign: 'SC' + index,
+        programs: (source.programs || []).map((program: any, programIndex: number) => ({
+          ...program, id: 'scroll-' + index + '-program-' + programIndex,
+        })),
+      }))
+      localStorage.setItem(key, JSON.stringify(value))
+    }
+  })
+  await page.reload()
   const viewport = page.getByTestId('guide-viewport')
   await expect(viewport).toBeVisible()
   await expect(viewport).toHaveAttribute('aria-label', 'Scrollable television channel guide')
