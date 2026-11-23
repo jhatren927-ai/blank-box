@@ -251,6 +251,51 @@ test('iPhone Safari opens the native AirPlay picker for the current video', asyn
   await expect.poll(() => page.evaluate(() => (window as any).__airplayPickerOpened)).toBe(true)
 })
 
+test('laptop receiver row expands with the viewport instead of leaving wide empty margins', async ({ page }) => {
+  for (const viewport of [
+    { width: 1366, height: 768 },
+    { width: 1280, height: 800 },
+    { width: 1024, height: 768 },
+  ]) {
+    await page.setViewportSize(viewport)
+    const response = await page.goto('/')
+    expect(response?.ok()).toBe(true)
+    await expect(page.getByTestId('web-tv-receiver')).toBeVisible()
+
+    const layout = await page.evaluate(() => {
+      const measure = (selector: string) => {
+        const element = document.querySelector(selector)
+        if (!element) throw new Error('Missing layout element: ' + selector)
+        const rect = element.getBoundingClientRect()
+        return { x: rect.x, y: rect.y, width: rect.width, height: rect.height, right: rect.right, bottom: rect.bottom }
+      }
+      return {
+        viewport: window.innerWidth,
+        grid: measure('.bb-tv-main-grid'),
+        broadcast: measure('.bb-tv-broadcast'),
+        player: measure('.bb-tv-screen-bezel'),
+        remote: measure('[data-testid="cable-remote"]'),
+        guide: measure('.bb-tv-guide-section'),
+        columns: getComputedStyle(document.querySelector('.bb-tv-main-grid')!).gridTemplateColumns,
+        documentWidth: document.documentElement.scrollWidth,
+      }
+    })
+
+    console.log('LAPTOP RECEIVER LAYOUT:', JSON.stringify(layout))
+    expect(layout.grid.width).toBeGreaterThan(layout.viewport * 0.78)
+    expect(layout.grid.x).toBeLessThan(layout.viewport * 0.12)
+    expect(layout.grid.right).toBeGreaterThan(layout.viewport * 0.88)
+    expect(layout.player.width).toBeGreaterThan(layout.viewport * 0.48)
+    expect(layout.remote.width).toBeGreaterThanOrEqual(255)
+    expect(Math.abs(layout.remote.bottom - layout.broadcast.bottom)).toBeLessThan(8)
+    expect(layout.guide.y).toBeLessThan(viewport.height - 100)
+    expect(layout.remote.x).toBeGreaterThan(layout.player.x)
+    expect(layout.remote.x - (layout.player.x + layout.player.width)).toBeLessThanOrEqual(20)
+    expect(layout.guide.width).toBeGreaterThan(layout.viewport * 0.94)
+    expect(layout.documentWidth).toBeLessThanOrEqual(layout.viewport)
+  }
+})
+
 test('mobile website keeps the Prevue channel and time-slot matrix', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/')
@@ -510,7 +555,7 @@ test('desktop website keeps the player and remote compact together and makes the
   expect(layout.remote.x - layout.player.right).toBeLessThanOrEqual(20)
   expect(Math.abs((layout.grid.x + layout.grid.width / 2) - layout.viewportWidth / 2)).toBeLessThan(3)
   expect(layout.guide.width).toBeGreaterThan(layout.viewportWidth * 0.92)
-  expect(layout.guide.y).toBeLessThan(480)
+  expect(layout.guide.y).toBeLessThan(620)
   expect(layout.guide.y).toBeGreaterThan(layout.player.bottom - 8)
   expect(layout.guideTitleSize).toBe('14px')
   expect(layout.guideTimeSize).toBe('11px')
