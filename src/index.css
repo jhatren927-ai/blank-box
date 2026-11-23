@@ -3239,3 +3239,11 @@ html.tv-mode .bb-tv-statusline {
   scrollbar-width: none;
   touch-action: pan-x;
 }
+
+
+/* Keep the live-program cue restrained: one warm highlight, never red rails. */
+html.tv-mode .bb-tv-guide-section #guide .bb-guide-program-cell[data-on-now="true"],
+.bb-web-guide-wrap #guide .bb-guide-program-cell[data-on-now="true"] {
+  border-left: 2px solid #f4d66a;
+  background: #173d91;
+}
