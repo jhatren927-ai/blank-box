@@ -2,7 +2,6 @@ import type { RefObject } from 'react'
 import {
   ChevronDown,
   ChevronUp,
-  Clock3,
   Disc3,
   Maximize,
   Minus,
@@ -16,7 +15,7 @@ import {
 import type { Channel, Prefs, Program } from '../types.ts'
 import { clock, padChannel } from '../lib/format.ts'
 import { liveSlot, nextSlot } from '../lib/schedule.ts'
-import { Guide, Ticker } from './Guide.tsx'
+import { Guide } from './Guide.tsx'
 import { CastButton, Player } from './Player.tsx'
 import { lookById } from '../lib/looks.ts'
 
@@ -89,36 +88,8 @@ export function WebTvExperience({
 
   return (
     <div className="bb-tv-console" data-testid="web-tv-receiver">
-      <Ticker channels={channels} now={now} />
-
-      <div className="bb-tv-statusline">
-        <div className="bb-tv-status-left">
-          <span className="bb-on-air"><span /> ON THE AIR</span>
-          <span className="bb-tv-divider">|</span>
-          <span>{channel ? 'LOCAL CABLE SERVICE' : 'NO STATION SELECTED'}</span>
-          <span className="bb-tv-divider">|</span>
-          <span>{prefs.aspect} PICTURE</span>
-        </div>
-        <div className="bb-tv-status-right">
-          <Clock3 size={15} />
-          <span>{clock(now)}</span>
-          <span className="bb-stereo">STEREO</span>
-        </div>
-      </div>
-
       <div className="bb-tv-main-grid">
         <section className="bb-tv-broadcast">
-          <div className="bb-tv-screen-heading">
-            <div>
-              <span className="bb-micro-label">NOW TUNED TO</span>
-              <h1>{channel ? channel.name : 'BLANK BOX TELEVISION'}</h1>
-            </div>
-            <div className="bb-channel-bug">
-              <span>CH</span>
-              <strong>{channel ? padChannel(channel.number) : '---'}</strong>
-            </div>
-          </div>
-
           <div className="bb-tv-screen-bezel">
             <div className="bb-tv-screen-inner">
               <Player
@@ -137,18 +108,7 @@ export function WebTvExperience({
                 onCastTargetChange={onCastTargetChange}
                 onProgramDuration={onProgramDuration}
               />
-              <div className="bb-tv-osd" aria-hidden="true">
-                <div className="bb-tv-osd-top">
-                  <span className="bb-osd-channel">{channel ? padChannel(channel.number) : '000'}</span>
-                  <span className="bb-osd-callsign">{channel?.callsign || 'BLANK BOX'}</span>
-                  <span className="bb-osd-clock">{clock(now)}</span>
-                </div>
-                {dial && <div className="bb-tv-dial">{dial}</div>}
-                <div className="bb-tv-osd-bottom">
-                  <span>{vod ? 'VIDEO ON DEMAND' : live?.program.title || 'PLEASE SELECT A CHANNEL'}</span>
-                  <span>{prefs.muted ? 'MUTED' : 'STEREO'}</span>
-                </div>
-              </div>
+              <div className="bb-tv-dial" aria-hidden="true">{dial}</div>
             </div>
           </div>
 
@@ -291,24 +251,15 @@ export function WebTvExperience({
       </div>
 
       <section className="bb-tv-guide-section">
-        <div className="bb-guide-heading">
-          <div><span className="bb-micro-label">WHAT'S ON YOUR NETWORK</span><h2>TELEVISION PROGRAM GUIDE</h2></div>
-          <div className="bb-guide-key"><span>▲▼</span> SELECT A CHANNEL <span>ENTER</span> TUNE IN</div>
-        </div>
         <Guide
           channels={channels}
           currentId={currentId}
           now={now}
-          title="BLANK BOX"
+          title="PREVUE"
           favs={prefs.favs}
           onTune={onTune}
         />
       </section>
-      <div className="bb-tv-footer">
-        <span>BLANK BOX CABLE TELEVISION</span>
-        <span>LOCAL CHANNELS · YOUR NETWORK · YOUR RULES</span>
-        <span>{channels.length} STATIONS AVAILABLE</span>
-      </div>
     </div>
   )
 }
