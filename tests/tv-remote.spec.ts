@@ -158,7 +158,7 @@ test('web guide scrolls with wheel, touch and remote arrow keys', async ({ page 
     const value = JSON.parse(localStorage.getItem(key) || '{}')
     const source = value.channels?.[0]
     if (source) {
-      value.channels = Array.from({ length: 14 }, (_, index) => ({
+      value.channels = Array.from({ length: 30 }, (_, index) => ({
         ...source,
         id: 'scroll-' + index,
         number: index + 1,
