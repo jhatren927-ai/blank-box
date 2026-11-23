@@ -3760,24 +3760,47 @@ html.tv-mode .bb-tv-guide-section #guide [data-testid="guide-viewport"] {
 }
 
 
-/* Final guide-first proportions: utility panels stay compact; the guide owns the page. */
+/* Desktop receiver composition: keep the live picture and remote together,
+   then give the Prevue grid the full width immediately below them. */
+html.tv-mode body {
+  background: radial-gradient(ellipse at 50% -12%, #183d72 0%, #0a1c3b 46%, #050d20 100%) !important;
+  color: #f3f6ff;
+}
+html.tv-mode .bb-tv-console {
+  width: min(calc(100% - 48px), 1780px);
+  max-width: none;
+  margin: 12px auto 0;
+  padding: 0 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
 html.tv-mode .bb-tv-main-grid {
   display: grid;
-  grid-template-columns: minmax(240px, 300px) minmax(210px, 250px);
-  justify-content: space-between;
+  grid-template-columns: minmax(420px, 560px) minmax(320px, 360px);
+  justify-content: center;
   align-items: start;
-  gap: 16px;
+  gap: 24px;
   width: 100%;
+  padding: 0;
 }
 html.tv-mode .bb-tv-broadcast {
   width: 100%;
-  max-width: 300px;
+  max-width: 560px;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 html.tv-mode .bb-tv-screen-bezel {
   width: 100%;
-  max-width: 300px;
+  max-width: none;
   margin: 0;
+  padding: 6px;
+  border: 5px solid #28558f;
+  border-radius: 7px;
+  background: linear-gradient(145deg, #28558f, #10294f 48%, #07162e);
+  box-shadow: inset 0 1px #ffffff30, 0 8px 22px #0009, 0 0 0 2px #020817;
 }
 html.tv-mode .bb-tv-screen-inner {
   width: 100%;
@@ -3785,65 +3808,109 @@ html.tv-mode .bb-tv-screen-inner {
   min-height: 0;
 }
 html.tv-mode .bb-tv-now-playing {
-  grid-template-columns: minmax(0, 1fr);
-  gap: 4px;
-  padding: 5px 7px;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 9px;
+  margin-top: 0;
+  padding: 9px 11px;
+  border-color: #315d91;
+  background: linear-gradient(180deg, #12366a, #09234b);
+  box-shadow: inset 0 1px #ffffff20, 0 3px #020b1b;
 }
-html.tv-mode .bb-program-ident { gap: 6px; }
-html.tv-mode .bb-program-copy strong {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 11px;
-}
-html.tv-mode .bb-program-copy span { font-size: 9px; }
-html.tv-mode .bb-program-progress { margin-top: 3px; }
+html.tv-mode .bb-program-next { display: none; }
+html.tv-mode .bb-program-copy strong { font-size: 14px; }
+html.tv-mode .bb-program-copy span { font-size: 11px; color: #b7ccef; }
+html.tv-mode .bb-program-progress { margin-top: 0; }
 html.tv-mode .bb-cable-receiver {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas:
+    "brand brand"
+    "display display"
+    "actions actions"
+    "channel-label access-label"
+    "rockers keypad"
+    "cast cast"
+    "advanced advanced";
+  align-content: start;
+  gap: 7px 10px;
   width: 100%;
-  max-width: 250px;
+  max-width: 360px;
   min-width: 0;
-  padding: 7px;
+  padding: 11px;
+  border: 2px solid #4774ae !important;
+  border-radius: 8px;
+  background: linear-gradient(155deg, #28558f 0%, #153967 42%, #091d3c 100%) !important;
+  color: #f1f6ff !important;
+  box-shadow: inset 0 1px 0 #ffffff2b, 0 10px 24px #0008;
 }
-html.tv-mode .bb-receiver-brand { padding-bottom: 4px; }
-html.tv-mode .bb-receiver-display { min-height: 34px; margin: 4px 0; }
-html.tv-mode .bb-led-channel { font-size: 19px; }
-html.tv-mode .bb-remote-footer { gap: 3px; margin: 4px 0; }
-html.tv-mode .bb-remote-footer button { min-height: 23px; font-size: 7px; }
-html.tv-mode .bb-remote-section-label { margin: 4px 0 2px; font-size: 7px; }
-html.tv-mode .bb-channel-rockers button { min-height: 26px; }
-html.tv-mode .bb-number-pad { gap: 2px; }
-html.tv-mode .bb-number-pad button { min-height: 23px; font-size: 9px; }
-html.tv-mode .bb-remote-advanced { margin-top: 4px; padding-top: 4px; }
+html.tv-mode .bb-receiver-brand { grid-area: brand; padding: 0 2px 7px; }
+html.tv-mode .bb-receiver-display { grid-area: display; min-height: 54px; margin: 0; }
+html.tv-mode .bb-remote-footer { grid-area: actions; gap: 5px; margin: 0; }
+html.tv-mode .bb-remote-section-label { margin: 0; font-size: 8px; }
+html.tv-mode .bb-cable-receiver > .bb-remote-section-label:nth-of-type(1) { grid-area: channel-label; }
+html.tv-mode .bb-channel-rockers { grid-area: rockers; align-self: start; }
+html.tv-mode .bb-cable-receiver > .bb-remote-section-label:nth-of-type(2) { grid-area: access-label; }
+html.tv-mode .bb-number-pad { grid-area: keypad; gap: 4px; }
+html.tv-mode .bb-channel-rockers button { min-height: 34px; }
+html.tv-mode .bb-number-pad button { min-height: 34px; font-size: 12px; }
+html.tv-mode .bb-remote-footer button { min-height: 32px; font-size: 9px; }
+html.tv-mode .bb-receiver-cast { grid-area: cast; margin: 0; }
+html.tv-mode .bb-remote-advanced { grid-area: advanced; margin-top: 0; padding-top: 5px; }
 html.tv-mode .bb-tv-guide-section {
+  order: 2;
   width: 100%;
   max-width: none;
   margin: 0;
+  padding: 8px;
+  border: 1px solid #315d91;
+  background: linear-gradient(180deg, #102f5d, #081d3c);
+  box-shadow: 0 8px 20px #0007;
 }
 html.tv-mode .bb-tv-guide-section #guide [data-testid="guide-viewport"] {
-  height: min(74vh, 820px);
-  min-height: 520px;
+  height: min(72vh, 760px);
+  min-height: 440px;
+}
+html.tv-mode .bb-tv-guide-section #guide .bb-guide-program-cell p:first-child {
+  font-size: 14px !important;
+  line-height: 1.25 !important;
+}
+html.tv-mode .bb-tv-guide-section #guide .bb-guide-program-cell p:last-child {
+  font-size: 11px !important;
+}
+html.tv-mode .bb-tv-guide-section #guide .bb-guide-channel-number { font-size: 20px !important; }
+html.tv-mode .bb-tv-guide-section #guide .bb-guide-channel-callsign { font-size: 12px !important; }
+html.tv-mode .bb-tv-guide-section #guide .bb-guide-channel-name { font-size: 11px !important; }
+html.tv-mode .bb-tv-guide-section #guide [data-testid="guide-time-label"],
+html.tv-mode .bb-tv-guide-section #guide [data-testid="guide-time-label"] + div { font-size: 14px !important; }
+
+@media (max-width: 900px) {
+  html.tv-mode .bb-tv-console { width: calc(100% - 24px); }
+  html.tv-mode .bb-tv-main-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
+    gap: 14px;
+  }
 }
 @media (max-width: 680px) {
   html.tv-mode .bb-tv-main-grid {
-    grid-template-columns: minmax(0, 1fr) minmax(126px, 38%);
-    justify-content: stretch;
-    gap: 7px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
   }
   html.tv-mode .bb-tv-broadcast,
   html.tv-mode .bb-tv-screen-bezel,
   html.tv-mode .bb-cable-receiver { max-width: none; }
-  html.tv-mode .bb-tv-now-playing { grid-template-columns: minmax(0, 1fr); }
+  html.tv-mode .bb-cable-receiver {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
   html.tv-mode .bb-tv-guide-section #guide [data-testid="guide-viewport"] {
-    height: min(64vh, 600px);
-    min-height: 360px;
+    height: min(62vh, 600px);
+    min-height: 340px;
   }
 }
-@media (max-width: 390px) {
-  html.tv-mode .bb-tv-main-grid { grid-template-columns: minmax(0, 1fr) 124px; }
-  html.tv-mode .bb-receiver-brand small { font-size: 5px; }
+@media (max-width: 420px) {
+  html.tv-mode .bb-cable-receiver { grid-template-columns: minmax(0, 1fr); }
+  html.tv-mode .bb-cable-receiver > * { grid-column: 1; }
+  html.tv-mode .bb-number-pad { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
-
 
 /* Blank Box final color + guide type lock.
    Target the public web guide wrapper as well as TV mode: older rules above
