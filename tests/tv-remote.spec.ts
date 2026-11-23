@@ -135,7 +135,7 @@ test('regular website uses the original Downloader receiver layout and remote-on
   expect(remote).not.toBeNull()
   expect(guide).not.toBeNull()
   expect(remote!.x).toBeGreaterThan(picture!.x)
-  expect(guide!.y).toBeLessThan(picture!.y)
+  expect(guide!.y).toBeGreaterThan(picture!.y)
   expect(guide!.height).toBeGreaterThan(300)
   await expect(page.locator('.bb-station-strip')).toHaveCount(0)
   await expect(page.locator('[data-testid="guide-time-label"] + div > div')).toHaveCount(3)
@@ -207,8 +207,9 @@ test('mobile website keeps the Prevue channel and time-slot matrix', async ({ pa
   await expect(page.getByTestId('prevue-grid')).toBeVisible()
   await expect(page.getByTestId('guide-viewport')).toBeVisible()
   await expect(page.getByTestId('guide-mobile-list')).toHaveCount(0)
-  const timetable = page.locator('#guide > div:nth-child(2)')
-  await expect.poll(() => timetable.evaluate((element) => element.scrollWidth > element.clientWidth)).toBe(true)
+  const timetable = page.getByTestId('guide-surface')
+  await expect(timetable).toHaveClass(/overflow-hidden/)
+  await expect.poll(() => timetable.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true)
 })
 
 test('web guide does not accept manual scrolling; only the automatic crawl moves its rows', async ({ page }) => {
@@ -237,7 +238,7 @@ test('web guide does not accept manual scrolling; only the automatic crawl moves
   await expect(viewport).toBeVisible()
   await expect(viewport).toHaveAttribute('aria-label', 'Automatically advancing television program guide')
   await expect(viewport).not.toHaveAttribute('tabindex', '0')
-  await expect(viewport).toHaveAttribute('style', /overflow-y:\s*hidden/)
+  await expect(viewport).toHaveAttribute('style', /overflow:\s*hidden/)
 
   // Capture scroll position immediately before and after a real wheel event.
   // Comparing within the same event turn avoids racing the independent crawl timer.
@@ -248,7 +249,7 @@ test('web guide does not accept manual scrolling; only the automatic crawl moves
     document.addEventListener('wheel', () => {
       ;(window as any).__blankBoxWheelStart = node.scrollTop
     }, { capture: true, once: true })
-    node.addEventListener('wheel', (event) => {
+    document.addEventListener('wheel', (event) => {
       ;(window as any).__blankBoxWheelProbe = {
         defaultPrevented: event.defaultPrevented,
         start: (window as any).__blankBoxWheelStart,
@@ -261,8 +262,7 @@ test('web guide does not accept manual scrolling; only the automatic crawl moves
   expect(wheelProbe?.defaultPrevented).toBe(true)
   expect(wheelProbe?.end).toBe(wheelProbe?.start)
 
-  // Vertical touch movement is canceled, while horizontal timeline gestures
-  // remain available instead of being swallowed indiscriminately.
+  // Manual touch movement on either axis is canceled; the broadcast crawl owns movement.
   const touchProbe = await viewport.evaluate((node) => {
     const dispatchTouch = (type: string, x: number, y: number) => {
       const event = new Event(type, { bubbles: true, cancelable: true })
@@ -279,7 +279,7 @@ test('web guide does not accept manual scrolling; only the automatic crawl moves
     return { verticalPrevented: vertical.defaultPrevented, horizontalPrevented: horizontal.defaultPrevented }
   })
   expect(touchProbe.verticalPrevented).toBe(true)
-  expect(touchProbe.horizontalPrevented).toBe(false)
+  expect(touchProbe.horizontalPrevented).toBe(true)
 
   // Manual input must not stop the automatic Prevue crawl.
   const afterInput = await viewport.evaluate((node) => node.scrollTop)
@@ -349,6 +349,15 @@ test('website removes forced sign-in and saves a channel before videos are added
   await expect(persistedGuideRows.filter({ hasText: /local news/i })).toBeVisible()
 })
 
+
+test('web Prevue guide crawls with a short channel lineup', async ({ page }) => {
+  await page.goto('/')
+  const viewport = page.getByTestId('guide-viewport')
+  await expect(viewport).toBeVisible()
+  await expect(page.locator('[data-testid="guide-row"]')).toHaveCount(2)
+  await expect.poll(() => viewport.evaluate((node) => node.scrollTop), { timeout: 2500 }).toBeGreaterThan(0)
+  await expect.poll(() => page.locator('[data-testid="guide-auto-scroll"] > div').count()).toBeGreaterThan(2)
+})
 
 test('web Prevue guide automatically crawls upward through all channels', async ({ page }) => {
   await page.goto('/')
