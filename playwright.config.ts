@@ -8,14 +8,14 @@ export default defineConfig({
   workers: 1,
   retries: 0,
   use: {
-    baseURL: 'http://127.0.0.1:5199',
+    baseURL: 'http://127.0.0.1:5207',
     viewport: { width: 1440, height: 900 },
     headless: true,
     screenshot: 'only-on-failure',
   },
   webServer: {
-    command: 'npm run dev -- --host 127.0.0.1 --port 5199 --strictPort',
-    url: 'http://127.0.0.1:5199',
+    command: 'npm run dev -- --host 127.0.0.1 --port 5207 --strictPort',
+    url: 'http://127.0.0.1:5207',
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,
   },
