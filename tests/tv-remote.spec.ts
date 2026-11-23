@@ -230,17 +230,51 @@ test('web guide does not accept manual scrolling; only the automatic crawl moves
   await expect(viewport).not.toHaveAttribute('tabindex', '0')
   await expect(viewport).toHaveAttribute('style', /overflow-y:\s*hidden/)
 
-  // Real pointer-wheel input must not move the guide; only the programmed
-  // Prevue crawl is allowed to advance the rows.
-  const beforeWheel = await viewport.evaluate((node) => node.scrollTop)
+  // Capture scroll position immediately before and after a real wheel event.
+  // Comparing within the same event turn avoids racing the independent crawl timer.
   const bounds = await viewport.boundingBox()
   if (!bounds) throw new Error('Guide viewport has no visible bounds')
   await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2)
+  await viewport.evaluate((node) => {
+    document.addEventListener('wheel', () => {
+      ;(window as any).__blankBoxWheelStart = node.scrollTop
+    }, { capture: true, once: true })
+    node.addEventListener('wheel', (event) => {
+      ;(window as any).__blankBoxWheelProbe = {
+        defaultPrevented: event.defaultPrevented,
+        start: (window as any).__blankBoxWheelStart,
+        end: node.scrollTop,
+      }
+    }, { once: true })
+  })
   await page.mouse.wheel(0, 900)
-  const afterWheel = await viewport.evaluate((node) => node.scrollTop)
-  // Allow the programmed 14 px/s crawl to advance a pixel or two while the
-  // browser dispatches the wheel event; a manual 900 px scroll would be far larger.
-  expect(Math.abs(afterWheel - beforeWheel)).toBeLessThan(10)
+  const wheelProbe = await page.evaluate(() => (window as any).__blankBoxWheelProbe)
+  expect(wheelProbe?.defaultPrevented).toBe(true)
+  expect(wheelProbe?.end).toBe(wheelProbe?.start)
+
+  // Vertical touch movement is canceled, while horizontal timeline gestures
+  // remain available instead of being swallowed indiscriminately.
+  const touchProbe = await viewport.evaluate((node) => {
+    const dispatchTouch = (type: string, x: number, y: number) => {
+      const event = new Event(type, { bubbles: true, cancelable: true })
+      Object.defineProperty(event, 'touches', { value: [{ clientX: x, clientY: y }] })
+      node.dispatchEvent(event)
+      return event
+    }
+    dispatchTouch('touchstart', 100, 100)
+    const vertical = dispatchTouch('touchmove', 100, 180)
+    dispatchTouch('touchend', 100, 180)
+    dispatchTouch('touchstart', 100, 100)
+    const horizontal = dispatchTouch('touchmove', 180, 100)
+    dispatchTouch('touchend', 180, 100)
+    return { verticalPrevented: vertical.defaultPrevented, horizontalPrevented: horizontal.defaultPrevented }
+  })
+  expect(touchProbe.verticalPrevented).toBe(true)
+  expect(touchProbe.horizontalPrevented).toBe(false)
+
+  // Manual input must not stop the automatic Prevue crawl.
+  const afterInput = await viewport.evaluate((node) => node.scrollTop)
+  await expect.poll(() => viewport.evaluate((node) => node.scrollTop), { timeout: 2000 }).toBeGreaterThan(afterInput)
 
   const firstProgram = viewport.locator('[data-testid="guide-tune"]').first()
   await firstProgram.focus()
