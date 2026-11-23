@@ -18,5 +18,7 @@ export interface SourceAdapter {
   label: string
   search: ((query: string, options: SearchOptions) => Promise<SearchHit[]>) | null
   fromHit: ((hit: SearchHit) => Promise<Program | null>) | null
+  /** Optional multi-file resolver for sources where one item contains several videos. */
+  fromHitMany?: (hit: SearchHit) => Promise<Program[]>
   fromPaste: ((text: string) => Promise<Program[]>) | null
 }
