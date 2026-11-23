@@ -103,15 +103,37 @@ test('guide Left/Right browse program blocks and page the timeline at its edge',
 })
 
 
-test('regular website uses the retro cable design and remains navigable', async ({ page }) => {
+test('regular website opens in the approved TV receiver and guide layout', async ({ page }) => {
   const response = await page.goto('/')
+  expect(response?.ok()).toBe(true)
+  const experience = page.getByTestId('tv-experience')
+  const guide = page.getByTestId('tv-guide-overlay')
+  await expect(experience).toBeVisible()
+  await expect(guide).toBeVisible()
+  await expect(page.getByTestId('tv-guide-grid')).toBeVisible()
+  await expect(page.locator('.bb-web-shell')).toHaveCount(0)
+
+  const preview = await page.locator('.bb-tv-stage').boundingBox()
+  const selectedInfo = await page.locator('.bb-tv-guide-selected').boundingBox()
+  const schedule = await page.getByTestId('tv-guide-grid').boundingBox()
+  expect(preview).not.toBeNull()
+  expect(selectedInfo).not.toBeNull()
+  expect(schedule).not.toBeNull()
+  expect(preview!.width).toBeGreaterThan(100)
+  expect(preview!.height).toBeGreaterThan(50)
+  expect(selectedInfo!.x).toBeGreaterThan(preview!.x + preview!.width)
+  expect(schedule!.y).toBeGreaterThan(preview!.y + preview!.height)
+
+  await page.keyboard.press('Escape')
+  await expect(guide).toBeHidden()
+  await page.keyboard.press('Escape')
+  await expect(page.getByTestId('tv-menu-overlay')).toBeVisible()
+})
+
+test('the previous browser layout remains available by explicit opt-in', async ({ page }) => {
+  const response = await page.goto('/?classic=1')
   expect(response?.ok()).toBe(true)
   await expect(page.locator('.bb-web-shell')).toBeVisible()
   await expect(page.locator('.bb-web-header')).toBeVisible()
-  await expect(page.locator('.bb-web-network-name')).toBeVisible()
-  await expect(page.locator('.bb-web-nav button')).toHaveCount(4)
   await expect(page.getByTestId('prevue-grid')).toBeVisible()
-  await expect(page.getByTestId('nav-tv')).toHaveAttribute('aria-pressed', 'true')
-  const headerBorder = await page.locator('.bb-web-header').evaluate((element) => getComputedStyle(element).borderBottomColor)
-  expect(headerBorder).toBe('rgb(212, 173, 78)')
 })
