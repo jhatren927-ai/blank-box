@@ -166,6 +166,7 @@ test('regular website uses the original Downloader receiver layout and remote-on
   expect(firstFrameTheme?.programTitleSize).toBe('14px')
   await expect(page.locator('.bb-tv-broadcast')).toBeVisible()
   await expect(page.getByTestId('cable-remote')).toBeVisible()
+  await expect(page.locator('.bb-tv-dial')).toHaveCount(0)
   await expect(page.getByTestId('prevue-grid')).toBeVisible()
   await expect(page.locator('.bb-tv-main-grid')).toHaveCSS('display', 'grid')
   await expect(page.locator('.bb-tv-statusline, [data-testid="news-ticker"], .bb-tv-screen-heading, .bb-tv-osd')).toHaveCount(0)
