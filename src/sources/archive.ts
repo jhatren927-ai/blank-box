@@ -38,9 +38,9 @@ async function searchArchive(query: string, options: SearchOptions): Promise<Sea
 
   // A pasted Archive.org item URL or identifier is a direct lookup, not a
   // keyword search. The regular search endpoint treats the URL as title text.
-  const direct = text.match(/(?:https?:\\/\\/(?:www\\.)?archive\\.org\\/details\\/)?([a-z0-9][a-z0-9._-]{4,99})\\/?(?:[?#].*)?$/i)
-  const looksLikeUrl = /archive\\.org\\/details\\//i.test(text)
-  if (direct && (looksLikeUrl || !/\\s/.test(text))) {
+  const direct = text.match(/(?:https?:\/\/(?:www\.)?archive\.org\/details\/)?([a-z0-9][a-z0-9._-]{4,99})\/?(?:[?#].*)?$/i)
+  const looksLikeUrl = /archive\.org\/details\//i.test(text)
+  if (direct && (looksLikeUrl || !/\s/.test(text))) {
     const identifier = direct[1]
     const metadataResponse = await fetch(`https://archive.org/metadata/${encodeURIComponent(identifier)}`)
     if (metadataResponse.ok) {
