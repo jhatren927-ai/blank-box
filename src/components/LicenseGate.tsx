@@ -66,14 +66,14 @@ export function LicenseGate({ children }: { children: ReactNode }) {
     <div className="mb-7 text-center">
       <p className="font-heading text-xs font-black tracking-[0.3em] text-yellow-300">BLANK BOX TV</p>
       <h1 className="mt-3 text-3xl font-black text-white">Private access</h1>
-      <p className="mt-2 text-sm text-slate-400">Enter the email address and license code issued to you.</p>
+      <p className="mt-2 text-sm text-slate-400">Enter your email address and six-digit passcode.</p>
     </div>
     <form onSubmit={signIn} className="space-y-4">
       <label className="block text-sm font-semibold text-slate-300">Email address
         <input type="email" autoComplete="username" required value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-base text-white outline-none focus:border-yellow-300" />
       </label>
-      <label className="block text-sm font-semibold text-slate-300">License code
-        <input type="password" autoComplete="current-password" required value={code} onChange={e => setCode(e.target.value)} placeholder="Paste your private code" className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-base text-white outline-none focus:border-yellow-300" />
+      <label className="block text-sm font-semibold text-slate-300">Six-digit passcode
+        <input type="password" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} autoComplete="one-time-code" required value={code} onChange={e => setCode(e.target.value.replace(/\\D/g, "").slice(0, 6))} placeholder="000000" className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-base text-white outline-none focus:border-yellow-300" />
       </label>
       {error && <p role="alert" className="rounded-lg bg-red-950/60 p-3 text-sm text-red-200">{error}</p>}
       <button disabled={busy} className="w-full rounded-xl bg-yellow-300 px-4 py-3 font-bold text-slate-950 disabled:opacity-60">{busy ? 'Checking…' : 'Sign in'}</button>
@@ -129,7 +129,7 @@ function AdminPanel({ token, onClose }: { token: string; onClose: () => void }) 
         <input type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="Recipient email" className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-3 text-white" />
         <input value={label} onChange={e => setLabel(e.target.value)} placeholder="Optional label (e.g. family room)" className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-3 text-white" />
         <button disabled={busy} className="rounded-lg bg-yellow-300 px-4 py-3 font-bold text-slate-950 disabled:opacity-60">{busy ? 'Creating…' : 'Create license'}</button>
-        {newCode && <div className="rounded-lg border border-emerald-700 bg-emerald-950/50 p-3"><p className="text-sm font-bold text-emerald-200">New license created — copy this code now.</p><code className="mt-2 block break-all text-sm text-white">{newCode}</code><button type="button" onClick={() => navigator.clipboard?.writeText(newCode)} className="mt-2 text-xs underline">Copy code</button></div>}
+        {newCode && <div className="rounded-lg border border-emerald-700 bg-emerald-950/50 p-3"><p className="text-sm font-bold text-emerald-200">New six-digit passcode created — copy it now.</p><code className="mt-2 block break-all text-sm text-white">{newCode}</code><button type="button" onClick={() => navigator.clipboard?.writeText(newCode)} className="mt-2 text-xs underline">Copy code</button></div>}
         {error && <p role="alert" className="text-sm text-red-300">{error}</p>}
       </form>
       <section className="mt-6 rounded-xl border border-slate-700 bg-[#111a2b] p-4"><div className="flex items-center justify-between"><h2 className="font-bold">Issued licenses</h2><button onClick={() => void refresh()} className="text-xs underline">Refresh</button></div>
