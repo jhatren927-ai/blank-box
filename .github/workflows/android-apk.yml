@@ -40,6 +40,12 @@ jobs:
       - name: Install web dependencies
         run: npm ci
 
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify Android TV remote navigation
+        run: npm run verify
+
       - name: Install pinned Capacitor Android tooling
         run: npm install --no-save --package-lock=false @capacitor/core@8.6.2 @capacitor/cli@8.6.2 @capacitor/android@8.6.2
 
