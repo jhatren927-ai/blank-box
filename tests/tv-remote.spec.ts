@@ -18,7 +18,25 @@ test.beforeEach(async ({ page }) => {
     if (message.type() === 'error') console.log('TV CONSOLE ERROR:', message.text())
   })
   await page.addInitScript(({ network }) => {
-    localStorage.setItem('blankbox:network:v1', JSON.stringify(network))
+    const longLineup = new URLSearchParams(location.search).has('longlineup')
+    const initial = longLineup ? {
+      ...network,
+      channels: Array.from({ length: 12 }, (_, index) => {
+        const template = network.channels[index % network.channels.length]
+        return {
+          ...template,
+          id: 'channel-' + index,
+          number: index + 1,
+          name: 'Station ' + (index + 1),
+          callsign: 'CH' + (index + 1),
+          programs: template.programs.map((program, programIndex) => ({
+            ...program,
+            id: 'channel-' + index + '-program-' + programIndex,
+          })),
+        }
+      }),
+    } : network
+    localStorage.setItem('blankbox:network:v1', JSON.stringify(initial))
     localStorage.setItem('blankbox:prefs:v1', JSON.stringify({
       crt: false, aspect: '16:9', muted: true, volume: 0.7, rate: 1,
       logo: false, shake: false, guideScroll: false, favs: [], recent: [],
@@ -100,6 +118,21 @@ test('guide left and right move across program listings instead of changing the 
   await expect(programs.nth(1)).toBeFocused()
 })
 
+
+
+test('TV guide keeps D-pad focus and scrolls through long channel lineups', async ({ page }) => {
+  await page.goto('/?tv=1&longlineup=1')
+  await expect(page.getByTestId('tv-experience')).toBeVisible()
+  await page.keyboard.press('Enter')
+  const guide = page.getByTestId('tv-guide-overlay')
+  await expect(guide).toBeVisible()
+  const channelButtons = guide.getByTestId('tv-guide-channel')
+  await expect(channelButtons).toHaveCount(7)
+  for (let index = 0; index < 8; index += 1) await page.keyboard.press('ArrowDown')
+  await expect.poll(() => page.evaluate(() => (document.activeElement as HTMLElement | null)?.textContent?.trim())).toContain('009')
+  await expect(guide.getByTestId('tv-guide-rows').locator('.bb-tv-guide-row')).toHaveCount(7)
+  await expect(guide.getByTestId('tv-guide-channel').filter({ hasText: '009' })).toHaveAttribute('aria-pressed', 'true')
+})
 
 test('regular website uses the retro cable design and remains navigable', async ({ page }) => {
   const response = await page.goto('/')
