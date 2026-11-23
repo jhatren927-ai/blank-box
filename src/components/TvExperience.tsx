@@ -93,12 +93,14 @@ export function TvExperience({
   }).format(new Date(windowStart))
 
   useEffect(() => {
-    if (!menuOpen) return
+    if (!guideOpen) return
     const timer = window.setTimeout(() => {
-      document.querySelector<HTMLElement>('[data-testid="tv-menu-return"]')?.focus({ preventScroll: true })
-    }, 80)
+      const row = Array.from(document.querySelectorAll<HTMLElement>('.bb-tv-guide-row'))
+        .find((item) => item.dataset.channelId === (selectedGuideId ?? currentId))
+      row?.querySelector<HTMLElement>('[data-testid="tv-guide-channel"]')?.focus({ preventScroll: true })
+    }, 0)
     return () => window.clearTimeout(timer)
-  }, [menuOpen])
+  }, [guideOpen, selectedGuideId, currentId, firstVisible])
 
   const currentTitle = vod?.title || live?.program.title || 'NO PROGRAM SCHEDULED'
   const currentChannel = channel ? `CH ${padChannel(channel.number)}  ·  ${channel.callsign}` : 'NO CHANNEL SELECTED'
@@ -253,13 +255,9 @@ export function TvExperience({
             <span>▲ ▼ <b>SELECT CHANNEL</b></span>
             <span>OK <b>WATCH</b></span>
             <span>◀ ▶ <b>TIME PAGE</b></span>
-            <span>BACK <b>RETURN TO TV</b></span>
-            <button type="button" className="bb-tv-guide-close" onClick={onCloseGuide}>CLOSE GUIDE</button>
-            <div className="bb-tv-guide-page">
-              <button type="button" onClick={() => onGuidePageChange(guidePage - 1)} aria-label="Previous guide page">◀</button>
-              <span>{guidePage === 0 ? 'NOW' : guidePage > 0 ? `+${guidePage * 3} HR` : `${guidePage * 3} HR`}</span>
-              <button type="button" onClick={() => onGuidePageChange(guidePage + 1)} aria-label="Next guide page">▶</button>
-            </div>
+            <span>BACK <b>CLOSE GUIDE</b></span>
+            <span>◀ ▶ <b>CHANGE TIME</b></span>
+            <span>OK <b>WATCH CHANNEL</b></span>
           </footer>
         </section>
       )}
