@@ -198,6 +198,16 @@ function AppContent() {
             if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
               const nextIndex = activeIndex + (event.key === 'ArrowLeft' ? -1 : 1)
               destination = buttons[nextIndex]
+              // At the edge of the six-slot grid, page the guide by three hours.
+              if (!destination && buttons.length > 0) {
+                setGuidePage((page) => page + (event.key === 'ArrowLeft' ? -1 : 1))
+                window.setTimeout(() => {
+                  document.querySelector<HTMLElement>(
+                    '[data-channel-id="' + activeRow.dataset.channelId + '"] [data-testid="tv-guide-channel"]',
+                  )?.focus({ preventScroll: true })
+                }, 0)
+                return
+              }
             } else {
               const rowIndex = rows.indexOf(activeRow)
               const nextRow = rows[rowIndex + (event.key === 'ArrowUp' ? -1 : 1)]
@@ -452,6 +462,7 @@ function AppContent() {
               guidePage={guidePage}
               menuOpen={tvMenuOpen}
               onSelectGuideChannel={setGuideSelectedId}
+              onChangeGuidePage={(direction) => setGuidePage((page) => page + direction)}
               onCloseMenu={() => setTvMenuOpen(false)}
               onExitVod={() => setVod(null)}
               onUnmute={() => store.patchPrefs({ muted: false, volume: Math.max(prefs.volume, 0.4) })}
