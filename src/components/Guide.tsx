@@ -52,11 +52,10 @@ export function Guide({
     .sort((a, b) => a.number - b.number)
   const columns = 3
   const span = guide.end - guide.start
-  const marker = ((now - guide.start) / span) * 100
   const guideSurfaceRef = useRef<HTMLDivElement>(null)
   const desktopViewportRef = useRef<HTMLDivElement>(null)
   const desktopFirstCopyRef = useRef<HTMLDivElement>(null)
-  const desktopAutoScroll = usePrevueCrawl(desktopViewportRef, desktopFirstCopyRef, shown.length > 0)
+  const duplicateCopies = usePrevueCrawl(desktopViewportRef, desktopFirstCopyRef, shown.length > 0)
 
   // The Prevue guide advances only under its own timed crawl. Block all
   // manual wheel and touch-drag scrolling (both axes), using non-passive native
@@ -159,18 +158,11 @@ export function Guide({
                   <div ref={desktopFirstCopyRef}>
                     {renderRows(false)}
                   </div>
-                  {desktopAutoScroll && (
-                    <div aria-hidden="true">
+                  {Array.from({ length: Math.max(0, duplicateCopies - 1) }, (_, index) => (
+                    <div key={`crawl-copy-${index}`} aria-hidden="true">
                       {renderRows(true)}
                     </div>
-                  )}
-                </div>
-                <div className="pointer-events-none absolute inset-y-0 left-[174px] right-0">
-                  <div
-                    data-testid="guide-now-marker"
-                    className="absolute inset-y-0 w-0.5 bg-red-500 shadow-[0_0_8px_#ef4444]"
-                    style={{ left: marker + '%' }}
-                  />
+                  ))}
                 </div>
               </div>
             </div>
@@ -231,7 +223,7 @@ function GuideRow({
               data-on-now={onNow ? 'true' : 'false'}
               onClick={() => onTune(channel.id)}
               tabIndex={dup ? -1 : undefined}
-              className={`bb-guide-program-cell absolute top-0 h-full overflow-hidden border-r-2 border-black px-2 py-1.5 text-left ${onNow ? 'bg-[#0a1aa8]' : ''}`}
+              className={`bb-guide-program-cell absolute top-0 h-full overflow-hidden border-r-2 border-black px-2 py-1.5 text-left ${onNow ? 'bg-[#173d91] border-l-2 border-l-amber-300' : ''}`}
               style={{ left: `${((left - windowStart) / span) * 100}%`, width: `${((right - left) / span) * 100}%` }}
             >
               <p className="line-clamp-2 font-heading text-[11px] font-bold uppercase leading-tight text-white sm:text-xs">
