@@ -520,6 +520,9 @@ test('desktop website keeps the player and remote compact together and makes the
       player: box('.bb-tv-screen-bezel'),
       remote: box('[data-testid="cable-remote"]'),
       guide: box('.bb-tv-guide-section'),
+      header: box('.bb-tv-header'),
+      headerColumns: getComputedStyle(document.querySelector('.bb-tv-header')!).gridTemplateColumns,
+      nav: box('.bb-tv-header nav'),
       columns: getComputedStyle(grid).gridTemplateColumns,
       guideColumns: getComputedStyle(channelColumn).gridTemplateColumns,
     }
@@ -528,6 +531,8 @@ test('desktop website keeps the player and remote compact together and makes the
     (element) => getComputedStyle(element).fontSize,
   )
   console.log('PUBLIC WEBSITE MOBILE LAYOUT:', JSON.stringify(mobileLayout))
+  expect(mobileLayout.headerColumns.trim().split(/\s+/)).toHaveLength(1)
+  expect(mobileLayout.nav.y).toBeGreaterThan(mobileLayout.header.y)
   expect(mobileLayout.columns.trim().split(/\s+/)).toHaveLength(1)
   expect(mobileLayout.player.width).toBeGreaterThan(320)
   expect(mobileLayout.remote.width).toBeGreaterThan(320)
