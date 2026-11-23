@@ -184,6 +184,16 @@ test('iPhone Chrome opens the native AirPlay picker for the current video', asyn
   await expect.poll(() => page.evaluate(() => (window as any).__airplayPickerOpened)).toBe(true)
 })
 
+test('mobile website keeps the Prevue channel and time-slot matrix', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/')
+  await expect(page.getByTestId('prevue-grid')).toBeVisible()
+  await expect(page.getByTestId('guide-viewport')).toBeVisible()
+  await expect(page.getByTestId('guide-mobile-list')).toHaveCount(0)
+  const timetable = page.locator('#guide > div:nth-child(2)')
+  await expect.poll(() => timetable.evaluate((element) => element.scrollWidth > element.clientWidth)).toBe(true)
+})
+
 test('web guide scrolls with wheel, touch and remote arrow keys', async ({ page }) => {
   const response = await page.goto('/')
   expect(response?.ok()).toBe(true)
