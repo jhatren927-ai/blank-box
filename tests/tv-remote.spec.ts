@@ -157,3 +157,32 @@ test('the previous browser layout remains available by explicit opt-in', async (
   await expect(page.locator('.bb-web-header')).toBeVisible()
   await expect(page.getByTestId('prevue-grid')).toBeVisible()
 })
+
+test('website removes forced sign-in and saves a channel before videos are added', async ({ page }) => {
+  const response = await page.goto('/')
+  expect(response?.ok()).toBe(true)
+  await expect(page.getByText('Private access')).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Admin' })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Sign out' })).toHaveCount(0)
+
+  const addChannel = page.getByTestId('tv-add-channel')
+  await expect(addChannel).toBeVisible()
+  await expect(addChannel).toBeInViewport()
+  await expect(page.locator('.bb-receiver-logo')).toHaveCount(0)
+  await addChannel.click()
+
+  await expect(page.getByTestId('builder')).toBeVisible()
+  await page.getByTestId('theme-input').fill('Local News')
+  await page.getByTestId('make-channel').click()
+  await expect(page.getByTestId('channel-name')).not.toHaveValue('')
+  await expect(page.getByTestId('watch-channel')).toContainText('Save channel')
+  await page.getByTestId('watch-channel').click()
+
+  await expect(page.getByTestId('web-tv-receiver')).toBeVisible()
+  await expect(page.locator('.bb-station-card')).toHaveCount(3)
+  await expect(page.locator('.bb-station-name').filter({ hasText: /local/i })).toBeVisible()
+
+  await page.reload()
+  await expect(page.locator('.bb-station-card')).toHaveCount(3)
+  await expect(page.locator('.bb-station-name').filter({ hasText: /local/i })).toBeVisible()
+})

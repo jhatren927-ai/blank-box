@@ -187,7 +187,7 @@ export function Builder({
   }
 
   function watch() {
-    if (programs.length === 0 || !name.trim()) return
+    if (!name.trim()) return
     const used = new Set(channels.filter((channel) => channel.id !== channelId).map((channel) => channel.number))
     let chosen = Math.max(1, Math.round(number) || 2)
     while (used.has(chosen)) chosen += 1
@@ -206,7 +206,7 @@ export function Builder({
   const bug = lookById(look).bug
 
   return (
-    <section data-testid="builder" className="mx-auto max-w-3xl px-3 py-4">
+    <section data-testid="builder" className="bb-builder mx-auto max-w-3xl px-3 py-4">
       <button type="button" className="font-mono text-sm text-slate-400 hover:text-yellow-300" onClick={() => (programs.length > 0 && !initial ? setLeaveOpen(true) : onClose())}>
         ← Back to TV
       </button>
@@ -448,9 +448,14 @@ export function Builder({
               ))}
             </ul>
           </div>
-          <Button data-testid="watch-channel" size="lg" className="w-full" disabled={programs.length === 0 || !name.trim()} onClick={watch}>
-            Watch
-          </Button>
+          <div className="bb-builder-save-row">
+            <p>{programs.length === 0
+              ? 'Save this station now. You can add shows to it later.'
+              : `${programs.length} shows ready for this station.`}</p>
+            <Button data-testid="watch-channel" size="lg" className="w-full" disabled={!name.trim()} onClick={watch}>
+              {programs.length === 0 ? 'Save channel' : 'Save & watch'}
+            </Button>
+          </div>
           {initial && (
             <Button
               variant="danger"
