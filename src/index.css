@@ -3760,69 +3760,218 @@ html.tv-mode .bb-tv-guide-section #guide [data-testid="guide-viewport"] {
 }
 
 
-/* Desktop receiver composition: keep the live picture and remote together,
-   then give the Prevue grid the full width immediately below them. */
+/* Public website receiver: compact, centered hardware row above a dominant Prevue guide. */
 html.tv-mode body {
-  background: radial-gradient(ellipse at 50% -12%, #183d72 0%, #0a1c3b 46%, #050d20 100%) !important;
-  color: #f3f6ff;
+  background:
+    radial-gradient(ellipse at 50% -18%, #173d73 0%, #0b2248 42%, #050d20 100%) !important;
+  color: #f2f6ff;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
 }
-html.tv-mode .bb-tv-console {
-  width: min(calc(100% - 48px), 1780px);
-  max-width: none;
-  margin: 12px auto 0;
-  padding: 0 0 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-html.tv-mode .bb-tv-main-grid {
+
+html.tv-mode .bb-tv-header {
   display: grid;
-  grid-template-columns: minmax(420px, 560px) minmax(320px, 360px);
-  justify-content: center;
-  align-items: start;
-  gap: 24px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0 22px;
+  min-height: 64px;
+  padding: 6px clamp(14px, 2vw, 28px);
+  border-bottom: 3px solid #06162d;
+  background: linear-gradient(180deg, #1d4a83 0%, #123365 100%);
+  box-shadow: 0 4px 12px #0006;
+}
+
+html.tv-mode .bb-tv-header .bb-web-header-inner {
   width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  align-items: center;
+  gap: 12px;
+}
+
+html.tv-mode .bb-tv-header .bb-web-kicker {
+  margin: 0 0 2px;
+  color: #a9c6eb;
+  font-size: 8px;
+  line-height: 1.1;
+  letter-spacing: .16em;
+}
+
+html.tv-mode .bb-tv-header input[data-testid="network-name"] {
+  display: block;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  color: #fff0a6;
+  font-family: "Space Grotesk Variable", sans-serif;
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -.035em;
+  text-shadow: 0 1px 0 #06162d;
+}
+
+html.tv-mode .bb-tv-header .bb-web-clock {
+  padding: 0;
+  color: #ffe58a;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+html.tv-mode .bb-tv-header nav {
+  width: auto;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 7px;
+  overflow: visible;
+}
+
+html.tv-mode .bb-tv-header nav button {
+  min-width: 82px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid #6188ba;
+  border-bottom: 3px solid #07172e;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #3466a0 0%, #1b4479 100%);
+  box-shadow: inset 0 1px 0 #ffffff25, 0 2px 4px #0005;
+  color: #f4f7ff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  white-space: nowrap;
+}
+
+html.tv-mode .bb-tv-header nav button[aria-current="page"],
+html.tv-mode .bb-tv-header nav button:focus-visible {
+  border-color: #fff0a4;
+  border-bottom-color: #9d7627;
+  background: linear-gradient(180deg, #fff0a6, #d9ae48);
+  color: #14213a;
+}
+
+html.tv-mode .bb-tv-console {
+  display: flex;
+  width: min(calc(100% - 32px), 1480px);
+  max-width: none;
+  flex-direction: column;
+  gap: 12px;
+  margin: 10px auto 28px;
   padding: 0;
 }
-html.tv-mode .bb-tv-broadcast {
+
+/* Keep the receiver and picture as one balanced utility unit. */
+html.tv-mode .bb-tv-main-grid {
+  display: grid;
   width: 100%;
-  max-width: 560px;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  max-width: 1000px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: stretch;
+  justify-content: center;
+  gap: 16px;
+  margin: 0 auto;
+  padding: 0;
 }
+
+html.tv-mode .bb-tv-broadcast {
+  display: flex;
+  min-width: 0;
+  width: 100%;
+  max-width: none;
+  flex-direction: column;
+  gap: 6px;
+}
+
 html.tv-mode .bb-tv-screen-bezel {
   width: 100%;
   max-width: none;
   margin: 0;
-  padding: 6px;
-  border: 5px solid #28558f;
-  border-radius: 7px;
-  background: linear-gradient(145deg, #28558f, #10294f 48%, #07162e);
-  box-shadow: inset 0 1px #ffffff30, 0 8px 22px #0009, 0 0 0 2px #020817;
+  padding: 5px;
+  border: 4px solid #28558f;
+  border-radius: 6px;
+  background: linear-gradient(145deg, #28558f, #10294f 52%, #07162e);
+  box-shadow: inset 0 1px #ffffff30, 0 6px 16px #0008, 0 0 0 1px #020817;
 }
+
 html.tv-mode .bb-tv-screen-inner {
   width: 100%;
-  aspect-ratio: 16 / 9;
   min-height: 0;
+  aspect-ratio: 16 / 9;
+  border: 2px solid #061226;
+  border-radius: 3px;
 }
+
 html.tv-mode .bb-tv-now-playing {
+  display: grid;
+  min-height: 50px;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: 9px;
-  margin-top: 0;
-  padding: 9px 11px;
-  border-color: #315d91;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 7px 9px;
+  border: 1px solid #315d91;
+  border-radius: 3px;
   background: linear-gradient(180deg, #12366a, #09234b);
-  box-shadow: inset 0 1px #ffffff20, 0 3px #020b1b;
+  box-shadow: inset 0 1px #ffffff20, 0 2px #020b1b;
 }
-html.tv-mode .bb-program-next { display: none; }
-html.tv-mode .bb-program-copy strong { font-size: 14px; }
-html.tv-mode .bb-program-copy span { font-size: 11px; color: #b7ccef; }
-html.tv-mode .bb-program-progress { margin-top: 0; }
+
+html.tv-mode .bb-program-ident {
+  gap: 6px;
+}
+
+html.tv-mode .bb-program-live {
+  padding: 4px 6px;
+  border: 1px solid #ff8b82;
+  background: linear-gradient(180deg, #dc4a40, #a91e25);
+  color: #fff;
+  font-size: 9px;
+}
+
+html.tv-mode .bb-program-channel {
+  color: #ffe58a;
+  font-size: 9px;
+}
+
+html.tv-mode .bb-program-copy {
+  min-width: 0;
+  gap: 2px;
+}
+
+html.tv-mode .bb-program-copy strong {
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.15;
+}
+
+html.tv-mode .bb-program-copy span {
+  color: #b7ccef;
+  font-size: 10px;
+}
+
+html.tv-mode .bb-program-next {
+  display: none;
+}
+
+html.tv-mode .bb-program-progress {
+  height: 3px;
+  margin: 0;
+  background: #04132b;
+}
+
+html.tv-mode .bb-program-progress span {
+  background: linear-gradient(90deg, #e2b83f, #fff0a0);
+}
+
+/* The remote is a compact two-column control surface, not a tall stack. */
 html.tv-mode .bb-cable-receiver {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
   grid-template-areas:
     "brand brand"
     "display display"
@@ -3832,235 +3981,705 @@ html.tv-mode .bb-cable-receiver {
     "cast cast"
     "advanced advanced";
   align-content: start;
-  gap: 7px 10px;
-  width: 100%;
-  max-width: 360px;
-  min-width: 0;
-  padding: 11px;
+  align-self: stretch;
+  gap: 6px 9px;
+  padding: 9px;
   border: 2px solid #4774ae !important;
-  border-radius: 8px;
-  background: linear-gradient(155deg, #28558f 0%, #153967 42%, #091d3c 100%) !important;
+  border-radius: 7px;
+  background: linear-gradient(155deg, #28558f 0%, #153967 44%, #091d3c 100%) !important;
   color: #f1f6ff !important;
-  box-shadow: inset 0 1px 0 #ffffff2b, 0 10px 24px #0008;
+  box-shadow: inset 0 1px 0 #ffffff2b, 0 7px 18px #0008;
 }
-html.tv-mode .bb-receiver-brand { grid-area: brand; padding: 0 2px 7px; }
-html.tv-mode .bb-receiver-display { grid-area: display; min-height: 54px; margin: 0; }
-html.tv-mode .bb-remote-footer { grid-area: actions; gap: 5px; margin: 0; }
-html.tv-mode .bb-remote-section-label { margin: 0; font-size: 8px; }
-html.tv-mode .bb-cable-receiver > .bb-remote-section-label:nth-child(4) { grid-area: channel-label; }
-html.tv-mode .bb-channel-rockers { grid-area: rockers; align-self: start; }
-html.tv-mode .bb-cable-receiver > .bb-remote-section-label:nth-child(6) { grid-area: access-label; }
-html.tv-mode .bb-number-pad { grid-area: keypad; gap: 4px; }
-html.tv-mode .bb-channel-rockers button { min-height: 34px; }
-html.tv-mode .bb-number-pad button { min-height: 34px; font-size: 12px; }
-html.tv-mode .bb-remote-footer button { min-height: 32px; font-size: 9px; }
-html.tv-mode .bb-receiver-cast { grid-area: cast; margin: 0; }
-html.tv-mode .bb-remote-advanced { grid-area: advanced; margin-top: 0; padding-top: 5px; }
+
+html.tv-mode .bb-receiver-brand {
+  grid-area: brand;
+  gap: 8px;
+  padding: 0 2px 6px;
+  border-bottom: 1px solid #5c83b7;
+}
+
+html.tv-mode .bb-receiver-brand strong {
+  color: #fff0a6;
+  font-family: "Space Grotesk Variable", sans-serif;
+  font-size: 16px;
+  line-height: 1;
+}
+
+html.tv-mode .bb-receiver-brand small {
+  color: #c0d4f1;
+  font-size: 7px;
+  letter-spacing: .08em;
+}
+
+html.tv-mode .bb-receiver-display {
+  grid-area: display;
+  min-height: 46px;
+  margin: 0;
+  padding: 4px 8px;
+  border: 1px solid #668dbb;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #07172d, #0b2548);
+  box-shadow: inset 0 0 10px #0009;
+}
+
+html.tv-mode .bb-led-channel {
+  color: #ffe58a;
+  font-size: 27px;
+  line-height: 1;
+}
+
+html.tv-mode .bb-led-info {
+  color: #a9d8ff;
+  font-size: 8px;
+}
+
+html.tv-mode .bb-remote-footer {
+  display: grid;
+  grid-area: actions;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+  margin: 0;
+}
+
+html.tv-mode .bb-remote-footer button {
+  min-width: 0;
+  min-height: 29px;
+  padding: 3px 5px;
+  border: 1px solid #ffe18a;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #fff0a0, #d8a936);
+  color: #17213a;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+html.tv-mode .bb-remote-section-label {
+  margin: 0;
+  color: #c7ddfa;
+  font-size: 8px;
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: .1em;
+}
+
+html.tv-mode .bb-cable-receiver > .bb-remote-section-label:nth-child(4) {
+  grid-area: channel-label;
+}
+
+html.tv-mode .bb-cable-receiver > .bb-remote-section-label:nth-child(6) {
+  grid-area: access-label;
+}
+
+html.tv-mode .bb-channel-rockers {
+  display: grid;
+  grid-area: rockers;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-self: start;
+  gap: 5px;
+}
+
+html.tv-mode .bb-channel-rockers button {
+  display: flex;
+  min-width: 0;
+  min-height: 32px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 3px 4px;
+  border: 1px solid #6f96c7;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #3c70ab, #1a447a);
+  color: #f4f8ff;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+html.tv-mode .bb-channel-rockers button svg {
+  width: 14px;
+  height: 14px;
+}
+
+html.tv-mode .bb-number-pad {
+  display: grid;
+  grid-area: keypad;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+}
+
+html.tv-mode .bb-number-pad button {
+  min-width: 0;
+  min-height: 29px;
+  padding: 2px;
+  border: 1px solid #8eb6e2;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #e3efff, #94b8e2);
+  color: #09234a;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+html.tv-mode .bb-number-pad button.bb-number-function {
+  border-color: #ffe18a;
+  background: linear-gradient(180deg, #fff0a0, #d8a936);
+  color: #17213a;
+}
+
+html.tv-mode .bb-receiver-cast {
+  grid-area: cast;
+  margin: 0;
+}
+
+html.tv-mode .bb-remote-advanced {
+  grid-area: advanced;
+  margin: 0;
+  border-top: 1px solid #5279a8;
+  padding-top: 4px;
+}
+
+html.tv-mode .bb-remote-advanced summary {
+  min-height: 24px;
+  padding: 4px 8px;
+  border: 1px solid #6486b7;
+  border-radius: 3px;
+  background: #102f5d;
+  color: #ffe58a;
+  font: 800 9px/1.2 "Courier New", monospace;
+  letter-spacing: .08em;
+  text-align: center;
+}
+
+html.tv-mode .bb-remote-advanced[open] summary {
+  margin-bottom: 6px;
+}
+
+html.tv-mode .bb-remote-advanced .bb-control-grid-wide {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+}
+
+html.tv-mode .bb-remote-advanced .bb-control-grid-wide button {
+  min-height: 28px;
+  padding: 3px;
+  border: 1px solid #5b83b4;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #34649d, #194274);
+  color: #f5f8ff;
+  font-size: 9px;
+}
+
+/* One uninterrupted broadcast palette from masthead through the EPG. */
 html.tv-mode .bb-tv-guide-section {
-  order: 2;
   width: 100%;
   max-width: none;
   margin: 0;
   padding: 8px;
   border: 1px solid #315d91;
+  border-radius: 4px;
   background: linear-gradient(180deg, #102f5d, #081d3c);
   box-shadow: 0 8px 20px #0007;
 }
-html.tv-mode .bb-tv-guide-section #guide [data-testid="guide-viewport"] {
-  height: min(72vh, 760px);
-  min-height: 440px;
+
+html.tv-mode .bb-tv-guide-section #guide {
+  width: 100%;
+  margin: 0;
+  border: 2px solid #3768a5;
+  border-radius: 2px;
+  background: #061a4a;
+  color: #f4f7ff;
+  box-shadow: inset 0 1px #8eb5e8, inset 0 -2px #020b24, 0 5px 14px #0008;
 }
-html.tv-mode .bb-tv-guide-section #guide .bb-guide-program-cell p:first-child {
-  font-size: 14px !important;
-  line-height: 1.25 !important;
+
+html.tv-mode .bb-tv-guide-section #guide > div:first-child {
+  min-height: 40px;
+  padding: 5px 10px;
+  border-bottom: 2px solid #3768a5;
+  background: linear-gradient(180deg, #1c4b91, #0b2a60);
 }
-html.tv-mode .bb-tv-guide-section #guide .bb-guide-program-cell p:last-child {
-  font-size: 11px !important;
+
+html.tv-mode .bb-tv-guide-section #guide h2 {
+  color: #ffe58a;
+  font-family: "Space Grotesk Variable", sans-serif;
+  font-size: 19px;
+  line-height: 1.1;
+  letter-spacing: .1em;
 }
-html.tv-mode .bb-tv-guide-section #guide .bb-guide-channel-number { font-size: 20px !important; }
-html.tv-mode .bb-tv-guide-section #guide .bb-guide-channel-callsign { font-size: 12px !important; }
-html.tv-mode .bb-tv-guide-section #guide .bb-guide-channel-name { font-size: 11px !important; }
+
 html.tv-mode .bb-tv-guide-section #guide [data-testid="guide-time-label"],
-html.tv-mode .bb-tv-guide-section #guide [data-testid="guide-time-label"] + div { font-size: 14px !important; }
+html.tv-mode .bb-tv-guide-section #guide [data-testid="guide-time-label"] + div > div {
+  border-color: #3768a5;
+  background: #123875;
+  color: #ffe58a;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+html.tv-mode .bb-tv-guide-section #guide [data-testid="guide-row"] {
+  border-bottom: 1px solid #244f88;
+  background: #071b55;
+}
+
+html.tv-mode .bb-tv-guide-section #guide [data-testid="guide-row"]:nth-child(even) {
+  background: #0b2468;
+}
+
+html.tv-mode .bb-tv-guide-section #guide .bb-guide-channel-button {
+  min-height: 64px;
+  border-right: 2px solid #3768a5;
+  background: #0b2b66;
+  color: #f4f7ff;
+}
+
+html.tv-mode .bb-tv-guide-section #guide .bb-guide-channel-button.bg-yellow-400,
+html.tv-mode .bb-tv-guide-section #guide .bb-guide-channel-button:focus-visible {
+  border-color: #ffe58a;
+  background: #ffe58a;
+  color: #071b42;
+}
+
+html.tv-mode .bb-tv-guide-section #guide .bb-guide-channel-number {
+  color: #ffe58a;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 20px;
+  line-height: 1;
+  font-weight: 800;
+}
+
+html.tv-mode .bb-tv-guide-section #guide .bb-guide-channel-callsign {
+  color: #ffffff;
+  font-family: "Space Grotesk Variable", sans-serif;
+  font-size: 12px;
+  line-height: 1.1;
+  font-weight: 800;
+}
+
+html.tv-mode .bb-tv-guide-section #guide .bb-guide-channel-name {
+  color: #c7dcff;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  line-height: 1.1;
+}
+
+html.tv-mode .bb-tv-guide-section #guide .bb-guide-program-cell {
+  border-right: 1px solid #3768a5;
+  border-radius: 0;
+  background: #102d78;
+  color: #ffffff;
+  padding: 6px 9px;
+}
+
+html.tv-mode .bb-tv-guide-section #guide .bb-guide-program-cell[data-on-now="true"] {
+  border-left: 3px solid #ffe58a;
+  background: #17449b;
+}
+
+html.tv-mode .bb-tv-guide-section #guide .bb-guide-program-cell p:first-child {
+  color: #ffffff;
+  font-family: "Space Grotesk Variable", sans-serif;
+  font-size: 14px !important;
+  line-height: 1.2 !important;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+html.tv-mode .bb-tv-guide-section #guide .bb-guide-program-cell p:last-child {
+  color: #ffe58a;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px !important;
+  line-height: 1.1 !important;
+}
+
+html.tv-mode .bb-tv-guide-section #guide [data-testid="guide-time-label"],
+html.tv-mode .bb-tv-guide-section #guide [data-testid="guide-time-label"] + div {
+  font-size: 12px !important;
+}
+
+html.tv-mode .bb-tv-console button:focus-visible,
+html.tv-mode .bb-tv-console a:focus-visible {
+  position: relative;
+  z-index: 30;
+  outline: 3px solid #fff0a0;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px #07172e, 0 0 16px #ffe58a88;
+  transform: none;
+}
+
+html.tv-mode .bb-tv-guide-section #guide [data-testid="guide-viewport"] {
+  height: min(62vh, 640px);
+  min-height: 360px;
+}
 
 @media (max-width: 900px) {
-  html.tv-mode .bb-tv-console { width: calc(100% - 24px); }
+  html.tv-mode .bb-tv-console {
+    width: calc(100% - 24px);
+  }
+
   html.tv-mode .bb-tv-main-grid {
-    grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
-    gap: 14px;
+    max-width: 880px;
+    gap: 12px;
+  }
+
+  html.tv-mode .bb-cable-receiver {
+    padding: 8px;
   }
 }
-@media (max-width: 680px) {
-  html.tv-mode .bb-tv-main-grid {
+
+@media (max-width: 760px) {
+  html.tv-mode .bb-tv-header {
     grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+    padding: 7px 10px;
+  }
+
+  html.tv-mode .bb-tv-header .bb-web-header-inner {
+    padding: 0;
+  }
+
+  html.tv-mode .bb-tv-header nav {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 0 0 2px;
+  }
+
+  html.tv-mode .bb-tv-header nav button {
+    min-width: 72px;
+    min-height: 32px;
+    padding: 0 9px;
+    font-size: 9px;
+  }
+
+  html.tv-mode .bb-tv-console {
+    width: calc(100% - 16px);
+    margin-top: 8px;
     gap: 10px;
   }
+
+  html.tv-mode .bb-tv-main-grid {
+    max-width: 560px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 9px;
+  }
+
   html.tv-mode .bb-tv-broadcast,
-  html.tv-mode .bb-tv-screen-bezel,
-  html.tv-mode .bb-cable-receiver { max-width: none; }
   html.tv-mode .bb-cable-receiver {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    width: 100%;
+    max-width: none;
   }
+
+  html.tv-mode .bb-tv-guide-section {
+    padding: 5px;
+  }
+
   html.tv-mode .bb-tv-guide-section #guide [data-testid="guide-viewport"] {
-    height: min(62vh, 600px);
-    min-height: 340px;
+    height: min(58vh, 520px);
+    min-height: 280px;
   }
 }
-@media (max-width: 420px) {
-  html.tv-mode .bb-cable-receiver { grid-template-columns: minmax(0, 1fr); }
-  html.tv-mode .bb-cable-receiver > * { grid-column: 1; }
-  html.tv-mode .bb-number-pad { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+@media (max-width: 460px) {
+  html.tv-mode .bb-tv-header input[data-testid="network-name"] {
+    font-size: 21px;
+  }
+
+  html.tv-mode .bb-tv-console {
+    width: calc(100% - 12px);
+  }
+
+  html.tv-mode .bb-cable-receiver {
+    gap: 5px 7px;
+    padding: 7px;
+  }
+
+  html.tv-mode .bb-number-pad {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  html.tv-mode .bb-tv-guide-section #guide .bb-guide-program-cell p:first-child {
+    font-size: 14px !important;
+  }
 }
 
-/* Blank Box final color + guide type lock.
-   Target the public web guide wrapper as well as TV mode: older rules above
-   this point left slate/grey borders and competing typography in the browser UI. */
-.bb-web-guide-wrap #guide {
-  border: 2px solid #3768a5 !important;
-  background: #061a4a !important;
-  box-shadow: inset 0 1px #8eb5e8, inset 0 -2px #020b24, 0 8px 22px #0009 !important;
-  color: #f4f7ff !important;
-}
-.bb-web-guide-wrap #guide > div:first-child {
-  border-bottom: 2px solid #3768a5 !important;
-  background: linear-gradient(180deg, #1c4b91 0%, #0b2a60 100%) !important;
-}
-.bb-web-guide-wrap #guide h2 {
-  color: #ffe58a !important;
-  font-family: "Arial Narrow", Arial, sans-serif !important;
-  font-size: 20px !important;
-  line-height: 1.1 !important;
-  letter-spacing: .12em !important;
-}
-.bb-web-guide-wrap #guide [data-testid="guide-time-label"],
-.bb-web-guide-wrap #guide [data-testid="guide-time-label"] + div {
-  border-color: #3768a5 !important;
-  background: #123875 !important;
-  color: #ffe58a !important;
-  font-family: "Courier New", monospace !important;
-  font-size: 12px !important;
-  line-height: 1.2 !important;
-  font-weight: 700 !important;
-}
-.bb-web-guide-wrap #guide [data-testid="guide-row"],
-.bb-web-guide-wrap #guide [data-testid="guide-row"]:nth-child(even) {
-  border-bottom: 1px solid #244f88 !important;
-  background: #071b55 !important;
-}
-.bb-web-guide-wrap #guide [data-testid="guide-row"]:nth-child(even) {
-  background: #0b2468 !important;
-}
-.bb-web-guide-wrap #guide [data-testid="guide-row"] > button {
-  border-right: 2px solid #3768a5 !important;
-  background: #0b2b66 !important;
-  color: #f4f7ff !important;
-}
-.bb-web-guide-wrap #guide .bb-guide-channel-number {
-  color: #ffe58a !important;
-  font-family: "Courier New", monospace !important;
-  font-size: 18px !important;
-  line-height: 1 !important;
-  font-weight: 700 !important;
-}
-.bb-web-guide-wrap #guide .bb-guide-channel-callsign {
-  color: #ffffff !important;
-  font-family: Arial, sans-serif !important;
-  font-size: 11px !important;
-  line-height: 1.1 !important;
-  font-weight: 800 !important;
-}
-.bb-web-guide-wrap #guide .bb-guide-channel-name {
-  color: #c7dcff !important;
-  font-family: "Courier New", monospace !important;
-  font-size: 10px !important;
-  line-height: 1.1 !important;
-}
-.bb-web-guide-wrap #guide [data-testid="guide-row"] > div {
-  background: transparent !important;
-}
-.bb-web-guide-wrap #guide .bb-guide-program-cell {
-  border-right: 1px solid #3768a5 !important;
-  border-radius: 0 !important;
-  background: #102d78 !important;
-  color: #ffffff !important;
-  padding: 5px 8px !important;
-}
-.bb-web-guide-wrap #guide .bb-guide-program-cell p:first-child {
-  color: #ffffff !important;
-  font-family: Arial, sans-serif !important;
-  font-size: 12px !important;
-  line-height: 1.2 !important;
-  font-weight: 700 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-}
-.bb-web-guide-wrap #guide .bb-guide-program-cell p:last-child {
-  color: #ffe58a !important;
-  font-family: "Courier New", monospace !important;
-  font-size: 10px !important;
-  line-height: 1.1 !important;
-}
-.bb-web-guide-wrap #guide .bb-guide-program-cell[data-on-now="true"] {
-  border-left: 3px solid #ff4545 !important;
-  background: #17449b !important;
-}
-.bb-web-guide-wrap #guide [data-testid="guide-row"] > button.bg-yellow-400,
-.bb-web-guide-wrap #guide [data-testid="guide-row"] > button:focus-visible {
-  border-color: #ffe58a !important;
-  background: #ffe58a !important;
-  color: #071b42 !important;
-}
-.bb-web-guide-wrap #guide [data-testid="guide-favs-toggle"] {
-  border: 1px solid #5b83b4 !important;
-  background: #0b2b66 !important;
-  color: #ffe58a !important;
-  font-family: "Courier New", monospace !important;
-  font-size: 10px !important;
-  line-height: 1.2 !important;
+
+
+/* Final cascade lock: legacy .bb-tv-console hardware selectors are more
+   specific than the earlier TV-mode rules, so these deliberate overrides
+   repeat that specificity to ensure compact dimensions actually win. */
+html.tv-mode .bb-tv-console .bb-tv-main-grid {
+  width: 100%;
+  max-width: 820px;
+  grid-template-columns: minmax(0, 1.75fr) minmax(260px, .95fr);
+  gap: 14px;
 }
 
-/* Lock all guide typography to fixed pixel sizes at every responsive breakpoint.
-   In particular, neutralize the component's sm:text-xs size jump. */
-.bb-web-guide-wrap #guide .bb-guide-program-cell p,
-.bb-web-guide-wrap #guide .bb-guide-program-cell p:first-child {
-  font-size: 12px !important;
+html.tv-mode .bb-tv-console .bb-tv-broadcast {
+  min-width: 0;
+  max-width: none;
 }
-.bb-web-guide-wrap #guide .bb-guide-program-cell p:last-child {
-  font-size: 10px !important;
-}
-.bb-web-guide-wrap #guide .bb-guide-channel-number { font-size: 18px !important; }
-.bb-web-guide-wrap #guide .bb-guide-channel-callsign { font-size: 11px !important; }
-.bb-web-guide-wrap #guide .bb-guide-channel-name { font-size: 10px !important; }
-.bb-web-guide-wrap #guide [data-testid="guide-time-label"],
-.bb-web-guide-wrap #guide [data-testid="guide-time-label"] + div { font-size: 12px !important; }
 
-/* Apply the same broadcast palette to the TV-mode wrapper, not a separate grey skin. */
-html.tv-mode .bb-tv-console {
-  --bb-shell-top: #28558f;
-  --bb-shell-mid: #153967;
-  --bb-shell-low: #091d3c;
-  --bb-amber: #ffe58a;
-  --bb-phosphor: #c7e5ff;
+html.tv-mode .bb-tv-console .bb-tv-screen-bezel {
+  width: 100%;
+  max-width: none;
 }
+
 html.tv-mode .bb-tv-console .bb-cable-receiver {
-  border-color: #4774ae !important;
-  background: linear-gradient(155deg, #28558f 0%, #153967 42%, #091d3c 100%) !important;
+  display: grid;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+  grid-template-areas:
+    "brand brand"
+    "display display"
+    "actions actions"
+    "channel-label access-label"
+    "rockers keypad"
+    "cast cast"
+    "advanced advanced";
+  align-content: start;
+  align-self: stretch;
+  gap: 4px 8px;
+  padding: 7px;
+  border: 2px solid #4774ae !important;
+  border-radius: 7px;
+  background: linear-gradient(155deg, #28558f 0%, #153967 44%, #091d3c 100%) !important;
   color: #f1f6ff !important;
 }
-html.tv-mode .bb-tv-console .bb-channel-rockers button,
-html.tv-mode .bb-tv-console .bb-control-grid button {
-  border-color: #5b83b4 !important;
-  background: linear-gradient(180deg, #34649d, #194274) !important;
-  color: #f5f8ff !important;
+
+html.tv-mode .bb-tv-console .bb-receiver-brand {
+  grid-area: brand;
+  gap: 6px;
+  padding: 0 2px 4px;
 }
+
+html.tv-mode .bb-tv-console .bb-receiver-brand strong {
+  font-size: 15px;
+}
+
+html.tv-mode .bb-tv-console .bb-receiver-brand small {
+  font-size: 7px;
+}
+
+html.tv-mode .bb-tv-console .bb-receiver-display {
+  grid-area: display;
+  min-height: 38px;
+  margin: 0;
+  padding: 3px 7px;
+}
+
+html.tv-mode .bb-tv-console .bb-led-channel {
+  font-size: 24px;
+}
+
+html.tv-mode .bb-tv-console .bb-remote-footer {
+  display: grid;
+  grid-area: actions;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  margin: 0;
+}
+
+html.tv-mode .bb-tv-console .bb-remote-footer button {
+  min-width: 0;
+  min-height: 25px;
+  padding: 2px 4px;
+  border: 1px solid #ffe18a;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #fff0a0, #d8a936);
+  color: #17213a;
+  font-size: 8px;
+}
+
+html.tv-mode .bb-tv-console .bb-remote-section-label {
+  margin: 0;
+  color: #c7ddfa;
+  font-size: 7px;
+  line-height: 1.1;
+}
+
+html.tv-mode .bb-tv-console > .bb-cable-receiver > .bb-remote-section-label:nth-child(4) {
+  grid-area: channel-label;
+}
+
+html.tv-mode .bb-tv-console > .bb-cable-receiver > .bb-remote-section-label:nth-child(6) {
+  grid-area: access-label;
+}
+
+html.tv-mode .bb-tv-console .bb-channel-rockers {
+  display: grid;
+  grid-area: rockers;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+}
+
+html.tv-mode .bb-tv-console .bb-channel-rockers button {
+  min-width: 0;
+  min-height: 27px;
+  padding: 2px;
+  border: 1px solid #6f96c7;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #3c70ab, #1a447a);
+  color: #f4f8ff;
+  font-size: 8px;
+}
+
+html.tv-mode .bb-tv-console .bb-channel-rockers button b {
+  font-size: 9px;
+  color: #ffe58a;
+}
+
+html.tv-mode .bb-tv-console .bb-channel-rockers button svg {
+  width: 12px;
+  height: 12px;
+}
+
+html.tv-mode .bb-tv-console .bb-number-pad {
+  display: grid;
+  grid-area: keypad;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 3px;
+}
+
 html.tv-mode .bb-tv-console .bb-number-pad button {
-  border-color: #79a0d0 !important;
-  background: linear-gradient(180deg, #d9e8fb, #8fb4df) !important;
-  color: #09234a !important;
+  min-width: 0;
+  min-height: 25px;
+  padding: 1px;
+  border: 1px solid #8eb6e2;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #e3efff, #94b8e2);
+  color: #09234a;
+  font-size: 10px;
+  font-weight: 900;
 }
-html.tv-mode .bb-tv-console .bb-remote-footer button,
+
 html.tv-mode .bb-tv-console .bb-number-pad button.bb-number-function {
-  border-color: #ffe18a !important;
-  background: linear-gradient(180deg, #fff0a0, #d8a936) !important;
-  color: #17213a !important;
+  border-color: #ffe18a;
+  background: linear-gradient(180deg, #fff0a0, #d8a936);
+  color: #17213a;
+  font-size: 8px;
+}
+
+html.tv-mode .bb-tv-console .bb-receiver-cast {
+  grid-area: cast;
+  margin: 0;
+}
+
+html.tv-mode .bb-tv-console .bb-remote-advanced {
+  grid-area: advanced;
+  margin: 0;
+  border-top: 1px solid #5279a8;
+  padding-top: 3px;
+}
+
+html.tv-mode .bb-tv-console .bb-remote-advanced summary {
+  min-height: 21px;
+  padding: 3px 7px;
+  border: 1px solid #6486b7;
+  border-radius: 3px;
+  background: #102f5d;
+  color: #ffe58a;
+  font: 800 8px/1.15 "Courier New", monospace;
+}
+
+
+/* Keep the hardware row genuinely compact: the guide is the primary surface. */
+html.tv-mode .bb-tv-console {
+  row-gap: 8px;
+}
+
+html.tv-mode .bb-tv-console .bb-tv-main-grid {
+  max-width: 760px;
+  grid-template-columns: minmax(0, 1.7fr) minmax(250px, .95fr);
+  gap: 12px;
+}
+
+html.tv-mode .bb-tv-console .bb-tv-broadcast {
+  gap: 4px;
+}
+
+html.tv-mode .bb-tv-console .bb-tv-now-playing {
+  min-height: 38px;
+  padding: 6px 8px;
+}
+
+html.tv-mode .bb-tv-console .bb-cable-receiver {
+  align-self: start;
+}
+
+html.tv-mode .bb-tv-console > .bb-tv-guide-section {
+  margin-block-start: 0 !important;
+}
+
+
+/* Reassert the narrow-screen layout after the desktop cascade lock above. */
+@media (max-width: 760px) {
+  html.tv-mode .bb-tv-console {
+    width: calc(100% - 16px);
+    margin: 8px auto 0;
+    row-gap: 10px;
+  }
+
+  html.tv-mode .bb-tv-console .bb-tv-main-grid {
+    width: 100%;
+    max-width: 560px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    align-items: start;
+  }
+
+  html.tv-mode .bb-tv-console .bb-tv-broadcast,
+  html.tv-mode .bb-tv-console .bb-cable-receiver {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+  }
+
+  html.tv-mode .bb-tv-console .bb-tv-screen-bezel {
+    width: 100%;
+    max-width: none;
+  }
+
+  html.tv-mode .bb-tv-console .bb-cable-receiver {
+    align-self: start;
+    grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+  }
+
+  html.tv-mode .bb-tv-console .bb-tv-guide-section {
+    width: 100%;
+    max-width: none;
+    padding: 5px;
+  }
+
+  html.tv-mode .bb-tv-console .bb-tv-guide-section #guide [data-testid="guide-viewport"] {
+    height: min(58vh, 520px);
+    min-height: 280px;
+  }
+}
+
+@media (max-width: 460px) {
+  html.tv-mode .bb-tv-console {
+    width: calc(100% - 12px);
+  }
+
+  html.tv-mode .bb-tv-console .bb-tv-main-grid {
+    max-width: 460px;
+  }
+
+  html.tv-mode .bb-tv-console .bb-cable-receiver {
+    gap: 5px 7px;
+    padding: 7px;
+  }
+
+  html.tv-mode .bb-tv-console .bb-number-pad {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  html.tv-mode .bb-tv-console .bb-tv-guide-section #guide .bb-guide-time-row,
+  html.tv-mode .bb-tv-console .bb-tv-guide-section #guide .bb-guide-row {
+    grid-template-columns: 112px minmax(0, 1fr) !important;
+  }
 }

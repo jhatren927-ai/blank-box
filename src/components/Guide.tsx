@@ -134,7 +134,7 @@ export function Guide({
         <>
           <div ref={guideSurfaceRef} data-testid="guide-surface" className="overflow-hidden" style={{ touchAction: 'none', overscrollBehavior: 'none' }}>
             <div className="min-w-0">
-              <div className="grid grid-cols-[160px_minmax(0,1fr)] border-y-2 border-black bg-[#001144]">
+              <div className="bb-guide-time-row grid grid-cols-[160px_minmax(0,1fr)] border-y-2 border-black bg-[#001144]">
                 <div data-testid="guide-time-label" className="border-r-2 border-black px-2 py-1 font-mono text-xs font-bold text-yellow-300">
                   {dayLabel(guide.start)}
                 </div>
@@ -194,7 +194,7 @@ function GuideRow({
   return (
     <div
       data-testid={dup ? undefined : 'guide-row'}
-      className={`grid grid-cols-[160px_minmax(0,1fr)] border-b-2 border-black ${channel.number % 2 ? 'bg-prevue-deep' : 'bg-prevue-row'}`}
+      className={`bb-guide-row grid grid-cols-[160px_minmax(0,1fr)] border-b-2 border-black ${channel.number % 2 ? 'bg-prevue-deep' : 'bg-prevue-row'}`}
     >
       <button
         type="button"
