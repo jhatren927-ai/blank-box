@@ -211,7 +211,8 @@ function AppContent() {
               const destinationRow = destination.closest<HTMLElement>('.bb-tv-guide-row')
               if (destinationRow?.dataset.channelId) setGuideSelectedId(destinationRow.dataset.channelId)
               destination.focus({ preventScroll: true })
-              destination.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+              // Let the Prevue crawl carry the lineup past the viewer. Remote
+              // selection must not drag the guide viewport to the focused row.
             }
             return
           }
