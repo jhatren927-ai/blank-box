@@ -245,3 +245,61 @@ test('website removes forced sign-in and saves a channel before videos are added
   await expect(persistedGuideRows).toHaveCount(3)
   await expect(persistedGuideRows.filter({ hasText: /local news/i })).toBeVisible()
 })
+
+
+test('web Prevue guide automatically crawls upward through all channels', async ({ page }) => {
+  await page.goto('/')
+  await page.evaluate(() => {
+    const key = 'blankbox:network:v1'
+    const value = JSON.parse(localStorage.getItem(key) || '{}')
+    const source = value.channels?.[0]
+    if (source) {
+      value.channels = Array.from({ length: 30 }, (_, index) => ({
+        ...source,
+        id: 'crawl-' + index,
+        number: index + 1,
+        name: 'Crawl Channel ' + (index + 1),
+        callsign: 'CR' + index,
+        programs: (source.programs || []).map((program: any, programIndex: number) => ({
+          ...program, id: 'crawl-' + index + '-program-' + programIndex,
+        })),
+      }))
+      localStorage.setItem(key, JSON.stringify(value))
+    }
+  })
+  await page.reload()
+  const viewport = page.getByTestId('guide-viewport')
+  await expect(viewport).toBeVisible()
+  await expect(page.locator('[data-testid="guide-row"]')).toHaveCount(30)
+  await expect(page.locator('[data-testid="guide-auto-scroll"] > div')).toHaveCount(2)
+  await expect.poll(() => viewport.evaluate((node) => node.scrollTop), { timeout: 4000 }).toBeGreaterThan(0)
+})
+
+test('native TV Prevue guide automatically crawls the complete channel lineup', async ({ page }) => {
+  await page.evaluate(() => {
+    const key = 'blankbox:network:v1'
+    const value = JSON.parse(localStorage.getItem(key) || '{}')
+    const source = value.channels?.[0]
+    if (source) {
+      value.channels = Array.from({ length: 18 }, (_, index) => ({
+        ...source,
+        id: 'native-crawl-' + index,
+        number: index + 1,
+        name: 'Native Crawl ' + (index + 1),
+        callsign: 'NC' + index,
+        programs: (source.programs || []).map((program: any, programIndex: number) => ({
+          ...program, id: 'native-crawl-' + index + '-program-' + programIndex,
+        })),
+      }))
+      localStorage.setItem(key, JSON.stringify(value))
+    }
+  })
+  await page.reload()
+  await page.keyboard.press('Enter')
+  const guide = page.getByTestId('tv-guide-overlay')
+  await expect(guide).toBeVisible()
+  const rows = guide.getByTestId('tv-guide-rows')
+  await expect(guide.getByTestId('tv-guide-channel')).toHaveCount(18)
+  await expect(guide.getByTestId('tv-guide-auto-scroll').locator('.bb-tv-guide-crawl-copy')).toHaveCount(2)
+  await expect.poll(() => rows.evaluate((node) => node.scrollTop), { timeout: 4000 }).toBeGreaterThan(0)
+})

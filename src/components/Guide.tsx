@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import type { Channel } from '../types.ts'
 import { clock, dayLabel, padChannel } from '../lib/format.ts'
 import { guideWindow, liveSlot, slotsCovering } from '../lib/schedule.ts'
+import { usePrevueCrawl } from '../lib/prevueCrawl.ts'
 
 export function Ticker({ channels, now }: { channels: Channel[]; now: number }) {
   const line =
@@ -50,23 +51,66 @@ export function Guide({
   const columns = 3
   const span = guide.end - guide.start
   const marker = ((now - guide.start) / span) * 100
-  // Render each channel exactly once. Manual scrolling keeps the guide stable
-  // and avoids duplicate DOM rows that made small lineups jump or loop oddly.
-  const copiesPerLoop = 1
-  const shouldAutoScroll = false
-  const scrollDuration = `${Math.max(20, copiesPerLoop * shown.length * 3.2)}s`
-  const renderRows = (dup = false, copy = 0) => shown.map((channel) => (
+  const desktopViewportRef = useRef<HTMLDivElement>(null)
+  const desktopFirstCopyRef = useRef<HTMLDivElement>(null)
+  const mobileViewportRef = useRef<HTMLDivElement>(null)
+  const mobileFirstCopyRef = useRef<HTMLDivElement>(null)
+  const desktopAutoScroll = usePrevueCrawl(desktopViewportRef, desktopFirstCopyRef, shown.length > 0)
+  const mobileAutoScroll = usePrevueCrawl(mobileViewportRef, mobileFirstCopyRef, shown.length > 0)
+
+  const renderRows = (duplicate = false) => shown.map((channel) => (
     <GuideRow
-      key={`${dup ? 'loop-' : ''}${copy}-${channel.id}`}
+      key={(duplicate ? 'loop-' : '') + channel.id}
       channel={channel}
       active={channel.id === currentId}
       now={now}
       windowStart={guide.start}
       span={span}
       onTune={onTune}
-      dup={dup || copy > 0}
+      dup={duplicate}
     />
   ))
+
+  const renderMobileRows = (copy = 0) => shown.map((channel) => {
+    const live = liveSlot(channel, now)
+    const upcoming = slotsCovering(channel, now, now + 6 * 60 * 60 * 1000)[1]
+    const active = channel.id === currentId
+    const left = live ? Math.max(0, Math.round((live.endMs - now) / 60000)) : 0
+    const duplicate = copy > 0
+    return (
+      <li key={channel.id}>
+        <button
+          type="button"
+          data-testid={duplicate ? undefined : 'guide-mobile-tune'}
+          tabIndex={duplicate ? -1 : undefined}
+          onClick={() => onTune(channel.id)}
+          className={'grid min-h-[82px] w-full grid-cols-[56px_1fr] gap-2 px-3 py-3 text-left ' + (active ? 'bg-yellow-400 text-black' : channel.number % 2 ? 'bg-prevue-deep' : 'bg-prevue-row')}
+        >
+          <span className="flex flex-col items-start gap-1">
+            <span className={'font-mono text-xl font-bold leading-none ' + (active ? 'text-black' : 'text-prevue-yellow')}>
+              {padChannel(channel.number)}
+            </span>
+            <span className="bb-guide-mobile-callsign">{channel.callsign}</span>
+          </span>
+          <span className="min-w-0">
+            <span className={'block truncate font-heading text-sm font-bold uppercase ' + (active ? 'text-black' : 'text-white')}>
+              {live?.program.title ?? 'Off the air'}
+            </span>
+            {live && (
+              <span className={'block truncate font-mono text-[11px] ' + (active ? 'text-black/70' : 'text-yellow-300')}>
+                ON NOW · {left} min left
+              </span>
+            )}
+            {upcoming && (
+              <span className={'block truncate font-mono text-[11px] ' + (active ? 'text-black/70' : 'text-blue-200')}>
+                {clock(upcoming.startMs)} NEXT · {upcoming.program.title}
+              </span>
+            )}
+          </span>
+        </button>
+      </li>
+    )
+  })
 
   return (
     <section
@@ -97,55 +141,20 @@ export function Guide({
         </p>
       ) : (
         <>
-          <div data-testid="guide-mobile-list" className="max-h-[min(60vh,460px)] divide-y-2 divide-black overflow-y-auto sm:hidden">
-            <div
-              data-testid="guide-mobile-auto-scroll"
-              className={shouldAutoScroll ? 'animate-guide-scroll' : ''}
-              style={shouldAutoScroll ? { animationDuration: scrollDuration } : undefined}
-            >
-              {Array.from({ length: copiesPerLoop }, (_, copy) => (
-                <ul key={copy} aria-hidden={copy >= copiesPerLoop} className="divide-y-2 divide-black">
-                  {shown.map((channel) => {
-                    const live = liveSlot(channel, now)
-                    const upcoming = slotsCovering(channel, now, now + 6 * 60 * 60 * 1000)[1]
-                    const active = channel.id === currentId
-                    const left = live ? Math.max(0, Math.round((live.endMs - now) / 60000)) : 0
-                    return (
-                      <li key={channel.id}>
-                        <button
-                          type="button"
-                          data-testid={copy === 0 ? 'guide-mobile-tune' : undefined}
-                          tabIndex={copy === 0 ? 0 : -1}
-                          onClick={() => onTune(channel.id)}
-                          className={`grid min-h-[82px] w-full grid-cols-[56px_1fr] gap-2 px-3 py-3 text-left ${active ? 'bg-yellow-400 text-black' : channel.number % 2 ? 'bg-prevue-deep' : 'bg-prevue-row'}`}
-                        >
-                          <span className="flex flex-col items-start gap-1">
-                            <span className={`font-mono text-xl font-bold leading-none ${active ? 'text-black' : 'text-prevue-yellow'}`}>
-                              {padChannel(channel.number)}
-                            </span>
-                            <span className="bb-guide-mobile-callsign">{channel.callsign}</span>
-                          </span>
-                          <span className="min-w-0">
-                            <span className={`block truncate font-heading text-sm font-bold uppercase ${active ? 'text-black' : 'text-white'}`}>
-                              {live?.program.title ?? 'Off the air'}
-                            </span>
-                            {live && (
-                              <span className={`block truncate font-mono text-[11px] ${active ? 'text-black/70' : 'text-yellow-300'}`}>
-                                ON NOW · {left} min left
-                              </span>
-                            )}
-                            {upcoming && (
-                              <span className={`block truncate font-mono text-[11px] ${active ? 'text-black/70' : 'text-blue-200'}`}>
-                                {clock(upcoming.startMs)} NEXT · {upcoming.program.title}
-                              </span>
-                            )}
-                          </span>
-                        </button>
-                      </li>
-                    )
-                  })}
+          <div
+            ref={mobileViewportRef}
+            data-testid="guide-mobile-list"
+            className="max-h-[min(60vh,460px)] divide-y-2 divide-black overflow-y-auto sm:hidden"
+          >
+            <div data-testid="guide-mobile-auto-scroll">
+              <ul ref={mobileFirstCopyRef} className="divide-y-2 divide-black">
+                {renderMobileRows(0)}
+              </ul>
+              {mobileAutoScroll && (
+                <ul aria-hidden="true" className="divide-y-2 divide-black">
+                  {renderMobileRows(1)}
                 </ul>
-              ))}
+              )}
             </div>
           </div>
           <div className="hidden overflow-x-auto sm:block">
@@ -163,6 +172,7 @@ export function Guide({
                 </div>
               </div>
               <div
+                ref={desktopViewportRef}
                 data-testid="guide-viewport"
                 role="region"
                 aria-label="Scrollable television channel guide"
@@ -176,22 +186,21 @@ export function Guide({
                 }}
                 className="bb-guide-scroll relative h-[min(72vh,760px)] min-h-[480px] overflow-y-auto overflow-x-hidden overscroll-y-contain focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-300"
               >
-                <div
-                  data-testid="guide-auto-scroll"
-                  className={shouldAutoScroll ? 'animate-guide-scroll' : ''}
-                  style={shouldAutoScroll ? { animationDuration: scrollDuration } : undefined}
-                >
-                  {Array.from({ length: copiesPerLoop }, (_, copy) => renderRows(false, copy))}
-                  {shouldAutoScroll && Array.from(
-                    { length: copiesPerLoop },
-                    (_, copy) => renderRows(true, copy),
+                <div data-testid="guide-auto-scroll" className="min-w-0">
+                  <div ref={desktopFirstCopyRef}>
+                    {renderRows(false)}
+                  </div>
+                  {desktopAutoScroll && (
+                    <div aria-hidden="true">
+                      {renderRows(true)}
+                    </div>
                   )}
                 </div>
                 <div className="pointer-events-none absolute inset-y-0 left-[174px] right-0">
                   <div
                     data-testid="guide-now-marker"
                     className="absolute inset-y-0 w-0.5 bg-red-500 shadow-[0_0_8px_#ef4444]"
-                    style={{ left: `${marker}%` }}
+                    style={{ left: marker + '%' }}
                   />
                 </div>
               </div>
@@ -230,6 +239,7 @@ function GuideRow({
         type="button"
         data-testid={dup ? undefined : 'guide-tune'}
         onClick={() => onTune(channel.id)}
+        tabIndex={dup ? -1 : undefined}
         className={`bb-guide-channel-button flex flex-col items-start justify-center gap-1 border-r-2 border-black px-2 py-2 text-left ${active ? 'bg-yellow-400 hover:bg-yellow-300' : ''}`}
       >
         <span className="bb-guide-channel-number">{padChannel(channel.number)}</span>
@@ -251,6 +261,7 @@ function GuideRow({
               title={slot.program.title}
               data-on-now={onNow ? 'true' : 'false'}
               onClick={() => onTune(channel.id)}
+              tabIndex={dup ? -1 : undefined}
               className={`bb-guide-program-cell absolute top-0 h-full overflow-hidden border-r-2 border-black px-2 py-1.5 text-left ${onNow ? 'bg-[#0a1aa8]' : ''}`}
               style={{ left: `${((left - windowStart) / span) * 100}%`, width: `${((right - left) / span) * 100}%` }}
             >

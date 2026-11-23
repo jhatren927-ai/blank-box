@@ -52,6 +52,7 @@ The CSS colors are a digital reconstruction of the surviving Prevue and Explorer
 - VT323 for channel digits, programme times and terminal readouts.
 - Fonts are bundled from the reference Android TV companion project under `src/assets/fonts`, with both SIL Open Font License texts. No external font CDN is required.
 - The guide displays 90 minutes as three 30-minute columns in both browser and native TV layouts. Left/right paging advances another 90 minutes.
+- Channel listings automatically crawl upward at a slow broadcast pace, pause for four seconds after each screenful, and repeat seamlessly; keyboard, touch, wheel, and remote input pause the crawl temporarily.
 - Listings continuing into or out of the visible period receive directional arrows.
 - Focus outlines do not scale or move controls, keeping D-pad geometry stable.
 - Existing saved user preferences are preserved; the 4:3 picture ratio is only the default for a fresh installation.
