@@ -26,6 +26,23 @@ test.beforeEach(async ({ page }) => {
     }) } } }
     ;(window as any).chrome ??= {}
     ;(window as any).chrome.cast = { AutoJoinPolicy: { ORIGIN_SCOPED: 'origin-scoped' } }
+    // Capture the first React frame. The public theme must already be active
+    // before the app inserts its first node, not after a passive effect.
+    const firstFrameObserver = new MutationObserver(() => {
+      const root = document.getElementById('root')
+      if (!root?.firstElementChild) return
+      const header = document.querySelector('.bb-tv-header')
+      const appRoot = document.querySelector('.bb-app-root')
+      const programTitle = document.querySelector('.bb-tv-guide-section .bb-guide-program-cell p:first-child')
+      ;(window as any).__bbFirstFrameTheme = {
+        tvMode: document.documentElement.classList.contains('tv-mode'),
+        headerBackground: header ? getComputedStyle(header).backgroundImage : '',
+        appBackground: appRoot ? getComputedStyle(appRoot).backgroundImage : '',
+        programTitleSize: programTitle ? getComputedStyle(programTitle).fontSize : '',
+      }
+      firstFrameObserver.disconnect()
+    })
+    firstFrameObserver.observe(document, { childList: true, subtree: true })
     if (!localStorage.getItem('blankbox:network:v1')) localStorage.setItem('blankbox:network:v1', JSON.stringify(network))
     if (!localStorage.getItem('blankbox:prefs:v1')) localStorage.setItem('blankbox:prefs:v1', JSON.stringify({
       crt: false, aspect: '16:9', muted: true, volume: 0.7, rate: 1,
@@ -122,12 +139,24 @@ test('regular website uses the original Downloader receiver layout and remote-on
   const receiver = page.getByTestId('web-tv-receiver')
   await expect(receiver).toBeVisible()
   await expect(page.locator('.bb-tv-header')).toBeVisible()
+  const firstFrameTheme = await page.evaluate(() => (window as any).__bbFirstFrameTheme)
+  expect(firstFrameTheme?.tvMode).toBe(true)
+  expect(firstFrameTheme?.headerBackground).toContain('linear-gradient')
+  expect(firstFrameTheme?.appBackground).toContain('radial-gradient')
+  expect(firstFrameTheme?.programTitleSize).toBe('14px')
   await expect(page.locator('.bb-tv-broadcast')).toBeVisible()
   await expect(page.getByTestId('cable-remote')).toBeVisible()
   await expect(page.getByTestId('prevue-grid')).toBeVisible()
   await expect(page.locator('.bb-tv-main-grid')).toHaveCSS('display', 'grid')
   await expect(page.locator('.bb-tv-statusline, [data-testid="news-ticker"], .bb-tv-screen-heading, .bb-tv-osd')).toHaveCount(0)
   await expect(page.locator('.bb-tv-guide-section h2')).toHaveText('PREVUE')
+
+  const selectedChannel = page.locator('.bb-tv-guide-section .bb-guide-channel-button.bg-yellow-400').first()
+  await expect(selectedChannel).toBeVisible()
+  const selectedTextColors = await selectedChannel.locator('span').evaluateAll((spans) =>
+    spans.map((span) => getComputedStyle(span).color),
+  )
+  expect(selectedTextColors).toEqual(['rgb(7, 27, 66)', 'rgb(7, 27, 66)', 'rgb(7, 27, 66)'])
 
   const picture = await page.locator('.bb-tv-screen-bezel').boundingBox()
   const remote = await page.getByTestId('cable-remote').boundingBox()
