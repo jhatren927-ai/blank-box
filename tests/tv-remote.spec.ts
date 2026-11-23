@@ -290,7 +290,7 @@ test('laptop receiver row expands with the viewport instead of leaving wide empt
     expect(Math.abs(layout.remote.bottom - layout.broadcast.bottom)).toBeLessThan(8)
     expect(layout.guide.y).toBeLessThan(viewport.height - 100)
     expect(layout.remote.x).toBeGreaterThan(layout.player.x)
-    expect(layout.remote.x - (layout.player.x + layout.player.width)).toBeLessThanOrEqual(20)
+    expect(layout.remote.x - (layout.player.x + layout.player.width)).toBe(0)
     expect(layout.guide.width).toBeGreaterThan(layout.viewport * 0.94)
     expect(layout.documentWidth).toBeLessThanOrEqual(layout.viewport)
   }
