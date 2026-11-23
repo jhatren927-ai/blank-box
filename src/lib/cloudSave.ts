@@ -66,3 +66,27 @@ export async function loadCloudNetwork(key: string): Promise<Network> {
 export function cloudShareUrl(key: string): string {
   return `https://jhatren927-ai.github.io/blank-box/?load=${key}`
 }
+
+
+export async function getAccountNetwork(token: string): Promise<Network | null> {
+  const response = await fetch(`${CLOUD_SAVE_URL}/api/account/network`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: 'no-store',
+  })
+  const result = await response.json() as { network?: Network | null; error?: string }
+  if (!response.ok) throw new Error(result.error || `Account sync failed (HTTP ${response.status}).`)
+  return result.network ?? null
+}
+
+export async function saveAccountNetwork(token: string, network: Network): Promise<void> {
+  const response = await fetch(`${CLOUD_SAVE_URL}/api/account/network`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(network),
+  })
+  const result = await response.json() as { error?: string }
+  if (!response.ok) throw new Error(result.error || `Account sync failed (HTTP ${response.status}).`)
+}
