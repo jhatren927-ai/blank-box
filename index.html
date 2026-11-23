@@ -9,8 +9,14 @@
          ?classic=1 is the only opt-out from the default TV experience. -->
     <script>
       (() => {
-        const classicLayout = new URLSearchParams(window.location.search).get('classic') === '1'
+        const params = new URLSearchParams(window.location.search)
+        const classicLayout = params.get('classic') === '1'
         document.documentElement.classList.toggle('tv-mode', !classicLayout)
+        // Test-only marker for the native WebView shell; this runs after the
+        // HTML element exists and before the deferred app module executes.
+        if (params.get('nativeTest') === '1') {
+          document.documentElement.dataset.tvApp = 'true'
+        }
       })()
     </script>
     <meta
