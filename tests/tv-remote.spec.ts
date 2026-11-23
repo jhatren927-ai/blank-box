@@ -468,9 +468,33 @@ test('desktop website keeps the player and remote compact together and makes the
 
   await page.setViewportSize({ width: 390, height: 844 })
   writeFileSync('artifacts/website-layout-mobile.png', await page.screenshot({ fullPage: true }))
+  const mobileLayout = await page.evaluate(() => {
+    const box = (selector: string) => {
+      const element = document.querySelector(selector)
+      if (!element) throw new Error('Missing mobile layout element: ' + selector)
+      const rect = element.getBoundingClientRect()
+      return { x: rect.x, y: rect.y, width: rect.width, height: rect.height, right: rect.right, bottom: rect.bottom }
+    }
+    const grid = document.querySelector('.bb-tv-main-grid')!
+    const channelColumn = document.querySelector('.bb-tv-guide-section .bb-guide-row')!
+    return {
+      player: box('.bb-tv-screen-bezel'),
+      remote: box('[data-testid="cable-remote"]'),
+      guide: box('.bb-tv-guide-section'),
+      columns: getComputedStyle(grid).gridTemplateColumns,
+      guideColumns: getComputedStyle(channelColumn).gridTemplateColumns,
+    }
+  })
   const mobileType = await page.locator('.bb-tv-guide-section .bb-guide-program-cell p:first-child').first().evaluate(
     (element) => getComputedStyle(element).fontSize,
   )
+  console.log('PUBLIC WEBSITE MOBILE LAYOUT:', JSON.stringify(mobileLayout))
+  expect(mobileLayout.columns.trim().split(/\\s+/)).toHaveLength(1)
+  expect(mobileLayout.player.width).toBeGreaterThan(320)
+  expect(mobileLayout.remote.width).toBeGreaterThan(320)
+  expect(mobileLayout.remote.y).toBeGreaterThan(mobileLayout.player.bottom - 8)
+  expect(mobileLayout.guide.width).toBeGreaterThan(350)
+  expect(mobileLayout.guideColumns.startsWith('112px')).toBe(true)
   expect(mobileType).toBe(layout.guideTitleSize)
   await expect(guide).toBeVisible()
   await expect(remote).toBeVisible()
