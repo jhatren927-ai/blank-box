@@ -127,12 +127,15 @@ export function Builder({
     if (!adapter?.fromHit) return
     setStatus((current) => ({ ...current, [hit.id]: 'busy' }))
     try {
-      const program = await adapter.fromHit(hit)
-      if (!program || (hideAdult && isAdultText(program.title))) {
+      const many = adapter.fromHitMany ? await adapter.fromHitMany(hit) : null
+      const program = many ? null : await adapter.fromHit!(hit)
+      const resolved = many ?? (program ? [program] : [])
+      const safe = resolved.filter((item) => !hideAdult || !isAdultText(item.title))
+      if (safe.length === 0) {
         setStatus((current) => ({ ...current, [hit.id]: 'failed' }))
         return
       }
-      addPrograms([program])
+      addPrograms(safe)
       setStatus((current) => ({ ...current, [hit.id]: 'added' }))
     } catch {
       setStatus((current) => ({ ...current, [hit.id]: 'failed' }))
@@ -145,20 +148,23 @@ export function Builder({
     const fresh = hits.filter((hit) => status[hit.id] !== 'added')
     const resolved = await mapPool(fresh, 3, async (hit) => {
       const adapter = adapterFor(hit.source)
-      if (!adapter?.fromHit) return null
+      if (!adapter?.fromHit && !adapter?.fromHitMany) return []
       setStatus((current) => ({ ...current, [hit.id]: 'busy' }))
       try {
-        const program = await adapter.fromHit(hit)
-        setStatus((current) => ({ ...current, [hit.id]: program ? 'added' : 'failed' }))
-        return program
+        const many = adapter.fromHitMany ? await adapter.fromHitMany(hit) : null
+        const program = many ? null : await adapter.fromHit!(hit)
+        const resolved = many ?? (program ? [program] : [])
+        const safe = resolved.filter((item) => !hideAdult || !isAdultText(item.title))
+        setStatus((current) => ({ ...current, [hit.id]: safe.length ? 'added' : 'failed' }))
+        return safe
       } catch {
         setStatus((current) => ({ ...current, [hit.id]: 'failed' }))
-        return null
+        return []
       }
     })
-    const programsFound = resolved.filter((program): program is Program => !!program)
+    const programsFound = resolved.flat()
     addPrograms(programsFound)
-    const missed = fresh.length - programsFound.length
+    const missed = fresh.length - resolved.filter((items) => items.length > 0).length
     if (missed > 0) setNote(`${missed} ${missed === 1 ? 'video' : 'videos'} would not play, so they were skipped.`)
     setBusy(false)
   }
@@ -356,7 +362,7 @@ export function Builder({
             </label>
             <label className="mt-2 flex items-center gap-3 font-mono text-sm text-slate-200">
               <input type="checkbox" checked={archiveAll} onChange={(event) => setArchiveAll(event.target.checked)} />
-              Look at all of Archive.org, not just free movies
+              Search all Archive.org video collections
             </label>
           </details>
 
