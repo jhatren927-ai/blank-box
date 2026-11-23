@@ -160,11 +160,11 @@ test('regular website uses the original Downloader receiver layout and remote-on
   await expect(page.getByTestId('web-tv-receiver')).toBeVisible()
 })
 
-test('iPhone Chrome opens the native AirPlay picker for the current video', async ({ page }) => {
+test('iPhone Safari opens the native AirPlay picker for the current video', async ({ page }) => {}
   await page.addInitScript(() => {
     Object.defineProperty(navigator, 'userAgent', {
       configurable: true,
-      value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/120.0.0.0 Mobile/15E148 Safari/604.1',
+      value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
     })
     ;(HTMLMediaElement.prototype as any).webkitShowPlaybackTargetPicker = function () {
       ;(window as any).__airplayPickerOpened = true
@@ -224,15 +224,17 @@ test('web guide does not accept manual scrolling; only the automatic crawl moves
   await expect(viewport).toBeVisible()
   await expect(viewport).toHaveAttribute('aria-label', 'Automatically advancing television program guide')
   await expect(viewport).not.toHaveAttribute('tabindex', '0')
-  await expect(viewport).toHaveCSS('overflow-y', 'hidden')
+  await expect(viewport).toHaveAttribute('style', /overflow-y:\s*hidden/)
 
-  // A wheel gesture cannot reposition the guide. A remote key can move focus
-  // between guide entries, but cannot use the viewport as a scroll control.
+  // A wheel gesture is explicitly cancelled. The crawl hook, not user input,
+  // remains the only code path that changes the viewport's scrollTop.
   const wheel = await viewport.evaluate((node) => {
     const before = node.scrollTop
-    node.dispatchEvent(new WheelEvent('wheel', { bubbles: true, deltaY: 900 }))
-    return { before, after: node.scrollTop }
+    const event = new WheelEvent('wheel', { bubbles: true, cancelable: true, deltaY: 900 })
+    node.dispatchEvent(event)
+    return { before, after: node.scrollTop, defaultPrevented: event.defaultPrevented }
   })
+  expect(wheel.defaultPrevented).toBe(true)
   expect(wheel.after).toBe(wheel.before)
 
   await viewport.locator('[data-testid="guide-tune"]').first().focus()
