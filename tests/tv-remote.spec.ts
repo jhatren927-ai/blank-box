@@ -18,13 +18,22 @@ test.beforeEach(async ({ page }) => {
     if (message.type() === 'error') console.log('TV CONSOLE ERROR:', message.text())
   })
   await page.addInitScript(({ network }) => {
+    if (new URLSearchParams(location.search).get('nativeTest') === '1') {
+      document.documentElement.dataset.tvApp = 'true'
+    }
+    // Make Cast availability deterministic in the browser test.
+    ;(window as any).cast = { framework: { CastContext: { getInstance: () => ({
+      setOptions() {},
+      async requestSession() { return { async loadMedia() {} } },
+    }) } } }
+    ;(window as any).chrome = { cast: { AutoJoinPolicy: { ORIGIN_SCOPED: 'origin-scoped' } } }
     localStorage.setItem('blankbox:network:v1', JSON.stringify(network))
     localStorage.setItem('blankbox:prefs:v1', JSON.stringify({
       crt: false, aspect: '16:9', muted: true, volume: 0.7, rate: 1,
       logo: false, shake: false, guideScroll: false, favs: [], recent: [],
     }))
   }, { network })
-  const response = await page.goto('/?tv=1')
+  const response = await page.goto('/?tv=1&nativeTest=1')
   console.log('TV TEST PAGE:', response?.status(), await page.title(), (await page.locator('body').innerText()).slice(0, 500))
   await expect(page.getByTestId('tv-experience')).toBeVisible()
 })
@@ -103,31 +112,44 @@ test('guide Left/Right browse program blocks and page the timeline at its edge',
 })
 
 
-test('regular website opens in the approved TV receiver and guide layout', async ({ page }) => {
+test('regular website uses the original Downloader receiver layout and remote-only Cast button', async ({ page }) => {
   const response = await page.goto('/')
   expect(response?.ok()).toBe(true)
-  const experience = page.getByTestId('tv-experience')
-  const guide = page.getByTestId('tv-guide-overlay')
-  await expect(experience).toBeVisible()
-  await expect(guide).toBeVisible()
-  await expect(page.getByTestId('tv-guide-grid')).toBeVisible()
-  await expect(page.locator('.bb-web-shell')).toHaveCount(0)
+  const receiver = page.getByTestId('web-tv-receiver')
+  await expect(receiver).toBeVisible()
+  await expect(page.locator('.bb-tv-header')).toBeVisible()
+  await expect(page.locator('.bb-tv-broadcast')).toBeVisible()
+  await expect(page.getByTestId('cable-remote')).toBeVisible()
+  await expect(page.getByTestId('prevue-grid')).toBeVisible()
+  await expect(page.locator('.bb-tv-main-grid')).toHaveCSS('display', 'grid')
 
-  const preview = await page.locator('.bb-tv-stage').boundingBox()
-  const selectedInfo = await page.locator('.bb-tv-guide-selected').boundingBox()
-  const schedule = await page.getByTestId('tv-guide-grid').boundingBox()
-  expect(preview).not.toBeNull()
-  expect(selectedInfo).not.toBeNull()
-  expect(schedule).not.toBeNull()
-  expect(preview!.width).toBeGreaterThan(100)
-  expect(preview!.height).toBeGreaterThan(50)
-  expect(selectedInfo!.x).toBeGreaterThan(preview!.x + preview!.width)
-  expect(schedule!.y).toBeGreaterThan(preview!.y + preview!.height)
+  const picture = await page.locator('.bb-tv-screen-bezel').boundingBox()
+  const remote = await page.getByTestId('cable-remote').boundingBox()
+  const guide = await page.getByTestId('prevue-grid').boundingBox()
+  expect(picture).not.toBeNull()
+  expect(remote).not.toBeNull()
+  expect(guide).not.toBeNull()
+  expect(remote!.x).toBeGreaterThan(picture!.x)
+  expect(guide!.y).toBeGreaterThan(picture!.y)
 
-  await page.keyboard.press('Escape')
-  await expect(guide).toBeHidden()
-  await page.keyboard.press('Escape')
-  await expect(page.getByTestId('tv-menu-overlay')).toBeVisible()
+  // Give the active program a playable URL so the receiver's Cast action is mounted.
+  await page.evaluate(() => {
+    const key = 'blankbox:network:v1'
+    const value = JSON.parse(localStorage.getItem(key) || '{}')
+    for (const channel of value.channels ?? []) {
+      for (const program of channel.programs ?? []) program.playUrl = 'data:video/mp4;base64,AAAA'
+    }
+    localStorage.setItem(key, JSON.stringify(value))
+  })
+  await page.reload()
+  const cast = page.getByTestId('cast-button')
+  await expect(cast).toBeVisible()
+  await expect(page.getByTestId('remote-cast-slot').getByTestId('cast-button')).toBeVisible()
+  await expect(page.locator('.bb-tv-screen-inner [data-testid="cast-button"]')).toHaveCount(0)
+  await expect(page.locator('.bb-tv-console [data-testid="cast-button"]')).toHaveCount(1)
+
+  await page.goto('/?tv=1')
+  await expect(page.getByTestId('web-tv-receiver')).toBeVisible()
 })
 
 test('the previous browser layout remains available by explicit opt-in', async ({ page }) => {
