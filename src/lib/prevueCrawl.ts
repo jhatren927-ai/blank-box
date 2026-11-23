@@ -53,15 +53,23 @@ export function usePrevueCrawl(
     let screenPauseUntil = 0
     let interactionPauseUntil = 0
 
-    const pauseForInteraction = () => {
+    let tickCount = 0
+    viewport.dataset.prevueCrawlRunning = 'true'
+
+    const pauseForInteraction = (event: Event) => {
       interactionPauseUntil = performance.now() + USER_PAUSE_MS
       previousFrame = 0
+      viewport.dataset.prevueCrawlPausedBy = event.type
     }
 
     const tick = (timestamp: number) => {
+      tickCount += 1
+      viewport.dataset.prevueCrawlFrames = String(tickCount)
       const elapsed = previousFrame ? Math.min((timestamp - previousFrame) / 1000, 0.05) : 0
       previousFrame = timestamp
       const loopHeight = firstCopy.scrollHeight
+      viewport.dataset.prevueCrawlLoopHeight = String(loopHeight)
+      viewport.dataset.prevueCrawlLastTimestamp = String(timestamp)
 
       if (loopHeight > viewport.clientHeight + 2) {
         if (timestamp >= screenPauseUntil && timestamp >= interactionPauseUntil) {
@@ -79,6 +87,8 @@ export function usePrevueCrawl(
         }
       }
 
+      viewport.dataset.prevueCrawlScrollTop = String(viewport.scrollTop)
+      viewport.dataset.prevueCrawlPauseRemaining = String(Math.max(0, interactionPauseUntil - performance.now()))
       frame = window.requestAnimationFrame(tick)
     }
 
@@ -90,6 +100,7 @@ export function usePrevueCrawl(
 
     return () => {
       window.cancelAnimationFrame(frame)
+      delete viewport.dataset.prevueCrawlRunning
       viewport.removeEventListener('wheel', pauseForInteraction)
       viewport.removeEventListener('touchstart', pauseForInteraction)
       viewport.removeEventListener('pointerdown', pauseForInteraction)
