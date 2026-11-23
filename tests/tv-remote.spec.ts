@@ -357,6 +357,15 @@ test('website removes forced sign-in and saves a channel before videos are added
 })
 
 
+test('web Prevue guide crawls even when the channel lineup is shorter than the viewport', async ({ page }) => {
+  await page.goto('/')
+  const viewport = page.getByTestId('guide-viewport')
+  await expect(viewport).toBeVisible()
+  await expect(page.locator('[data-testid="guide-row"]')).toHaveCount(2)
+  await expect.poll(() => viewport.evaluate((node) => node.scrollTop), { timeout: 2500 }).toBeGreaterThan(0)
+  await expect.poll(() => page.locator('[data-testid="guide-auto-scroll"] > div').count()).toBeGreaterThan(2)
+})
+
 test('web Prevue guide automatically crawls upward through all channels', async ({ page }) => {
   await page.goto('/')
   await page.evaluate(() => {
