@@ -131,12 +131,12 @@ function pickFile(files: IaFile[]): IaFile | null {
 function playableFiles(files: IaFile[]): IaFile[] {
   return files.filter((file) => {
     const name = file.name ?? ''
-    return !!name && /\\.(mp4|m4v|webm|ogv)$/i.test(name) && !/(thumb|_512kb|sample|\.gif$)/i.test(name)
+    return !!name && /\.(mp4|m4v|webm|ogv)$/i.test(name) && !/(thumb|_512kb|sample|\.gif$)/i.test(name)
   }).sort((a, b) => {
     const score = (file: IaFile) => {
       const name = file.name ?? ''
       const format = file.format ?? ''
-      return (/\\.mp4$/i.test(name) && /h\\.?264|mpeg4/i.test(format) ? 0 : /\\.mp4$/i.test(name) ? 1 : 2)
+      return (/\.mp4$/i.test(name) && /h\.?264|mpeg4/i.test(format) ? 0 : /\.mp4$/i.test(name) ? 1 : 2)
     }
     return score(a) - score(b) || Number(b.height || 0) - Number(a.height || 0)
   })
@@ -180,10 +180,10 @@ export const archiveAdapter: SourceAdapter = {
   label: 'Free movies',
   search: searchArchive,
   fromHit: (hit) => resolveArchive(hit.id, hit.title, hit.year),
+  fromHitMany: (hit) => resolveArchiveFiles(hit.id, hit.title, hit.year),
   fromPaste: async (text) => {
-    const match = text.trim().match(/archive\.org\/details\/([^/?#]+)/)
+    const match = text.trim().match(/(?:https?:\\/\\/(?:www\\.)?archive\\.org\\/details\\/)?([a-z0-9][a-z0-9._-]{4,99})/i)
     if (!match) return []
-    const program = await resolveArchive(decodeURIComponent(match[1]))
-    return program ? [program] : []
+    return resolveArchiveFiles(decodeURIComponent(match[1]))
   },
 }
