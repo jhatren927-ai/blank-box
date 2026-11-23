@@ -4,6 +4,21 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- Apply the public TV theme before the browser can paint the page.
+         ?classic=1 is the only opt-out from the default TV experience. -->
+    <script>
+      (() => {
+        const params = new URLSearchParams(window.location.search)
+        const classicLayout = params.get('classic') === '1'
+        document.documentElement.classList.toggle('tv-mode', !classicLayout)
+        // Test-only marker for the native WebView shell; this runs after the
+        // HTML element exists and before the deferred app module executes.
+        if (params.get('nativeTest') === '1') {
+          document.documentElement.dataset.tvApp = 'true'
+        }
+      })()
+    </script>
     <meta
       name="description"
       content="Blank Box is a blank cable network. Name it, make channels from videos you can play, and watch them on a scheduled retro TV guide."

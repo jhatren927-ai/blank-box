@@ -26,6 +26,38 @@ test.beforeEach(async ({ page }) => {
     }) } } }
     ;(window as any).chrome ??= {}
     ;(window as any).chrome.cast = { AutoJoinPolicy: { ORIGIN_SCOPED: 'origin-scoped' } }
+    // Capture the first complete public receiver frame, not the empty root
+    // insertion. Native-test pages have a different full-screen composition.
+    const firstFrameObserver = new MutationObserver(() => {
+      const root = document.getElementById('root')
+      if (!root?.firstElementChild) return
+
+      if (new URLSearchParams(window.location.search).get('nativeTest') === '1') {
+        ;(window as any).__bbFirstFrameTheme = {
+          tvMode: document.documentElement.classList.contains('tv-mode'),
+        }
+        firstFrameObserver.disconnect()
+        return
+      }
+
+      const header = document.querySelector('.bb-tv-header')
+      const appRoot = document.querySelector('.bb-app-root')
+      const programTitle = document.querySelector('.bb-tv-guide-section .bb-guide-program-cell p:first-child')
+      const screen = document.querySelector('.bb-tv-screen-bezel')
+      const remote = document.querySelector('.bb-cable-receiver')
+      if (!header || !appRoot || !programTitle || !screen || !remote) return
+
+      ;(window as any).__bbFirstFrameTheme = {
+        tvMode: document.documentElement.classList.contains('tv-mode'),
+        headerBackground: getComputedStyle(header).backgroundImage,
+        appBackground: getComputedStyle(appRoot).backgroundImage,
+        screenBackground: getComputedStyle(screen).backgroundImage,
+        remoteBackground: getComputedStyle(remote).backgroundImage,
+        programTitleSize: getComputedStyle(programTitle).fontSize,
+      }
+      firstFrameObserver.disconnect()
+    })
+    firstFrameObserver.observe(document, { childList: true, subtree: true })
     if (!localStorage.getItem('blankbox:network:v1')) localStorage.setItem('blankbox:network:v1', JSON.stringify(network))
     if (!localStorage.getItem('blankbox:prefs:v1')) localStorage.setItem('blankbox:prefs:v1', JSON.stringify({
       crt: false, aspect: '16:9', muted: true, volume: 0.7, rate: 1,
@@ -122,12 +154,29 @@ test('regular website uses the original Downloader receiver layout and remote-on
   const receiver = page.getByTestId('web-tv-receiver')
   await expect(receiver).toBeVisible()
   await expect(page.locator('.bb-tv-header')).toBeVisible()
+  const firstFrameTheme = await page.evaluate(() => (window as any).__bbFirstFrameTheme)
+  expect(firstFrameTheme?.tvMode).toBe(true)
+  expect(firstFrameTheme?.headerBackground).toContain('linear-gradient')
+  expect(firstFrameTheme?.headerBackground).toContain('rgb(29, 74, 131)')
+  expect(firstFrameTheme?.appBackground).toContain('radial-gradient')
+  expect(firstFrameTheme?.screenBackground).toContain('linear-gradient')
+  expect(firstFrameTheme?.screenBackground).toContain('rgb(40, 85, 143)')
+  expect(firstFrameTheme?.remoteBackground).toContain('linear-gradient')
+  expect(firstFrameTheme?.remoteBackground).toContain('rgb(40, 85, 143)')
+  expect(firstFrameTheme?.programTitleSize).toBe('14px')
   await expect(page.locator('.bb-tv-broadcast')).toBeVisible()
   await expect(page.getByTestId('cable-remote')).toBeVisible()
   await expect(page.getByTestId('prevue-grid')).toBeVisible()
   await expect(page.locator('.bb-tv-main-grid')).toHaveCSS('display', 'grid')
   await expect(page.locator('.bb-tv-statusline, [data-testid="news-ticker"], .bb-tv-screen-heading, .bb-tv-osd')).toHaveCount(0)
   await expect(page.locator('.bb-tv-guide-section h2')).toHaveText('PREVUE')
+
+  const selectedChannel = page.locator('.bb-tv-guide-section .bb-guide-channel-button.bg-yellow-400').first()
+  await expect(selectedChannel).toBeVisible()
+  const selectedTextColors = await selectedChannel.locator('span').evaluateAll((spans) =>
+    spans.map((span) => getComputedStyle(span).color),
+  )
+  expect(selectedTextColors).toEqual(['rgb(7, 27, 66)', 'rgb(7, 27, 66)', 'rgb(7, 27, 66)'])
 
   const picture = await page.locator('.bb-tv-screen-bezel').boundingBox()
   const remote = await page.getByTestId('cable-remote').boundingBox()
@@ -481,6 +530,9 @@ test('desktop website keeps the player and remote compact together and makes the
       player: box('.bb-tv-screen-bezel'),
       remote: box('[data-testid="cable-remote"]'),
       guide: box('.bb-tv-guide-section'),
+      header: box('.bb-tv-header'),
+      headerColumns: getComputedStyle(document.querySelector('.bb-tv-header')!).gridTemplateColumns,
+      nav: box('.bb-tv-header nav'),
       columns: getComputedStyle(grid).gridTemplateColumns,
       guideColumns: getComputedStyle(channelColumn).gridTemplateColumns,
     }
@@ -489,6 +541,8 @@ test('desktop website keeps the player and remote compact together and makes the
     (element) => getComputedStyle(element).fontSize,
   )
   console.log('PUBLIC WEBSITE MOBILE LAYOUT:', JSON.stringify(mobileLayout))
+  expect(mobileLayout.headerColumns.trim().split(/\s+/)).toHaveLength(1)
+  expect(mobileLayout.nav.y).toBeGreaterThan(mobileLayout.header.y)
   expect(mobileLayout.columns.trim().split(/\s+/)).toHaveLength(1)
   expect(mobileLayout.player.width).toBeGreaterThan(320)
   expect(mobileLayout.remote.width).toBeGreaterThan(320)
