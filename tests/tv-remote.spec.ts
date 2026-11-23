@@ -208,8 +208,10 @@ test('regular website uses the original Downloader receiver layout and remote-on
   const castBounds = await page.getByTestId('remote-cast-slot').boundingBox()
   expect(remoteBounds).not.toBeNull()
   expect(castBounds).not.toBeNull()
-  expect(remoteBounds!.bottom - castBounds!.bottom).toBeGreaterThanOrEqual(0)
-  expect(remoteBounds!.bottom - castBounds!.bottom).toBeLessThanOrEqual(20)
+  const remoteBottom = remoteBounds!.y + remoteBounds!.height
+  const castBottom = castBounds!.y + castBounds!.height
+  expect(remoteBottom - castBottom).toBeGreaterThanOrEqual(0)
+  expect(remoteBottom - castBottom).toBeLessThanOrEqual(20)
   await expect(page.locator('.bb-tv-screen-inner [data-testid="cast-button"]')).toHaveCount(0)
   await expect(page.locator('.bb-tv-console [data-testid="cast-button"]')).toHaveCount(1)
 
