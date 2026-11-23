@@ -128,6 +128,8 @@ export function Guide({
                 data-testid="guide-viewport"
                 role="region"
                 aria-label="Automatically advancing television program guide"
+                onWheel={(event) => event.preventDefault()}
+                style={{ overflowY: 'hidden', overscrollBehaviorY: 'none', touchAction: 'pan-x' }}
                 className="bb-guide-scroll relative h-[min(72vh,760px)] min-h-[420px] overflow-y-hidden overflow-x-hidden overscroll-y-none touch-pan-x"
               >
                 <div data-testid="guide-auto-scroll" className="min-w-0">
