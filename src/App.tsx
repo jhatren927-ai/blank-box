@@ -302,7 +302,7 @@ function AppContent() {
             })
             .filter((candidate) => candidate.primary > 4)
             .sort((a, b) => a.score - b.score)
-          let next = candidates[0]?.element
+          let next: HTMLElement | undefined = candidates.length ? candidates[0].element : undefined
           if (!next && activeDialog && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
             const vertical = controls
               .filter((element) => element !== active)
