@@ -4,6 +4,15 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- Apply the public TV theme before the browser can paint the page.
+         ?classic=1 is the only opt-out from the default TV experience. -->
+    <script>
+      (() => {
+        const classicLayout = new URLSearchParams(window.location.search).get('classic') === '1'
+        document.documentElement.classList.toggle('tv-mode', !classicLayout)
+      })()
+    </script>
     <meta
       name="description"
       content="Blank Box is a blank cable network. Name it, make channels from videos you can play, and watch them on a scheduled retro TV guide."
