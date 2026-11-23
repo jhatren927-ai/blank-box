@@ -91,7 +91,7 @@ test('guide left and right move across program listings instead of changing the 
         remoteId: `r-${channelIndex}-${index}`,
         source: 'archive',
         title: `Channel ${channelIndex + 1} Show ${index + 1}`,
-        durationSec: 1800,
+        durationSec: 3600,
         durationGuess: false,
       })),
     })),
