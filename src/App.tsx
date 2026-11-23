@@ -331,6 +331,7 @@ function AppContent() {
                 const last = prefs.recent.find((id) => id !== current?.id)
                 if (last) tune(last)
               }}
+              onFav={store.toggleFav}
               onSurprise={() => {
                 if (ordered.length === 0) return
                 tune(ordered[Math.floor(Math.random() * ordered.length)].id)
