@@ -203,7 +203,7 @@ function AppContent() {
             setTvGuideOpen(false)
             return
           }
-          if (/^\\d$/.test(event.key)) {
+          if (/^\d$/.test(event.key)) {
             enterDigit(event.key)
             return
           }
@@ -227,7 +227,7 @@ function AppContent() {
             step(event.key === 'ArrowUp' ? 1 : -1)
             return
           }
-          if (/^\\d$/.test(event.key)) {
+          if (/^\d$/.test(event.key)) {
             enterDigit(event.key)
             return
           }
@@ -315,7 +315,7 @@ function AppContent() {
         void requestFullscreen(screenRef.current)
       } else if (event.key === '?') {
         setHelp(true)
-      } else if (/^\\d$/.test(event.key)) {
+      } else if (/^\d$/.test(event.key)) {
         enterDigit(event.key)
       }
     }
