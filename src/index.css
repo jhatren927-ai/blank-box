@@ -3847,9 +3847,9 @@ html.tv-mode .bb-receiver-brand { grid-area: brand; padding: 0 2px 7px; }
 html.tv-mode .bb-receiver-display { grid-area: display; min-height: 54px; margin: 0; }
 html.tv-mode .bb-remote-footer { grid-area: actions; gap: 5px; margin: 0; }
 html.tv-mode .bb-remote-section-label { margin: 0; font-size: 8px; }
-html.tv-mode .bb-cable-receiver > .bb-remote-section-label:nth-of-type(1) { grid-area: channel-label; }
+html.tv-mode .bb-cable-receiver > .bb-remote-section-label:nth-child(4) { grid-area: channel-label; }
 html.tv-mode .bb-channel-rockers { grid-area: rockers; align-self: start; }
-html.tv-mode .bb-cable-receiver > .bb-remote-section-label:nth-of-type(2) { grid-area: access-label; }
+html.tv-mode .bb-cable-receiver > .bb-remote-section-label:nth-child(6) { grid-area: access-label; }
 html.tv-mode .bb-number-pad { grid-area: keypad; gap: 4px; }
 html.tv-mode .bb-channel-rockers button { min-height: 34px; }
 html.tv-mode .bb-number-pad button { min-height: 34px; font-size: 12px; }
