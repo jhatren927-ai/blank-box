@@ -80,9 +80,13 @@ test('guide D-pad changes the selected channel and OK tunes it', async ({ page }
   expect(Math.abs(rowBoxes[0] - rowBoxes[1])).toBeLessThan(2)
   await expect(channelButtons.nth(0)).toBeFocused()
 
+  const rowsViewport = guide.getByTestId('tv-guide-rows')
+  const scrollBeforeSelection = await rowsViewport.evaluate((node) => node.scrollTop)
   await page.keyboard.press('ArrowDown')
   await expect(channelButtons.nth(1)).toBeFocused()
   await expect(channelButtons.nth(1)).toHaveAttribute('aria-pressed', 'true')
+  // Selection changes cannot yank the automatically crawling lineup.
+  await expect.poll(async () => Math.abs((await rowsViewport.evaluate((node) => node.scrollTop)) - scrollBeforeSelection)).toBeLessThan(20)
   await page.keyboard.press('Enter')
   await expect(guide).toBeHidden()
   await expect(page.getByTestId('tv-live-lower-third')).toContainText('Second Channel')
@@ -131,7 +135,7 @@ test('regular website uses the original Downloader receiver layout and remote-on
   expect(remote).not.toBeNull()
   expect(guide).not.toBeNull()
   expect(remote!.x).toBeGreaterThan(picture!.x)
-  expect(guide!.y).toBeGreaterThan(picture!.y)
+  expect(guide!.y).toBeLessThan(picture!.y)
   expect(guide!.height).toBeGreaterThan(300)
   await expect(page.locator('.bb-station-strip')).toHaveCount(0)
   await expect(page.locator('[data-testid="guide-time-label"] + div > div')).toHaveCount(3)
@@ -156,11 +160,15 @@ test('regular website uses the original Downloader receiver layout and remote-on
   await expect(page.getByTestId('web-tv-receiver')).toBeVisible()
 })
 
-test('iPhone Chrome opens the native AirPlay picker for the current video', async ({ page }) => {
+test('iPhone Safari opens the native AirPlay picker for the current video', async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(navigator, 'userAgent', {
       configurable: true,
-      value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/120.0.0.0 Mobile/15E148 Safari/604.1',
+      value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+    })
+    Object.defineProperty(navigator, 'vendor', {
+      configurable: true,
+      value: 'Apple Computer, Inc.',
     })
     ;(HTMLMediaElement.prototype as any).webkitShowPlaybackTargetPicker = function () {
       ;(window as any).__airplayPickerOpened = true
@@ -194,7 +202,7 @@ test('mobile website keeps the Prevue channel and time-slot matrix', async ({ pa
   await expect.poll(() => timetable.evaluate((element) => element.scrollWidth > element.clientWidth)).toBe(true)
 })
 
-test('web guide scrolls with wheel, touch and remote arrow keys', async ({ page }) => {
+test('web guide does not accept manual scrolling; only the automatic crawl moves its rows', async ({ page }) => {
   const response = await page.goto('/')
   expect(response?.ok()).toBe(true)
   await page.evaluate(() => {
@@ -204,12 +212,12 @@ test('web guide scrolls with wheel, touch and remote arrow keys', async ({ page 
     if (source) {
       value.channels = Array.from({ length: 30 }, (_, index) => ({
         ...source,
-        id: 'scroll-' + index,
+        id: 'fixed-' + index,
         number: index + 1,
-        name: 'Scroll Channel ' + (index + 1),
-        callsign: 'SC' + index,
+        name: 'Fixed Channel ' + (index + 1),
+        callsign: 'FX' + index,
         programs: (source.programs || []).map((program: any, programIndex: number) => ({
-          ...program, id: 'scroll-' + index + '-program-' + programIndex,
+          ...program, id: 'fixed-' + index + '-program-' + programIndex,
         })),
       }))
       localStorage.setItem(key, JSON.stringify(value))
@@ -218,14 +226,26 @@ test('web guide scrolls with wheel, touch and remote arrow keys', async ({ page 
   await page.reload()
   const viewport = page.getByTestId('guide-viewport')
   await expect(viewport).toBeVisible()
-  await expect(viewport).toHaveAttribute('aria-label', 'Scrollable television channel guide')
-  const before = await viewport.evaluate((node) => node.scrollTop)
-  await viewport.focus()
+  await expect(viewport).toHaveAttribute('aria-label', 'Automatically advancing television program guide')
+  await expect(viewport).not.toHaveAttribute('tabindex', '0')
+  await expect(viewport).toHaveAttribute('style', /overflow-y:\s*hidden/)
+
+  // Real pointer-wheel input must not move the guide; only the programmed
+  // Prevue crawl is allowed to advance the rows.
+  const beforeWheel = await viewport.evaluate((node) => node.scrollTop)
+  const bounds = await viewport.boundingBox()
+  if (!bounds) throw new Error('Guide viewport has no visible bounds')
+  await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2)
+  await page.mouse.wheel(0, 900)
+  const afterWheel = await viewport.evaluate((node) => node.scrollTop)
+  // Allow the programmed 14 px/s crawl to advance a pixel or two while the
+  // browser dispatches the wheel event; a manual 900 px scroll would be far larger.
+  expect(Math.abs(afterWheel - beforeWheel)).toBeLessThan(10)
+
+  await viewport.locator('[data-testid="guide-tune"]').first().focus()
+  const beforeKey = await viewport.evaluate((node) => node.scrollTop)
   await page.keyboard.press('ArrowDown')
-  await expect.poll(() => viewport.evaluate((node) => node.scrollTop)).toBeGreaterThan(before)
-  const afterDown = await viewport.evaluate((node) => node.scrollTop)
-  await page.keyboard.press('PageDown')
-  await expect.poll(() => viewport.evaluate((node) => node.scrollTop)).toBeGreaterThan(afterDown)
+  await expect.poll(async () => Math.abs((await viewport.evaluate((node) => node.scrollTop)) - beforeKey)).toBeLessThan(10)
 })
 
 test('remote channel rockers use concise 90s-style labels', async ({ page }) => {
@@ -260,7 +280,7 @@ test('website removes forced sign-in and saves a channel before videos are added
   await expect(page.getByRole('button', { name: 'Admin' })).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Sign out' })).toHaveCount(0)
 
-  const addChannel = page.getByTestId('tv-add-channel')
+  const addChannel = page.getByTestId('guide-add-channel')
   await expect(addChannel).toBeVisible()
   await expect(addChannel).toBeInViewport()
   await expect(page.locator('.bb-receiver-logo')).toHaveCount(0)

@@ -109,7 +109,10 @@ export function TvExperience({
       row?.querySelector<HTMLElement>('[data-testid="tv-guide-channel"]')?.focus({ preventScroll: true })
     }, 0)
     return () => window.clearTimeout(timer)
-  }, [guideOpen, selectedGuideId, currentId, firstVisible, hasFullGuide, safeIndex])
+  // Only establish the initial position when the guide opens. Selection
+  // changes must not recenter the viewport and fight the automatic crawl.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [guideOpen])
 
   const renderGuideRows = (items: Channel[], duplicate = false) => items.map((item) => {
     const active = item.id === (selectedGuideId ?? currentId)
