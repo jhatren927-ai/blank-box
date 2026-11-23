@@ -415,3 +415,54 @@ test('native TV Prevue guide automatically crawls the complete channel lineup', 
   await expect(guide.getByTestId('tv-guide-auto-scroll').locator('.bb-tv-guide-crawl-copy')).toHaveCount(2)
   await expect.poll(() => rows.evaluate((node) => node.scrollTop), { timeout: 4000 }).toBeGreaterThan(0)
 })
+
+
+test('desktop website keeps the player and remote compact together and makes the guide immediately prominent', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/')
+
+  const player = page.locator('.bb-tv-screen-bezel')
+  const remote = page.getByTestId('cable-remote')
+  const guide = page.getByTestId('prevue-grid')
+  await expect(player).toBeVisible()
+  await expect(remote).toBeVisible()
+  await expect(guide).toBeVisible()
+
+  const layout = await page.evaluate(() => {
+    const rect = (selector: string) => {
+      const element = document.querySelector(selector)
+      if (!element) throw new Error('Missing layout element: ' + selector)
+      const box = element.getBoundingClientRect()
+      return { x: box.x, y: box.y, width: box.width, height: box.height, right: box.right, bottom: box.bottom }
+    }
+    const programTitle = document.querySelector('.bb-tv-guide-section .bb-guide-program-cell p:first-child')
+    const programTime = document.querySelector('.bb-tv-guide-section .bb-guide-program-cell p:last-child')
+    return {
+      player: rect('.bb-tv-screen-bezel'),
+      remote: rect('[data-testid="cable-remote"]'),
+      guide: rect('.bb-tv-guide-section'),
+      grid: rect('.bb-tv-main-grid'),
+      guideTitleSize: programTitle ? getComputedStyle(programTitle).fontSize : null,
+      guideTimeSize: programTime ? getComputedStyle(programTime).fontSize : null,
+      viewportWidth: window.innerWidth,
+    }
+  })
+
+  expect(Math.abs(layout.player.y - layout.remote.y)).toBeLessThan(8)
+  expect(layout.remote.x).toBeGreaterThan(layout.player.x)
+  expect(layout.remote.x - layout.player.right).toBeLessThanOrEqual(20)
+  expect(Math.abs((layout.grid.x + layout.grid.width / 2) - layout.viewportWidth / 2)).toBeLessThan(3)
+  expect(layout.guide.width).toBeGreaterThan(layout.viewportWidth * 0.92)
+  expect(layout.guide.y).toBeLessThan(470)
+  expect(layout.guide.y).toBeGreaterThan(layout.player.bottom - 8)
+  expect(layout.guideTitleSize).toBe('14px')
+  expect(layout.guideTimeSize).toBe('11px')
+
+  await page.setViewportSize({ width: 390, height: 844 })
+  const mobileType = await page.locator('.bb-tv-guide-section .bb-guide-program-cell p:first-child').first().evaluate(
+    (element) => getComputedStyle(element).fontSize,
+  )
+  expect(mobileType).toBe(layout.guideTitleSize)
+  await expect(guide).toBeVisible()
+  await expect(remote).toBeVisible()
+})
