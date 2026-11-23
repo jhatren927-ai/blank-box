@@ -2054,3 +2054,82 @@ html.tv-mode:not([data-tv-app="true"]) .bb-guide-scroll {
     gap: 0;
   }
 }
+
+
+/* Final high-specificity desktop override: beat legacy breakpoint rules that
+   reintroduced a gutter after the full-bleed layout declarations. */
+@media (min-width: 761px) {
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-tv-main-grid {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 24.3%);
+    column-gap: 0;
+    row-gap: 0;
+    gap: 0;
+  }
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+    row-gap: 0;
+    gap: 0;
+  }
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console > .bb-tv-guide-section {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+}
+
+
+
+/* Keep functional groups compact while using the full receiver height:
+   tuning keys stay together beneath their labels; extra height is reserved
+   for the advanced controls and the cast dock instead of spacing every row. */
+@media (min-width: 761px) {
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-cable-receiver {
+    align-self: stretch;
+    align-content: stretch;
+    grid-template-areas:
+      "brand brand"
+      "display display"
+      "actions actions"
+      "channel-label access-label"
+      "rockers keypad"
+      "advanced advanced"
+      "cast cast";
+    grid-template-rows: repeat(5, min-content) minmax(0, 1fr) min-content;
+    row-gap: 7px;
+    padding: 10px;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-remote-section-label {
+    align-self: end;
+    margin-top: 0;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-channel-rockers,
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-number-pad {
+    align-self: start;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-remote-footer {
+    margin-bottom: 0;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-remote-advanced {
+    align-self: end;
+    width: 100%;
+    margin: 0;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-receiver-cast {
+    align-self: end;
+    width: 100%;
+    margin: 0;
+    border-top: 1px solid #5279a8;
+    padding-top: 8px;
+  }
+}

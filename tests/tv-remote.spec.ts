@@ -166,6 +166,7 @@ test('regular website uses the original Downloader receiver layout and remote-on
   expect(firstFrameTheme?.programTitleSize).toBe('14px')
   await expect(page.locator('.bb-tv-broadcast')).toBeVisible()
   await expect(page.getByTestId('cable-remote')).toBeVisible()
+  await expect(page.locator('.bb-tv-dial')).toHaveCount(0)
   await expect(page.getByTestId('prevue-grid')).toBeVisible()
   await expect(page.locator('.bb-tv-main-grid')).toHaveCSS('display', 'grid')
   await expect(page.locator('.bb-tv-statusline, [data-testid="news-ticker"], .bb-tv-screen-heading, .bb-tv-osd')).toHaveCount(0)
@@ -203,6 +204,14 @@ test('regular website uses the original Downloader receiver layout and remote-on
   const cast = page.getByTestId('cast-button')
   await expect(cast).toBeVisible()
   await expect(page.getByTestId('remote-cast-slot').getByTestId('cast-button')).toBeVisible()
+  const remoteBounds = await page.getByTestId('cable-remote').boundingBox()
+  const castBounds = await page.getByTestId('remote-cast-slot').boundingBox()
+  expect(remoteBounds).not.toBeNull()
+  expect(castBounds).not.toBeNull()
+  const remoteBottom = remoteBounds!.y + remoteBounds!.height
+  const castBottom = castBounds!.y + castBounds!.height
+  expect(remoteBottom - castBottom).toBeGreaterThanOrEqual(0)
+  expect(remoteBottom - castBottom).toBeLessThanOrEqual(20)
   await expect(page.locator('.bb-tv-screen-inner [data-testid="cast-button"]')).toHaveCount(0)
   await expect(page.locator('.bb-tv-console [data-testid="cast-button"]')).toHaveCount(1)
 
@@ -289,7 +298,7 @@ test('laptop receiver row expands with the viewport instead of leaving wide empt
     expect(layout.player.width).toBeGreaterThan(layout.viewport * 0.48)
     expect(layout.remote.width).toBeGreaterThanOrEqual(255)
     expect(Math.abs(layout.remote.bottom - layout.broadcast.bottom)).toBeLessThan(8)
-    expect(layout.guide.y).toBeLessThan(viewport.height - 100)
+    expect(layout.guide.y).toBe(layout.remote.bottom)
     expect(layout.remote.x).toBeGreaterThan(layout.player.x)
     expect(layout.remote.x - (layout.player.x + layout.player.width)).toBe(0)
     expect(layout.console.x).toBe(0)
@@ -549,6 +558,10 @@ test('desktop website keeps the player and remote compact together and makes the
       consoleGap: getComputedStyle(document.querySelector('.bb-tv-console')!).rowGap,
       guideMarginTop: getComputedStyle(document.querySelector('.bb-tv-guide-section')!).marginTop,
       remoteAlignSelf: getComputedStyle(document.querySelector('[data-testid="cable-remote"]')!).alignSelf,
+      remoteAlignContent: getComputedStyle(document.querySelector('[data-testid="cable-remote"]')!).alignContent,
+      channelLabelGap: rect('.bb-channel-rockers').y - rect('.bb-cable-receiver > .bb-remote-section-label:nth-child(4)').bottom,
+      keypadLabelGap: rect('.bb-number-pad').y - rect('.bb-cable-receiver > .bb-remote-section-label:nth-child(6)').bottom,
+      advancedBottomGap: rect('[data-testid="cable-remote"]').bottom - rect('[data-testid="cable-remote"] .bb-remote-advanced').bottom,
     }
   })
 
@@ -567,6 +580,13 @@ test('desktop website keeps the player and remote compact together and makes the
   expect(layout.guide.y - Math.max(layout.player.bottom, layout.remote.bottom)).toBeLessThanOrEqual(1)
   expect(layout.guideTitleSize).toBe('14px')
   expect(layout.guideTimeSize).toBe('11px')
+  expect(layout.remoteAlignContent).toBe('stretch')
+  expect(layout.channelLabelGap).toBeGreaterThanOrEqual(0)
+  expect(layout.channelLabelGap).toBeLessThanOrEqual(10)
+  expect(layout.keypadLabelGap).toBeGreaterThanOrEqual(0)
+  expect(layout.keypadLabelGap).toBeLessThanOrEqual(10)
+  expect(layout.advancedBottomGap).toBeGreaterThanOrEqual(0)
+  expect(layout.advancedBottomGap).toBeLessThanOrEqual(25)
 
   await page.setViewportSize({ width: 390, height: 844 })
   writeFileSync('artifacts/website-layout-mobile.png', await page.screenshot({ fullPage: true }))

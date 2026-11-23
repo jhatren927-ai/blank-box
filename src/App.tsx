@@ -521,7 +521,6 @@ function AppContent() {
                 }}
                 onHelp={() => setHelp(true)}
                 onDigit={enterDigit}
-                dial={dial}
               />
             )
           ) : (
