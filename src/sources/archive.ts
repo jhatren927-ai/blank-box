@@ -35,6 +35,36 @@ function buildQuery(text: string, options: SearchOptions): string {
 async function searchArchive(query: string, options: SearchOptions): Promise<SearchHit[]> {
   const text = query.trim()
   if (!text) return []
+
+  // A pasted Archive.org item URL or identifier is a direct lookup, not a
+  // keyword search. The regular search endpoint treats the URL as title text.
+  const direct = text.match(/(?:https?:\\/\\/(?:www\\.)?archive\\.org\\/details\\/)?([a-z0-9][a-z0-9._-]{4,99})\\/?(?:[?#].*)?$/i)
+  const looksLikeUrl = /archive\\.org\\/details\\//i.test(text)
+  if (direct && (looksLikeUrl || !/\\s/.test(text))) {
+    const identifier = direct[1]
+    const metadataResponse = await fetch(`https://archive.org/metadata/${encodeURIComponent(identifier)}`)
+    if (metadataResponse.ok) {
+      const item = (await metadataResponse.json()) as {
+        metadata?: { identifier?: string; title?: string; year?: string | number; description?: string | string[]; mediatype?: string }
+        files?: IaFile[]
+      }
+      if (item.metadata?.identifier && item.metadata.mediatype === 'movies' && pickFile(item.files ?? [])) {
+        const description = Array.isArray(item.metadata.description)
+          ? item.metadata.description.join(' ')
+          : item.metadata.description ?? ''
+        return [{
+          id: item.metadata.identifier,
+          source: 'archive',
+          title: item.metadata.title || item.metadata.identifier,
+          year: item.metadata.year ? String(item.metadata.year) : undefined,
+          blurb: description.replace(/<[^>]+>/g, '').slice(0, 140),
+          thumb: `https://archive.org/services/img/${item.metadata.identifier}`,
+        }]
+      }
+      return []
+    }
+  }
+
   const url = new URL('https://archive.org/advancedsearch.php')
   url.searchParams.set('q', buildQuery(text, options))
   url.searchParams.append('fl[]', 'identifier')
