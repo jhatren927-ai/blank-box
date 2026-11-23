@@ -26,7 +26,8 @@ test.beforeEach(async ({ page }) => {
       setOptions() {},
       async requestSession() { return { async loadMedia() {} } },
     }) } } }
-    ;(window as any).chrome = { cast: { AutoJoinPolicy: { ORIGIN_SCOPED: 'origin-scoped' } } }
+    ;(window as any).chrome ??= {}
+    ;(window as any).chrome.cast = { AutoJoinPolicy: { ORIGIN_SCOPED: 'origin-scoped' } }
     localStorage.setItem('blankbox:network:v1', JSON.stringify(network))
     localStorage.setItem('blankbox:prefs:v1', JSON.stringify({
       crt: false, aspect: '16:9', muted: true, volume: 0.7, rate: 1,
