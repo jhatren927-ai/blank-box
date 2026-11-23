@@ -1,4 +1,4 @@
-import { useEffect, type RefObject } from 'react'
+import { useEffect, useState, type RefObject } from 'react'
 import type { Channel, Prefs, Program } from '../types.ts'
 import { clock, padChannel } from '../lib/format.ts'
 import { guideWindow, liveSlot, nextSlot, slotsCovering } from '../lib/schedule.ts'
@@ -68,6 +68,13 @@ export function TvExperience({
   onHelp,
 }: TvExperienceProps) {
   const live = channel ? liveSlot(channel, now) : null
+  const [showLowerThird, setShowLowerThird] = useState(true)
+
+  useEffect(() => {
+    setShowLowerThird(true)
+    const timer = window.setTimeout(() => setShowLowerThird(false), 5200)
+    return () => window.clearTimeout(timer)
+  }, [channel?.id, live?.program.id, vod?.id])
   const next = channel ? nextSlot(channel, now) : null
   const selected = channels.find((item) => item.id === selectedGuideId) ?? channel
   const selectedLive = selected ? liveSlot(selected, now) : null
@@ -131,7 +138,7 @@ export function TvExperience({
             <div className="bb-tv-watch-hint" aria-hidden="true">
               ▲ / ▼ CHANNEL <i /> OK GUIDE <i /> 0–9 DIRECT TUNE <i /> M SOUND <i /> BACK MENU
             </div>
-            {channel && (
+            {channel && showLowerThird && (
               <div className="bb-tv-live-lower-third" data-testid="tv-live-lower-third">
                 <div className="bb-tv-lower-channel">
                   <strong>{padChannel(channel.number)}</strong>
