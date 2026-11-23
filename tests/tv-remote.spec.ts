@@ -489,7 +489,7 @@ test('desktop website keeps the player and remote compact together and makes the
     (element) => getComputedStyle(element).fontSize,
   )
   console.log('PUBLIC WEBSITE MOBILE LAYOUT:', JSON.stringify(mobileLayout))
-  expect(mobileLayout.columns.trim().split(/\\s+/)).toHaveLength(1)
+  expect(mobileLayout.columns.trim().split(/\s+/)).toHaveLength(1)
   expect(mobileLayout.player.width).toBeGreaterThan(320)
   expect(mobileLayout.remote.width).toBeGreaterThan(320)
   expect(mobileLayout.remote.y).toBeGreaterThan(mobileLayout.player.bottom - 8)
