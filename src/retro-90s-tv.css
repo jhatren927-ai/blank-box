@@ -2014,3 +2014,30 @@ html.tv-mode:not([data-tv-app="true"]) .bb-guide-scroll {
     margin: 0;
   }
 }
+
+
+/* Full-bleed desktop composition: the receiver row and program guide share
+   the complete viewport width. Do not leave a centered, narrow island on
+   laptop or desktop screens. Mobile keeps its deliberately inset layout. */
+@media (min-width: 761px) {
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-tv-main-grid {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console > .bb-tv-guide-section {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
