@@ -6,18 +6,13 @@ import {
   Maximize,
   Minus,
   Plus,
-  Power,
-  Pencil,
-  Tv,
   Volume2,
   VolumeX,
 } from 'lucide-react'
 import type { Channel, Prefs, Program } from '../types.ts'
 import { clock, padChannel } from '../lib/format.ts'
-import { liveSlot, nextSlot } from '../lib/schedule.ts'
 import { Guide } from './Guide.tsx'
 import { CastButton, Player } from './Player.tsx'
-import { lookById } from '../lib/looks.ts'
 
 interface WebTvExperienceProps {
   channels: Channel[]
@@ -78,10 +73,6 @@ export function WebTvExperience({
   onDigit,
   dial,
 }: WebTvExperienceProps) {
-  const live = channel ? liveSlot(channel, now) : null
-  const next = channel ? nextSlot(channel, now) : null
-  const secondsLeft = live ? Math.max(0, Math.ceil((live.endMs - now) / 1000)) : 0
-  const percent = live ? Math.min(100, Math.max(0, ((now - live.startMs) / (live.endMs - live.startMs)) * 100)) : 0
   function scrollToGuide() {
     document.getElementById('guide')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
@@ -112,44 +103,6 @@ export function WebTvExperience({
             </div>
           </div>
 
-          <div className="bb-tv-now-playing">
-            <div className="bb-program-ident">
-              <span className="bb-program-live">LIVE</span>
-              <span className="bb-program-channel">{channel ? 'CH ' + padChannel(channel.number) + '  /  ' + channel.callsign : 'NO CHANNEL'}</span>
-            </div>
-            <div className="bb-program-copy">
-              <strong>{vod?.title || live?.program.title || 'Your television starts here'}</strong>
-              <span>{channel ? channel.name : 'Add a channel to begin broadcasting'}</span>
-            </div>
-            <div className="bb-program-next">
-              <span className="bb-micro-label">UP NEXT</span>
-              <strong>{next?.program.title || '—'}</strong>
-              <span>{live ? Math.floor(secondsLeft / 60) + ' MIN REMAINING' : 'STANDBY'}</span>
-            </div>
-          </div>
-          <div className="bb-program-progress"><span style={{ width: percent + '%' }} /></div>
-
-          <div className="bb-station-strip">
-            <div className="bb-strip-title"><Tv size={15} /> YOUR CHANNELS</div>
-            <div className="bb-station-list">
-              {channels.length === 0 ? (
-                <button type="button" className="bb-station-add" onClick={onNew}>
-                  <Plus size={18} /> CREATE YOUR FIRST CHANNEL
-                </button>
-              ) : channels.slice().sort((a, b) => a.number - b.number).map((item) => (
-                <div key={item.id} className={'bb-station-card' + (item.id === currentId ? ' is-current' : '')}>
-                  <button type="button" onClick={() => onTune(item.id)} className="bb-station-tune">
-                    <span className="bb-station-number">{padChannel(item.number)}</span>
-                    <span className={'bb-station-callsign ' + lookById(item.look).bug}>{item.callsign}</span>
-                    <span className="bb-station-name">{item.name}</span>
-                  </button>
-                  <button type="button" className="bb-station-edit" aria-label={'Edit ' + item.name} onClick={() => onEdit(item.id)}>
-                    <Pencil size={15} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
         </section>
 
         <aside className="bb-cable-receiver" data-testid="cable-remote">
@@ -168,15 +121,6 @@ export function WebTvExperience({
               <span>{prefs.muted ? 'MUTE' : 'STEREO'}</span>
               <span className="bb-led-clock">{clock(now)}</span>
             </div>
-          </div>
-
-          <div className="bb-remote-footer">
-            <button type="button" onClick={onNew} className="bb-add-channel" data-testid="tv-add-channel">
-              <Plus size={17} /> ADD CHANNEL
-            </button>
-            <button type="button" onClick={onSurprise} className="bb-surprise" data-testid="tv-surprise">
-              <Power size={16} /> SURPRISE ME
-            </button>
           </div>
 
           <div className="bb-remote-section-label">CHANNEL CONTROL</div>
@@ -243,10 +187,7 @@ export function WebTvExperience({
             </div>
           )}
 
-          <div className="bb-receiver-tiny">
-            <span><span className="bb-green-dot" /> SIGNAL READY</span>
-            <button type="button" onClick={onHelp}>REMOTE HELP</button>
-          </div>
+
         </aside>
       </div>
 
@@ -255,9 +196,11 @@ export function WebTvExperience({
           channels={channels}
           currentId={currentId}
           now={now}
-          title="PREVUE"
+          title="PREVUE CHANNEL"
           favs={prefs.favs}
           onTune={onTune}
+          onNew={onNew}
+          onEdit={onEdit}
         />
       </section>
     </div>
