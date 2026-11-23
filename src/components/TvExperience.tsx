@@ -219,6 +219,7 @@ export function TvExperience({
                       data-testid="tv-guide-channel"
                       aria-pressed={active}
                       onClick={() => onSelectGuideChannel(item.id)}
+                      onFocus={() => onSelectGuideChannel(item.id)}
                       onDoubleClick={() => onTune(item.id)}
                     >
                       <strong>{padChannel(item.number)}</strong>
@@ -241,6 +242,7 @@ export function TvExperience({
                             }}
                             title={slot.program.title}
                             onClick={() => onTune(item.id)}
+                            onFocus={() => onSelectGuideChannel(item.id)}
                           >
                             <strong>{slot.program.title}</strong>
                             <small>{clock(slot.startMs)}</small>
@@ -273,7 +275,7 @@ export function TvExperience({
             <p className="bb-tv-menu-current">{currentChannel}{channel && live ? `  ·  ${live.program.title}` : ''}</p>
             <div className="bb-tv-menu-sound-actions">
               <button type="button" data-testid="tv-menu-sound" onClick={onToggleMute}>
-                SOUND {prefs.muted ? 'ON' : 'OFF'}
+                SOUND {prefs.muted ? 'OFF' : 'ON'}
               </button>
               <button type="button" data-testid="tv-menu-volume-down" onClick={() => onVolumeChange(Math.max(0, prefs.volume - 0.1))}>
                 VOL −
