@@ -134,8 +134,9 @@ export function WebTvExperience({
           </div>
 
           <div className="bb-remote-footer">
-            <button type="button" onClick={onNew} className="bb-add-channel" data-testid="tv-add-channel">ADD CHANNEL</button>
-            <button type="button" onClick={onLast} className="bb-last-channel" data-testid="tv-last-channel">LAST CHANNEL</button>
+            <button type="button" onClick={onNew} className="bb-add-channel" data-testid="tv-add-channel">ADD CH</button>
+            <button type="button" onClick={() => channel && onEdit(channel.id)} disabled={!channel} className="bb-edit-channel" data-testid="tv-edit-channel">EDIT CH</button>
+            <button type="button" onClick={onLast} className="bb-last-channel" data-testid="tv-last-channel">LAST</button>
           </div>
 
           <div className="bb-remote-section-label">CHANNEL CONTROL</div>
