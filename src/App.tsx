@@ -273,7 +273,11 @@ function AppContent() {
       }
 
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
-        const controls = Array.from(document.querySelectorAll<HTMLElement>(
+        const activeDialog = Array.from(document.querySelectorAll<HTMLElement>('[role="dialog"][aria-modal="true"]'))
+          .filter((element) => element.getClientRects().length > 0)
+          .at(-1)
+        const focusScope: ParentNode = activeDialog ?? document
+        const controls = Array.from(focusScope.querySelectorAll<HTMLElement>(
           'button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), [tabindex]:not([tabindex="-1"])',
         )).filter((element) => element.getClientRects().length > 0)
         const active = document.activeElement as HTMLElement | null
@@ -294,14 +298,21 @@ function AppContent() {
               const aligned = event.key === 'ArrowLeft' || event.key === 'ArrowRight'
                 ? rect.top < origin.bottom && rect.bottom > origin.top
                 : rect.left < origin.right && rect.right > origin.left
-              return { element, primary, score: primary + cross * 3, aligned }
+              return { element, primary, score: primary + cross * 2 + (aligned ? 0 : 120) }
             })
             .filter((candidate) => candidate.primary > 4)
-            .sort((a, b) => Number(b.aligned) - Number(a.aligned) || a.score - b.score)
-          if (candidates[0]) {
+            .sort((a, b) => a.score - b.score)
+          let next = candidates[0]?.element
+          if (!next && activeDialog && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
+            const vertical = controls
+              .filter((element) => element !== active)
+              .sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top)
+            next = event.key === 'ArrowDown' ? vertical[0] : vertical.at(-1)
+          }
+          if (next) {
             event.preventDefault()
-            candidates[0].element.focus({ preventScroll: true })
-            candidates[0].element.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+            next.focus({ preventScroll: true })
+            next.scrollIntoView({ block: 'nearest', inline: 'nearest' })
           }
           return
         }
