@@ -550,6 +550,10 @@ test('desktop website keeps the player and remote compact together and makes the
       consoleGap: getComputedStyle(document.querySelector('.bb-tv-console')!).rowGap,
       guideMarginTop: getComputedStyle(document.querySelector('.bb-tv-guide-section')!).marginTop,
       remoteAlignSelf: getComputedStyle(document.querySelector('[data-testid="cable-remote"]')!).alignSelf,
+      remoteAlignContent: getComputedStyle(document.querySelector('[data-testid="cable-remote"]')!).alignContent,
+      channelLabelGap: rect('.bb-channel-rockers').y - rect('.bb-cable-receiver > .bb-remote-section-label:nth-child(4)').bottom,
+      keypadLabelGap: rect('.bb-number-pad').y - rect('.bb-cable-receiver > .bb-remote-section-label:nth-child(6)').bottom,
+      advancedBottomGap: rect('[data-testid="cable-remote"] .bb-remote-advanced').bottom - rect('[data-testid="cable-remote"]').bottom,
     }
   })
 
@@ -568,6 +572,12 @@ test('desktop website keeps the player and remote compact together and makes the
   expect(layout.guide.y - Math.max(layout.player.bottom, layout.remote.bottom)).toBeLessThanOrEqual(1)
   expect(layout.guideTitleSize).toBe('14px')
   expect(layout.guideTimeSize).toBe('11px')
+  expect(layout.remoteAlignContent).toBe('stretch')
+  expect(layout.channelLabelGap).toBeGreaterThanOrEqual(0)
+  expect(layout.channelLabelGap).toBeLessThanOrEqual(10)
+  expect(layout.keypadLabelGap).toBeGreaterThanOrEqual(0)
+  expect(layout.keypadLabelGap).toBeLessThanOrEqual(10)
+  expect(layout.advancedBottomGap).toBeLessThanOrEqual(25)
 
   await page.setViewportSize({ width: 390, height: 844 })
   writeFileSync('artifacts/website-layout-mobile.png', await page.screenshot({ fullPage: true }))
