@@ -81,7 +81,7 @@ test('guide D-pad changes the selected channel and OK tunes it', async ({ page }
   await expect(page.getByTestId('tv-live-lower-third')).toContainText('Second Channel')
 })
 
-test('guide left and right move across program listings instead of changing the time page', async ({ page }) => {
+test('guide Left/Right browse program blocks and page the timeline at its edge', async ({ page }) => {
   await expect(page.getByTestId('tv-experience')).toBeVisible()
   await page.keyboard.press('Enter')
   const guide = page.getByTestId('tv-guide-overlay')
@@ -94,10 +94,12 @@ test('guide left and right move across program listings instead of changing the 
   await expect(programs.nth(0)).toBeFocused()
   await page.keyboard.press('ArrowRight')
   await expect(programs.nth(1)).toBeFocused()
+  const firstTime = await guide.locator('.bb-tv-guide-time-cells > div').first().innerText()
+  const lastProgram = programs.last()
+  await lastProgram.focus()
   await page.keyboard.press('ArrowRight')
-  await expect(programs.nth(2)).toBeFocused()
-  await page.keyboard.press('ArrowLeft')
-  await expect(programs.nth(1)).toBeFocused()
+  await expect(firstRow.getByTestId('tv-guide-channel')).toBeFocused()
+  await expect.poll(() => guide.locator('.bb-tv-guide-time-cells > div').first().innerText()).not.toBe(firstTime)
 })
 
 

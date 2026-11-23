@@ -1549,8 +1549,8 @@ html.tv-mode .bb-tv-experience.is-guide-open .bb-tv-stage {
   top: 4.2vh;
   left: 4vw;
   inset: 4.2vh auto auto 4vw;
-  width: 34vw;
-  height: 22vw;
+  width: min(34vw, 42.67vh);
+  height: min(19.125vw, 24vh);
   max-height: 24vh;
   border: 2px solid #e8bd4a;
   outline: 2px solid rgba(0,0,0,.9);
