@@ -156,6 +156,34 @@ test('regular website uses the original Downloader receiver layout and remote-on
   await expect(page.getByTestId('web-tv-receiver')).toBeVisible()
 })
 
+test('iPhone Chrome opens the native AirPlay picker for the current video', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'userAgent', {
+      configurable: true,
+      value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/120.0.0.0 Mobile/15E148 Safari/604.1',
+    })
+    ;(HTMLMediaElement.prototype as any).webkitShowPlaybackTargetPicker = function () {
+      ;(window as any).__airplayPickerOpened = true
+    }
+  })
+  await page.goto('/')
+  await page.evaluate(() => {
+    const key = 'blankbox:network:v1'
+    const value = JSON.parse(localStorage.getItem(key) || '{}')
+    for (const channel of value.channels ?? []) {
+      for (const program of channel.programs ?? []) program.playUrl = 'https://example.com/test.mp4'
+    }
+    localStorage.setItem(key, JSON.stringify(value))
+  })
+  await page.reload()
+  const airplay = page.getByTestId('cast-button')
+  await expect(airplay).toBeVisible()
+  await expect(airplay).toContainText('AIRPLAY')
+  await airplay.click()
+  await expect(page.getByRole('status')).toContainText('Select your Apple TV')
+  await expect.poll(() => page.evaluate(() => (window as any).__airplayPickerOpened)).toBe(true)
+})
+
 test('web guide scrolls with wheel, touch and remote arrow keys', async ({ page }) => {
   const response = await page.goto('/')
   expect(response?.ok()).toBe(true)
