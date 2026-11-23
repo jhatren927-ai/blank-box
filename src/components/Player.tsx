@@ -280,7 +280,7 @@ function YouTubeVideo(props: EngineProps) {
                   reportDuration(player.current)
                 }, 1000)
               }
-              const wanted = current.program.durationGuess || playlistId ? 0 : offset
+              const wanted = !current.program.durationGuess && !playlistId ? offset : 0
               if (!playlistId && real > 1 && wanted > 1 && wanted < real - 1) event.target.seekTo(wanted, true)
               if (current.muted) event.target.mute()
               else {
@@ -352,6 +352,7 @@ function YouTubeVideo(props: EngineProps) {
 function VimeoVideo(props: EngineProps) {
   const host = useRef<HTMLDivElement>(null)
   const propsRef = useRef(props)
+  const playerRef = useRef<{ setMuted: (muted: boolean) => Promise<void>; setVolume: (volume: number) => Promise<void>; setPlaybackRate: (rate: number) => Promise<number> } | null>(null)
   propsRef.current = props
   useEffect(() => {
     const node = host.current
@@ -370,13 +371,18 @@ function VimeoVideo(props: EngineProps) {
         controls: true,
         dnt: true,
       })
+      playerRef.current = player
       destroy = () => {
+        playerRef.current = null
         void player.destroy()
       }
       void player.ready().then(async () => {
+        const active = propsRef.current
         if (offset > 1) await player.setCurrentTime(offset).catch(() => undefined)
+        await player.setMuted(active.muted).catch(() => undefined)
+        if (!active.muted) await player.setVolume(active.volume).catch(() => undefined)
         try {
-          await player.setPlaybackRate(propsRef.current.rate)
+          await player.setPlaybackRate(active.rate)
         } catch {
           /* some videos lock the rate */
         }
@@ -391,6 +397,13 @@ function VimeoVideo(props: EngineProps) {
       destroy?.()
     }
   }, [props.program.vimeoId])
+  useEffect(() => {
+    const active = playerRef.current
+    if (!active) return
+    void active.setMuted(props.muted).catch(() => undefined)
+    if (!props.muted) void active.setVolume(props.volume).catch(() => undefined)
+    void active.setPlaybackRate(props.rate).catch(() => undefined)
+  }, [props.muted, props.volume, props.rate])
   return (
     <div className="vm-slot absolute inset-0" data-testid="vimeo-player">
       <div ref={host} className="h-full w-full" />
