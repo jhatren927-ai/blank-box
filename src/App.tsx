@@ -205,6 +205,15 @@ function AppContent() {
                   const bRect = b.getBoundingClientRect()
                   return Math.abs(aRect.left + aRect.width / 2 - centerX) - Math.abs(bRect.left + bRect.width / 2 - centerX)
                 })[0]
+              } else {
+                const currentIndex = ordered.findIndex((item) => item.id === activeRow.dataset.channelId)
+                const nextIndex = (currentIndex + (event.key === 'ArrowUp' ? -1 : 1) + ordered.length) % ordered.length
+                if (ordered[nextIndex]) {
+                  setGuideSelectedId(ordered[nextIndex].id)
+                  window.setTimeout(() => {
+                    document.querySelector('[data-channel-id="' + ordered[nextIndex].id + '"] [data-testid="tv-guide-channel"]')?.focus({ preventScroll: true })
+                  }, 0)
+                }
               }
             }
             if (destination) {
