@@ -47,60 +47,51 @@ export function usePrevueCrawl(
     const firstCopy = firstCopyRef.current
     if (!viewport || !firstCopy) return
 
-    let frame = 0
-    let previousFrame = 0
     let distanceSincePause = 0
     let screenPauseUntil = 0
     let interactionPauseUntil = 0
+    let previousTick = performance.now()
 
-    let tickCount = 0
-    viewport.dataset.prevueCrawlRunning = 'true'
-
-    const pauseForInteraction = (event: Event) => {
+    const pauseForInteraction = () => {
       interactionPauseUntil = performance.now() + USER_PAUSE_MS
-      previousFrame = 0
-      viewport.dataset.prevueCrawlPausedBy = event.type
     }
 
-    const tick = (timestamp: number) => {
-      tickCount += 1
-      viewport.dataset.prevueCrawlFrames = String(tickCount)
-      const elapsed = previousFrame ? Math.min((timestamp - previousFrame) / 1000, 0.05) : 0
-      previousFrame = timestamp
+    // Android TV WebViews can suspend animation frames beneath full-screen
+    // overlays. A steady timer keeps the guide crawl moving on those devices.
+    const tick = () => {
+      const timestamp = performance.now()
+      const elapsed = Math.min((timestamp - previousTick) / 1000, 0.25)
+      previousTick = timestamp
       const loopHeight = firstCopy.scrollHeight
-      viewport.dataset.prevueCrawlLoopHeight = String(loopHeight)
-      viewport.dataset.prevueCrawlLastTimestamp = String(timestamp)
 
-      if (loopHeight > viewport.clientHeight + 2) {
-        if (timestamp >= screenPauseUntil && timestamp >= interactionPauseUntil) {
-          const distance = CRAWL_PIXELS_PER_SECOND * elapsed
-          viewport.scrollTop += distance
-          distanceSincePause += distance
-          while (viewport.scrollTop >= loopHeight) viewport.scrollTop -= loopHeight
+      if (loopHeight > viewport.clientHeight + 2 &&
+          timestamp >= screenPauseUntil &&
+          timestamp >= interactionPauseUntil) {
+        const distance = CRAWL_PIXELS_PER_SECOND * elapsed
+        viewport.scrollTop += distance
+        distanceSincePause += distance
 
-          if (distanceSincePause >= viewport.clientHeight) {
-            distanceSincePause = 0
-            screenPauseUntil = timestamp + SCREENFUL_PAUSE_MS
-          }
-        } else {
-          while (viewport.scrollTop >= loopHeight) viewport.scrollTop -= loopHeight
+        // The second identical lineup follows the first. Subtracting exactly
+        // one lineup height creates a seamless wrap without jumping backwards.
+        while (viewport.scrollTop >= loopHeight) viewport.scrollTop -= loopHeight
+
+        if (distanceSincePause >= viewport.clientHeight) {
+          distanceSincePause = 0
+          screenPauseUntil = timestamp + SCREENFUL_PAUSE_MS
         }
+      } else {
+        while (viewport.scrollTop >= loopHeight) viewport.scrollTop -= loopHeight
       }
-
-      viewport.dataset.prevueCrawlScrollTop = String(viewport.scrollTop)
-      viewport.dataset.prevueCrawlPauseRemaining = String(Math.max(0, interactionPauseUntil - performance.now()))
-      frame = window.requestAnimationFrame(tick)
     }
 
     viewport.addEventListener('wheel', pauseForInteraction, { passive: true })
     viewport.addEventListener('touchstart', pauseForInteraction, { passive: true })
     viewport.addEventListener('pointerdown', pauseForInteraction, { passive: true })
     viewport.addEventListener('keydown', pauseForInteraction)
-    frame = window.requestAnimationFrame(tick)
 
+    const timer = window.setInterval(tick, 50)
     return () => {
-      window.cancelAnimationFrame(frame)
-      delete viewport.dataset.prevueCrawlRunning
+      window.clearInterval(timer)
       viewport.removeEventListener('wheel', pauseForInteraction)
       viewport.removeEventListener('touchstart', pauseForInteraction)
       viewport.removeEventListener('pointerdown', pauseForInteraction)
