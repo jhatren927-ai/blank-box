@@ -279,23 +279,6 @@ function AppContent() {
         }
       }
 
-      // The TV remote's D-pad must scroll the guide when focus is anywhere
-      // inside it; otherwise the global focus navigation consumes Up/Down.
-      const guideScroller = target?.closest<HTMLElement>(
-        '[data-testid="guide-viewport"], [data-testid="guide-mobile-list"]',
-      )
-      if (guideScroller && ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End'].includes(event.key)) {
-        event.preventDefault()
-        const amount = Math.max(120, Math.round(guideScroller.clientHeight * 0.8))
-        if (event.key === 'Home') guideScroller.scrollTo({ top: 0, behavior: 'auto' })
-        else if (event.key === 'End') guideScroller.scrollTo({ top: guideScroller.scrollHeight, behavior: 'auto' })
-        else guideScroller.scrollBy({
-          top: event.key === 'ArrowUp' || event.key === 'PageUp' ? -amount : amount,
-          behavior: 'auto',
-        })
-        return
-      }
-
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
         const activeDialog = Array.from(document.querySelectorAll<HTMLElement>('[role="dialog"][aria-modal="true"]'))
           .filter((element) => element.getClientRects().length > 0)
@@ -336,7 +319,10 @@ function AppContent() {
           if (next) {
             event.preventDefault()
             next.focus({ preventScroll: true })
-            next.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+            // The website guide advances on its own. D-pad focus can move
+            // between its items but must not reposition the guide viewport.
+            const insideAutoGuide = !!target?.closest('[data-testid="guide-viewport"]')
+            if (!insideAutoGuide) next.scrollIntoView({ block: 'nearest', inline: 'nearest' })
           }
           return
         }
@@ -662,6 +648,10 @@ function AppContent() {
               title={network.name || 'Your'}
               favs={prefs.favs}
               onTune={tune}
+              onNew={() => {
+                setEditing(null)
+                setView('build')
+              }}
             />
             <footer className="bb-web-footer">
               <span>BLANK BOX TELEVISION</span><span>YOUR NETWORK · YOUR LINEUP · YOUR AIRWAVES</span><span>EST. 1995</span>
