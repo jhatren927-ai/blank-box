@@ -20,6 +20,7 @@ interface TvExperienceProps {
   onSelectGuideChannel: (id: string) => void
   onGuidePageChange: (page: number) => void
   onCloseGuide: () => void
+  onUnmute: () => void
   onCloseMenu: () => void
   onExitVod: () => void
   onCastTargetChange: (target: { program: Program; offsetSec: number } | null) => void
@@ -53,6 +54,7 @@ export function TvExperience({
   onSelectGuideChannel,
   onGuidePageChange,
   onCloseGuide,
+  onUnmute,
   onCloseMenu,
   onExitVod,
   onCastTargetChange,
@@ -120,7 +122,7 @@ export function TvExperience({
           crt={prefs.crt}
           aspect={prefs.aspect}
           showLogo={prefs.logo}
-          onUnmute={() => onCastTargetChange(null)}
+          onUnmute={onUnmute}
           onCastTargetChange={onCastTargetChange}
           onProgramDuration={onProgramDuration}
         />
