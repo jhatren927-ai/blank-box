@@ -166,6 +166,10 @@ test('iPhone Safari opens the native AirPlay picker for the current video', asyn
       configurable: true,
       value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
     })
+    Object.defineProperty(navigator, 'vendor', {
+      configurable: true,
+      value: 'Apple Computer, Inc.',
+    })
     ;(HTMLMediaElement.prototype as any).webkitShowPlaybackTargetPicker = function () {
       ;(window as any).__airplayPickerOpened = true
     }
@@ -226,16 +230,15 @@ test('web guide does not accept manual scrolling; only the automatic crawl moves
   await expect(viewport).not.toHaveAttribute('tabindex', '0')
   await expect(viewport).toHaveAttribute('style', /overflow-y:\s*hidden/)
 
-  // A wheel gesture is explicitly cancelled. The crawl hook, not user input,
-  // remains the only code path that changes the viewport's scrollTop.
-  const wheel = await viewport.evaluate((node) => {
-    const before = node.scrollTop
-    const event = new WheelEvent('wheel', { bubbles: true, cancelable: true, deltaY: 900 })
-    node.dispatchEvent(event)
-    return { before, after: node.scrollTop, defaultPrevented: event.defaultPrevented }
-  })
-  expect(wheel.defaultPrevented).toBe(true)
-  expect(wheel.after).toBe(wheel.before)
+  // Real pointer-wheel input must not move the guide; only the programmed
+  // Prevue crawl is allowed to advance the rows.
+  const beforeWheel = await viewport.evaluate((node) => node.scrollTop)
+  const bounds = await viewport.boundingBox()
+  if (!bounds) throw new Error('Guide viewport has no visible bounds')
+  await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2)
+  await page.mouse.wheel(0, 900)
+  const afterWheel = await viewport.evaluate((node) => node.scrollTop)
+  expect(afterWheel).toBe(beforeWheel)
 
   await viewport.locator('[data-testid="guide-tune"]').first().focus()
   const beforeKey = await viewport.evaluate((node) => node.scrollTop)
