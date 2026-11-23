@@ -92,7 +92,7 @@ export function WebTvExperience({
                 onCastTargetChange={onCastTargetChange}
                 onProgramDuration={onProgramDuration}
               />
-              <div className="bb-tv-dial" aria-hidden="true">{dial}</div>
+              {dial && <div className="bb-tv-dial" aria-hidden="true">{dial}</div>}
             </div>
           </div>
 
