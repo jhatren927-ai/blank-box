@@ -53,7 +53,7 @@ export function Guide({
   const marker = ((now - guide.start) / span) * 100
   // Fill at least the viewport with each loop segment, even for small channel
   // lists, then duplicate that segment so the -50% animation is seamless.
-  const copiesPerLoop = shown.length > 0 ? Math.max(1, Math.ceil(8 / shown.length)) : 1
+  const copiesPerLoop = 1
   const shouldAutoScroll = shown.length > 0
   const scrollDuration = `${Math.max(20, copiesPerLoop * shown.length * 3.2)}s`
   const renderRows = (dup = false, copy = 0) => shown.map((channel) => (
@@ -104,7 +104,7 @@ export function Guide({
               className={shouldAutoScroll ? 'animate-guide-scroll' : ''}
               style={shouldAutoScroll ? { animationDuration: scrollDuration } : undefined}
             >
-              {Array.from({ length: copiesPerLoop * 2 }, (_, copy) => (
+              {Array.from({ length: copiesPerLoop }, (_, copy) => (
                 <ul key={copy} aria-hidden={copy >= copiesPerLoop} className="divide-y-2 divide-black">
                   {shown.map((channel) => {
                     const live = liveSlot(channel, now)
@@ -167,7 +167,7 @@ export function Guide({
               </div>
               <div
                 data-testid="guide-viewport"
-                className="relative h-[min(70vh,720px)] min-h-[480px] overflow-hidden"
+                className="relative h-[min(72vh,760px)] min-h-[480px] overflow-y-auto overflow-x-hidden"
               >
                 <div
                   data-testid="guide-auto-scroll"
