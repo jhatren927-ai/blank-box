@@ -1,13 +1,9 @@
 import type { RefObject } from 'react'
 import {
   ChevronDown,
-  ChevronLeft,
-  ChevronRight,
   ChevronUp,
   Clock3,
   Disc3,
-  Edit3,
-  Heart,
   Maximize,
   Minus,
   Plus,
@@ -47,7 +43,6 @@ interface TvExperienceProps {
   onRate: () => void
   onLogo: () => void
   onLast: () => void
-  onFav: (id: string) => void
   onSurprise: () => void
   onHelp: () => void
   onDigit: (digit: string) => void
@@ -78,7 +73,6 @@ export function TvExperience({
   onRate,
   onLogo,
   onLast,
-  onFav,
   onSurprise,
   onHelp,
   onDigit,
@@ -88,10 +82,6 @@ export function TvExperience({
   const next = channel ? nextSlot(channel, now) : null
   const secondsLeft = live ? Math.max(0, Math.ceil((live.endMs - now) / 1000)) : 0
   const percent = live ? Math.min(100, Math.max(0, ((now - live.startMs) / (live.endMs - live.startMs)) * 100)) : 0
-  const recents = prefs.recent
-    .map((id) => channels.find((item) => item.id === id))
-    .filter((item): item is Channel => Boolean(item))
-
   function scrollToGuide() {
     document.getElementById('guide')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
@@ -250,7 +240,7 @@ export function TvExperience({
           </div>
 
           <div className="bb-remote-section-label">SOUND & PICTURE</div>
-          <div className="bb-control-grid">
+          <div className="bb-control-grid bb-control-grid-wide">
             <button type="button" onClick={onMute} data-testid="tv-mute">
               {prefs.muted ? <VolumeX size={17} /> : <Volume2 size={17} />}
               {prefs.muted ? 'SOUND ON' : 'MUTE'}
@@ -269,6 +259,12 @@ export function TvExperience({
             </button>
             <button type="button" onClick={onAspect} data-testid="tv-aspect">
               <Tv size={17} /> {prefs.aspect}
+            </button>
+            <button type="button" onClick={onRate} data-testid="tv-speed">
+              <Disc3 size={17} /> SPEED {prefs.rate}×
+            </button>
+            <button type="button" onClick={onLogo} data-testid="tv-logo">
+              <Tv size={17} /> LOGO {prefs.logo ? 'ON' : 'OFF'}
             </button>
           </div>
 
