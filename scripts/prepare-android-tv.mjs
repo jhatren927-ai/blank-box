@@ -1,7 +1,13 @@
+import { enableTvLaunch } from './tv-launch.mjs'
+
 import fs from 'node:fs'
 import path from 'node:path'
 
 const root = process.cwd()
+const webIndexPath = path.join(root, 'dist/index.html')
+if (!fs.existsSync(webIndexPath)) throw new Error('The bundled web app was not built before Android TV setup.')
+fs.writeFileSync(webIndexPath, enableTvLaunch(fs.readFileSync(webIndexPath, 'utf8')))
+
 const android = path.join(root, 'android')
 const manifestPath = path.join(android, 'app/src/main/AndroidManifest.xml')
 if (!fs.existsSync(manifestPath)) throw new Error('Capacitor Android manifest was not generated.')
