@@ -31,11 +31,11 @@ class AppErrorBoundary extends Component<{ children: ReactNode }, { failed: bool
 }
 
 const launchUrl = new URL(window.location.href)
-const isTvLaunch = document.documentElement.dataset.tvApp === 'true'
-  || launchUrl.searchParams.get('tv') === '1'
-  || /AFTT|Fire TV|Android TV|GoogleTV|BRAVIA/i.test(navigator.userAgent)
-  || (window.location.hostname === 'localhost' && /Android/i.test(navigator.userAgent))
-document.documentElement.classList.toggle('tv-mode', isTvLaunch)
+const isClassicLayout = launchUrl.searchParams.get('classic') === '1'
+// Mirror the document-head bootstrap and App's initial state. The public
+// website is TV mode by default, so its colors and guide typography must be
+// active before React renders the first frame.
+document.documentElement.classList.toggle('tv-mode', !isClassicLayout)
 
 const root = document.getElementById('root')
 if (!root) throw new Error('Blank Box could not find its app root element.')
