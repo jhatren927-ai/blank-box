@@ -313,6 +313,13 @@ test('native TV Prevue guide automatically crawls the complete channel lineup', 
       firstCopyHeight: first?.getBoundingClientRect().height,
       firstCopyScrollHeight: first?.scrollHeight,
       firstCopyStyleHeight: first?.style.height,
+      crawlRunning: node.dataset.prevueCrawlRunning,
+      crawlFrames: node.dataset.prevueCrawlFrames,
+      crawlLoopHeight: node.dataset.prevueCrawlLoopHeight,
+      crawlLastTimestamp: node.dataset.prevueCrawlLastTimestamp,
+      crawlLastScrollTop: node.dataset.prevueCrawlScrollTop,
+      crawlPauseRemaining: node.dataset.prevueCrawlPauseRemaining,
+      crawlPausedBy: node.dataset.prevueCrawlPausedBy,
     }
   })
   console.log('NATIVE PREVUE CRAWL GEOMETRY:', geometry)
