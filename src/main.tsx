@@ -30,7 +30,8 @@ class AppErrorBoundary extends Component<{ children: ReactNode }, { failed: bool
 }
 
 const launchUrl = new URL(window.location.href)
-const isTvLaunch = launchUrl.searchParams.get('tv') === '1'
+const isTvLaunch = document.documentElement.dataset.tvApp === 'true'
+  || launchUrl.searchParams.get('tv') === '1'
   || /AFTT|Fire TV|Android TV|GoogleTV|BRAVIA/i.test(navigator.userAgent)
   || (window.location.hostname === 'localhost' && /Android/i.test(navigator.userAgent))
 document.documentElement.classList.toggle('tv-mode', isTvLaunch)
