@@ -168,27 +168,28 @@ export function WebTvExperience({
             ))}
           </div>
 
-          <div className="bb-remote-section-label">SOUND & PICTURE</div>
-          <div className="bb-control-grid bb-control-grid-wide">
-            <button type="button" onClick={onMute} data-testid="tv-mute">{prefs.muted ? 'SOUND ON' : 'MUTE'}</button>
-            <button type="button" onClick={() => onVolume(Math.max(0, Math.round((prefs.volume - 0.1) * 10) / 10))}>VOL −</button>
-            <button type="button" onClick={() => onVolume(Math.min(1, Math.round((prefs.volume + 0.1) * 10) / 10))}>VOL +</button>
-            <button type="button" onClick={onFullscreen} data-testid="tv-fullscreen">FULL SCREEN</button>
-            <button type="button" onClick={onCrt} data-testid="tv-crt">CRT {prefs.crt ? 'ON' : 'OFF'}</button>
-            <button type="button" onClick={onAspect} data-testid="tv-aspect">{prefs.aspect}</button>
-            <button type="button" onClick={onRate} data-testid="tv-speed">RATE {prefs.rate}×</button>
-            <button type="button" onClick={onLogo} data-testid="tv-logo">LOGO {prefs.logo ? 'ON' : 'OFF'}</button>
-          </div>
-
-          {castTarget && (
-            <div className="bb-receiver-cast" data-testid="remote-cast-slot">
-              <CastButton program={castTarget.program} offsetSec={castTarget.offsetSec} />
+          <details className="bb-remote-advanced">
+            <summary>MORE CONTROLS</summary>
+            <div className="bb-remote-section-label">SOUND & PICTURE</div>
+            <div className="bb-control-grid bb-control-grid-wide">
+              <button type="button" onClick={onMute} data-testid="tv-mute">{prefs.muted ? 'SOUND ON' : 'MUTE'}</button>
+              <button type="button" onClick={() => onVolume(Math.max(0, Math.round((prefs.volume - 0.1) * 10) / 10))}>VOL −</button>
+              <button type="button" onClick={() => onVolume(Math.min(1, Math.round((prefs.volume + 0.1) * 10) / 10))}>VOL +</button>
+              <button type="button" onClick={onFullscreen} data-testid="tv-fullscreen">FULL SCREEN</button>
+              <button type="button" onClick={onCrt} data-testid="tv-crt">CRT {prefs.crt ? 'ON' : 'OFF'}</button>
+              <button type="button" onClick={onAspect} data-testid="tv-aspect">{prefs.aspect}</button>
+              <button type="button" onClick={onRate} data-testid="tv-speed">RATE {prefs.rate}×</button>
+              <button type="button" onClick={onLogo} data-testid="tv-logo">LOGO {prefs.logo ? 'ON' : 'OFF'}</button>
             </div>
-          )}
-
-          <div className="bb-receiver-tiny">
-            <button type="button" onClick={onHelp}>REMOTE HELP</button>
-          </div>
+            {castTarget && (
+              <div className="bb-receiver-cast" data-testid="remote-cast-slot">
+                <CastButton program={castTarget.program} offsetSec={castTarget.offsetSec} />
+              </div>
+            )}
+            <div className="bb-receiver-tiny">
+              <button type="button" onClick={onHelp}>REMOTE HELP</button>
+            </div>
+          </details>
         </aside>
       </div>
 
