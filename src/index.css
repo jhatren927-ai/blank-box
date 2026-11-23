@@ -1352,7 +1352,6 @@ html.tv-mode .bb-gate-frame form > label input {
 
 /* Android TV / Fire TV: a full-screen cable-box interface, not a web dashboard. */
 html.tv-mode body {
-  overflow: hidden;
   margin: 0;
   background: #000;
 }
