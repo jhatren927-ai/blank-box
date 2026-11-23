@@ -2082,3 +2082,37 @@ html.tv-mode:not([data-tv-app="true"]) .bb-guide-scroll {
     margin: 0;
   }
 }
+
+
+/* Keep the public remote controls visually integrated with the graphite
+   receiver fascia; avoid the bright blue treatment that looked detached. */
+@media (min-width: 761px) {
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-cable-receiver {
+    align-content: start;
+    align-items: stretch;
+    row-gap: 5px;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-channel-rockers button {
+    border-color: #89949a;
+    border-bottom-color: #182127;
+    background: linear-gradient(180deg, #59666d, #303b42);
+    color: #f1eee5;
+    box-shadow: inset 0 1px rgba(255,255,255,.2), 0 1px 0 #12191e;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-number-pad button {
+    border-color: #a9ada9;
+    border-bottom-color: #515b5e;
+    background: linear-gradient(180deg, #d8d8ce, #a7aaa4);
+    color: #222a2d;
+    box-shadow: inset 0 1px rgba(255,255,255,.7), 0 1px 0 #182127;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-number-pad button.bb-number-function {
+    border-color: #b69c5f;
+    border-bottom-color: #66532c;
+    background: linear-gradient(180deg, #f0d98e, #b99a51);
+    color: #29271f;
+  }
+}
