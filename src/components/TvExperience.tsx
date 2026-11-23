@@ -129,7 +129,7 @@ export function TvExperience({
               <time>{clock(now)}</time>
             </div>
             <div className="bb-tv-watch-hint" aria-hidden="true">
-              ▲ / ▼ CHANNEL <i /> OK GUIDE <i /> 0–9 DIRECT TUNE <i /> BACK MENU
+              ▲ / ▼ CHANNEL <i /> OK GUIDE <i /> 0–9 DIRECT TUNE <i /> M SOUND <i /> BACK MENU
             </div>
             {channel && (
               <div className="bb-tv-live-lower-third" data-testid="tv-live-lower-third">
@@ -257,6 +257,7 @@ export function TvExperience({
             <span>OK <b>WATCH</b></span>
             <span>◀ ▶ <b>TIME PAGE</b></span>
             <span>BACK <b>RETURN TO TV</b></span>
+            <button type="button" className="bb-tv-guide-close" onClick={onCloseGuide}>CLOSE GUIDE</button>
             <div className="bb-tv-guide-page">
               <button type="button" onClick={() => onGuidePageChange(guidePage - 1)} aria-label="Previous guide page">◀</button>
               <span>{guidePage === 0 ? 'NOW' : guidePage > 0 ? `+${guidePage * 3} HR` : `${guidePage * 3} HR`}</span>
