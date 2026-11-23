@@ -445,12 +445,21 @@ function DailymotionVideo(props: EngineProps) {
 
 export function CastButton({ program, offsetSec }: { program: Program; offsetSec: number }) {
   const [available, setAvailable] = useState(false)
+  const [airplayAvailable, setAirplayAvailable] = useState(false)
+  const [isAppleMobile, setIsAppleMobile] = useState(false)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
   const castRef = useRef<any>(null)
 
   useEffect(() => {
     const w = window as any
+    const appleMobile = /iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+    setIsAppleMobile(appleMobile)
+    const video = document.querySelector<HTMLVideoElement>('[data-testid="crt-player"] video') as
+      (HTMLVideoElement & { webkitShowPlaybackTargetPicker?: () => void }) | null
+    setAirplayAvailable(Boolean(video && typeof video.webkitShowPlaybackTargetPicker === 'function'))
+
     const ready = () => {
       if (!w.cast?.framework) return
       castRef.current = w.cast.framework.CastContext.getInstance()
@@ -464,6 +473,7 @@ export function CastButton({ program, offsetSec }: { program: Program; offsetSec
       ready()
       return
     }
+    if (appleMobile) return
     w.__onGCastApiAvailable = (isAvailable: boolean) => {
       if (isAvailable) ready()
     }
@@ -482,9 +492,25 @@ export function CastButton({ program, offsetSec }: { program: Program; offsetSec
 
   async function cast() {
     const w = window as any
+    if (isAppleMobile) {
+      const video = document.querySelector<HTMLVideoElement>('[data-testid="crt-player"] video') as
+        (HTMLVideoElement & { webkitShowPlaybackTargetPicker?: () => void }) | null
+      if (video && typeof video.webkitShowPlaybackTargetPicker === 'function') {
+        try {
+          video.disableRemotePlayback = false
+          video.webkitShowPlaybackTargetPicker()
+          setMessage('Select your Apple TV or AirPlay-compatible television.')
+        } catch (error) {
+          setMessage(error instanceof Error ? error.message : 'Could not open the AirPlay device picker.')
+        }
+      } else {
+        setMessage('This video cannot be sent to AirPlay from this browser. Try opening Blank Box in Safari, then use the AirPlay control.')
+      }
+      return
+    }
     const context = castRef.current
     if (!context || !available) {
-      setMessage('Cast requires a supported Chrome browser.')
+      setMessage('Chromecast requires Chrome or Edge on a supported device. iPhone browsers use AirPlay instead.')
       return
     }
     setBusy(true)
@@ -517,13 +543,12 @@ export function CastButton({ program, offsetSec }: { program: Program; offsetSec
       <button type="button" data-testid="cast-button" disabled={busy}
         onClick={() => void cast()}
         className="bevel flex items-center gap-1 rounded-sm bg-[#1b2333] px-3 py-2 font-mono text-[10px] font-bold text-yellow-300 disabled:opacity-50">
-        <Cast className="size-4" /> {busy ? 'CONNECTING' : 'CAST'}
+        <Cast className="size-4" /> {busy ? 'CONNECTING' : isAppleMobile ? 'AIRPLAY' : 'CAST'}
       </button>
-      {message && <span role="status" className="max-w-40 text-right font-mono text-[9px] text-amber-200">{message}</span>}
+      {message && <span role="status" className="max-w-48 text-right font-mono text-[9px] text-amber-200">{message}</span>}
     </div>
   )
 }
-
 interface EngineProps {
   program: Program
   offsetSec: number
