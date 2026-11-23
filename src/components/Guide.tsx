@@ -51,10 +51,10 @@ export function Guide({
   const columns = 6
   const span = guide.end - guide.start
   const marker = ((now - guide.start) / span) * 100
-  // Fill at least the viewport with each loop segment, even for small channel
-  // lists, then duplicate that segment so the -50% animation is seamless.
+  // Render each channel exactly once. Manual scrolling keeps the guide stable
+  // and avoids duplicate DOM rows that made small lineups jump or loop oddly.
   const copiesPerLoop = 1
-  const shouldAutoScroll = shown.length > 0
+  const shouldAutoScroll = false
   const scrollDuration = `${Math.max(20, copiesPerLoop * shown.length * 3.2)}s`
   const renderRows = (dup = false, copy = 0) => shown.map((channel) => (
     <GuideRow
