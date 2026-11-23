@@ -272,6 +272,7 @@ test('laptop receiver row expands with the viewport instead of leaving wide empt
       return {
         viewport: window.innerWidth,
         grid: measure('.bb-tv-main-grid'),
+        broadcast: measure('.bb-tv-broadcast'),
         player: measure('.bb-tv-screen-bezel'),
         remote: measure('[data-testid="cable-remote"]'),
         guide: measure('.bb-tv-guide-section'),
@@ -286,7 +287,7 @@ test('laptop receiver row expands with the viewport instead of leaving wide empt
     expect(layout.grid.right).toBeGreaterThan(layout.viewport * 0.88)
     expect(layout.player.width).toBeGreaterThan(layout.viewport * 0.48)
     expect(layout.remote.width).toBeGreaterThanOrEqual(255)
-    expect(Math.abs(layout.remote.bottom - layout.player.bottom)).toBeLessThan(8)
+    expect(Math.abs(layout.remote.bottom - layout.broadcast.bottom)).toBeLessThan(8)
     expect(layout.guide.y).toBeLessThan(viewport.height - 100)
     expect(layout.remote.x).toBeGreaterThan(layout.player.x)
     expect(layout.remote.x - (layout.player.x + layout.player.width)).toBeLessThanOrEqual(20)
