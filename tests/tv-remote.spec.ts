@@ -207,8 +207,9 @@ test('mobile website keeps the Prevue channel and time-slot matrix', async ({ pa
   await expect(page.getByTestId('prevue-grid')).toBeVisible()
   await expect(page.getByTestId('guide-viewport')).toBeVisible()
   await expect(page.getByTestId('guide-mobile-list')).toHaveCount(0)
-  const timetable = page.locator('#guide > div:nth-child(2)')
-  await expect.poll(() => timetable.evaluate((element) => element.scrollWidth > element.clientWidth)).toBe(true)
+  const timetable = page.getByTestId('guide-surface')
+  await expect(timetable).toHaveClass(/overflow-hidden/)
+  await expect.poll(() => timetable.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true)
 })
 
 test('web guide does not accept manual scrolling; only the automatic crawl moves its rows', async ({ page }) => {
@@ -239,30 +240,34 @@ test('web guide does not accept manual scrolling; only the automatic crawl moves
   await expect(viewport).not.toHaveAttribute('tabindex', '0')
   await expect(viewport).toHaveAttribute('style', /overflow-y:\s*hidden/)
 
-  // Capture scroll position immediately before and after a real wheel event.
-  // Comparing within the same event turn avoids racing the independent crawl timer.
+  // Both horizontal and vertical wheel events must be canceled without
+  // changing the viewport. Capture in the document's bubble phase, after the
+  // guide surface's non-passive input guard has run.
   const bounds = await viewport.boundingBox()
   if (!bounds) throw new Error('Guide viewport has no visible bounds')
   await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2)
-  await viewport.evaluate((node) => {
-    document.addEventListener('wheel', () => {
-      ;(window as any).__blankBoxWheelStart = node.scrollTop
-    }, { capture: true, once: true })
-    node.addEventListener('wheel', (event) => {
-      ;(window as any).__blankBoxWheelProbe = {
-        defaultPrevented: event.defaultPrevented,
-        start: (window as any).__blankBoxWheelStart,
-        end: node.scrollTop,
-      }
-    }, { once: true })
-  })
-  await page.mouse.wheel(0, 900)
-  const wheelProbe = await page.evaluate(() => (window as any).__blankBoxWheelProbe)
-  expect(wheelProbe?.defaultPrevented).toBe(true)
-  expect(wheelProbe?.end).toBe(wheelProbe?.start)
+  const checkWheel = async (deltaX: number, deltaY: number) => {
+    await viewport.evaluate((node) => {
+      document.addEventListener('wheel', () => {
+        ;(window as any).__blankBoxWheelStart = node.scrollTop
+      }, { capture: true, once: true })
+      document.addEventListener('wheel', (event) => {
+        ;(window as any).__blankBoxWheelProbe = {
+          defaultPrevented: event.defaultPrevented,
+          start: (window as any).__blankBoxWheelStart,
+          end: node.scrollTop,
+        }
+      }, { once: true })
+    })
+    await page.mouse.wheel(deltaX, deltaY)
+    const probe = await page.evaluate(() => (window as any).__blankBoxWheelProbe)
+    expect(probe?.defaultPrevented).toBe(true)
+    expect(probe?.end).toBe(probe?.start)
+  }
+  await checkWheel(900, 0)
+  await checkWheel(0, 900)
 
-  // Vertical touch movement is canceled, while horizontal timeline gestures
-  // remain available instead of being swallowed indiscriminately.
+  // Neither vertical nor horizontal touch dragging can manually move the guide.
   const touchProbe = await viewport.evaluate((node) => {
     const dispatchTouch = (type: string, x: number, y: number) => {
       const event = new Event(type, { bubbles: true, cancelable: true })
@@ -279,7 +284,8 @@ test('web guide does not accept manual scrolling; only the automatic crawl moves
     return { verticalPrevented: vertical.defaultPrevented, horizontalPrevented: horizontal.defaultPrevented }
   })
   expect(touchProbe.verticalPrevented).toBe(true)
-  expect(touchProbe.horizontalPrevented).toBe(false)
+  expect(touchProbe.horizontalPrevented).toBe(true)
+
 
   // Manual input must not stop the automatic Prevue crawl.
   const afterInput = await viewport.evaluate((node) => node.scrollTop)
