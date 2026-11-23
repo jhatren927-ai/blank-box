@@ -586,10 +586,10 @@ function AppContent() {
 
       <Modal open={help} onOpenChange={setHelp} title="How the remote works">
         <ul className="space-y-2 font-mono text-sm text-slate-200">
-          <li>Up and down change the channel.</li>
-          <li>Type a number, like 12, to jump.</li>
-          <li>M quiets the sound. F makes the picture big.</li>
-          <li>Tap an empty channel, type what you want, then tap Watch.</li>
+          <li>Up and down flip channels while the picture stays on.</li>
+          <li>Press OK for the program guide. Up and down select a station; left and right page through the schedule; OK tunes in.</li>
+          <li>Type a channel number to jump directly. M toggles sound; F toggles fullscreen.</li>
+          <li>Back opens the TV menu, where you can edit channels, browse On Demand, or change settings.</li>
         </ul>
       </Modal>
     </div>
