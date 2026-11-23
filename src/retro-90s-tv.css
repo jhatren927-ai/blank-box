@@ -2041,3 +2041,16 @@ html.tv-mode:not([data-tv-app="true"]) .bb-guide-scroll {
     margin-right: 0;
   }
 }
+
+
+/* Desktop panels meet edge-to-edge; the guide starts immediately below the row. */
+@media (min-width: 761px) {
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console {
+    gap: 0;
+    row-gap: 0;
+  }
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-main-grid {
+    column-gap: 0;
+    gap: 0;
+  }
+}
