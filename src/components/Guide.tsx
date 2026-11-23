@@ -35,6 +35,7 @@ export function Guide({
   title,
   favs,
   onTune,
+  onNew,
 }: {
   channels: Channel[]
   currentId: string | null
@@ -42,6 +43,7 @@ export function Guide({
   title: string
   favs: string[]
   onTune: (id: string) => void
+  onNew?: () => void
 }) {
   const [favOnly, setFavOnly] = useState(false)
   const guide = guideWindow(now)
@@ -79,6 +81,16 @@ export function Guide({
           {title}
         </h2>
         <div className="flex items-center gap-2">
+          {onNew && (
+            <button
+              type="button"
+              data-testid="guide-add-channel"
+              onClick={onNew}
+              className="bevel rounded-sm border border-yellow-300 bg-[#b88924] px-3 py-1 font-mono text-[10px] font-black uppercase text-black hover:bg-yellow-300"
+            >
+              + ADD CH
+            </button>
+          )}
           <button
             type="button"
             data-testid="guide-favs-toggle"
@@ -93,7 +105,7 @@ export function Guide({
       </div>
       {shown.length === 0 ? (
         <p className="px-4 py-8 text-center font-mono text-sm text-blue-100">
-          No channels yet. Tap an empty channel and type what you want to watch.
+          No channels yet. Select ADD CH to build your first lineup.
         </p>
       ) : (
         <>
@@ -115,16 +127,8 @@ export function Guide({
                 ref={desktopViewportRef}
                 data-testid="guide-viewport"
                 role="region"
-                aria-label="Scrollable television channel guide"
-                tabIndex={0}
-                onKeyDown={(event) => {
-                  if (event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'PageDown' || event.key === 'PageUp') {
-                    event.preventDefault()
-                    const amount = event.key === 'PageDown' || event.key === 'PageUp' ? event.currentTarget.clientHeight * 0.85 : 88
-                    event.currentTarget.scrollBy({ top: event.key === 'ArrowUp' || event.key === 'PageUp' ? -amount : amount, behavior: 'smooth' })
-                  }
-                }}
-                className="bb-guide-scroll relative h-[min(72vh,760px)] min-h-[420px] overflow-y-auto overflow-x-hidden overscroll-y-contain focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-300"
+                aria-label="Automatically advancing television program guide"
+                className="bb-guide-scroll relative h-[min(72vh,760px)] min-h-[420px] overflow-y-hidden overflow-x-hidden overscroll-y-none touch-pan-x"
               >
                 <div data-testid="guide-auto-scroll" className="min-w-0">
                   <div ref={desktopFirstCopyRef}>
