@@ -160,7 +160,7 @@ test('regular website uses the original Downloader receiver layout and remote-on
   await expect(page.getByTestId('web-tv-receiver')).toBeVisible()
 })
 
-test('iPhone Chrome explains that AirPlay requires Safari', async ({ page }) => {
+test('iPhone Chrome opens the native AirPlay picker for the current video', async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(navigator, 'userAgent', {
       configurable: true,
@@ -184,9 +184,8 @@ test('iPhone Chrome explains that AirPlay requires Safari', async ({ page }) => 
   await expect(airplay).toBeVisible()
   await expect(airplay).toContainText('AIRPLAY')
   await airplay.click()
-  await expect(page.getByRole('status')).toContainText('cannot be sent to AirPlay from this browser')
-  await expect(page.getByRole('status')).toContainText('opening Blank Box in Safari')
-  await expect.poll(() => page.evaluate(() => (window as any).__airplayPickerOpened ?? false)).toBe(false)
+  await expect(page.getByRole('status')).toContainText('Select your Apple TV')
+  await expect.poll(() => page.evaluate(() => (window as any).__airplayPickerOpened)).toBe(true)
 })
 
 test('mobile website keeps the Prevue channel and time-slot matrix', async ({ page }) => {
