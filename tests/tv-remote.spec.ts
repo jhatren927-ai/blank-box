@@ -28,8 +28,8 @@ test.beforeEach(async ({ page }) => {
     }) } } }
     ;(window as any).chrome ??= {}
     ;(window as any).chrome.cast = { AutoJoinPolicy: { ORIGIN_SCOPED: 'origin-scoped' } }
-    localStorage.setItem('blankbox:network:v1', JSON.stringify(network))
-    localStorage.setItem('blankbox:prefs:v1', JSON.stringify({
+    if (!localStorage.getItem('blankbox:network:v1')) localStorage.setItem('blankbox:network:v1', JSON.stringify(network))
+    if (!localStorage.getItem('blankbox:prefs:v1')) localStorage.setItem('blankbox:prefs:v1', JSON.stringify({
       crt: false, aspect: '16:9', muted: true, volume: 0.7, rate: 1,
       logo: false, shake: false, guideScroll: false, favs: [], recent: [],
     }))
