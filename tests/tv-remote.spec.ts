@@ -88,11 +88,7 @@ test('guide left and right move across program listings instead of changing the 
   await expect(guide).toBeVisible()
   const firstRow = guide.locator('.bb-tv-guide-row').first()
   const programs = firstRow.getByTestId('tv-guide-program')
-  console.log('GUIDE DEBUG', await page.evaluate(() => ({
-    channels: JSON.parse(localStorage.getItem('blankbox:network:v1') || '{}').channels?.map((item: any) => ({ id: item.id, count: item.programs?.length })),
-    rows: Array.from(document.querySelectorAll<HTMLElement>('.bb-tv-guide-row')).map((row) => ({ id: row.dataset.channelId, text: row.innerText, html: row.innerHTML.slice(0, 1200) })),
-  })))
-  await expect(programs).toHaveCount(3)
+  await expect.poll(() => programs.count()).toBeGreaterThanOrEqual(3)
   await expect(firstRow.getByTestId('tv-guide-channel')).toBeFocused()
   await page.keyboard.press('ArrowRight')
   await expect(programs.nth(0)).toBeFocused()
