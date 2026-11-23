@@ -73,10 +73,6 @@ export function TvExperience({
   const selectedLive = selected ? liveSlot(selected, now) : null
   const selectedNext = selected ? nextSlot(selected, now) : null
   const secondsLeft = live ? Math.max(0, Math.ceil((live.endMs - now) / 1000)) : 0
-  const progress = live
-    ? Math.min(100, Math.max(0, ((now - live.startMs) / (live.endMs - live.startMs)) * 100))
-    : 0
-
   const baseWindow = guideWindow(now)
   const windowSpan = baseWindow.end - baseWindow.start
   const windowStart = baseWindow.start + guidePage * windowSpan
