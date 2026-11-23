@@ -1,0 +1,8 @@
+{
+  "appId": "tv.blankbox.app",
+  "appName": "Blank Box TV",
+  "webDir": "dist",
+  "android": {
+    "backgroundColor": "#080d17"
+  }
+}
