@@ -21,7 +21,7 @@ export async function saveCloudNetwork(network: Network): Promise<string> {
   const existing = getCloudKey()
   const response = await fetch(existing ? `${CLOUD_SAVE_URL}/api/networks/${existing}` : `${CLOUD_SAVE_URL}/api/networks`, {
     method: existing ? 'PUT' : 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...(localStorage.getItem('blankbox-license-session') ? { Authorization: `Bearer ${localStorage.getItem('blankbox-license-session')}` } : {}) },
     body: JSON.stringify(network),
   })
   if (existing && response.status === 404) {
