@@ -39,9 +39,21 @@ function useVideoKnobs(
   useEffect(() => {
     const video = ref.current
     if (!video) return
-    video.muted = muted
-    video.volume = volume
-    video.playbackRate = rate
+
+    // HLS/DASH engines can touch media properties while attaching their
+    // pipelines. Re-apply the user's audio settings at each media-ready
+    // boundary so a newly attached stream cannot silently revert to mute.
+    const sync = () => {
+      video.defaultMuted = muted
+      video.muted = muted
+      video.volume = Math.max(0, Math.min(1, volume))
+      video.playbackRate = rate
+    }
+
+    sync()
+    const events = ['loadedmetadata', 'canplay', 'playing', 'volumechange'] as const
+    events.forEach((event) => video.addEventListener(event, sync))
+    return () => events.forEach((event) => video.removeEventListener(event, sync))
   }, [ref, muted, volume, rate])
 }
 
