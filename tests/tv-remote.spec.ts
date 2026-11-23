@@ -26,19 +26,34 @@ test.beforeEach(async ({ page }) => {
     }) } } }
     ;(window as any).chrome ??= {}
     ;(window as any).chrome.cast = { AutoJoinPolicy: { ORIGIN_SCOPED: 'origin-scoped' } }
-    // Capture the first React frame. The public theme must already be active
-    // before the app inserts its first node, not after a passive effect.
+    // Capture the first complete public receiver frame, not the empty root
+    // insertion. Native-test pages have a different full-screen composition.
     const firstFrameObserver = new MutationObserver(() => {
       const root = document.getElementById('root')
       if (!root?.firstElementChild) return
+
+      if (new URLSearchParams(window.location.search).get('nativeTest') === '1') {
+        ;(window as any).__bbFirstFrameTheme = {
+          tvMode: document.documentElement.classList.contains('tv-mode'),
+        }
+        firstFrameObserver.disconnect()
+        return
+      }
+
       const header = document.querySelector('.bb-tv-header')
       const appRoot = document.querySelector('.bb-app-root')
       const programTitle = document.querySelector('.bb-tv-guide-section .bb-guide-program-cell p:first-child')
+      const screen = document.querySelector('.bb-tv-screen-bezel')
+      const remote = document.querySelector('.bb-cable-receiver')
+      if (!header || !appRoot || !programTitle || !screen || !remote) return
+
       ;(window as any).__bbFirstFrameTheme = {
         tvMode: document.documentElement.classList.contains('tv-mode'),
-        headerBackground: header ? getComputedStyle(header).backgroundImage : '',
-        appBackground: appRoot ? getComputedStyle(appRoot).backgroundImage : '',
-        programTitleSize: programTitle ? getComputedStyle(programTitle).fontSize : '',
+        headerBackground: getComputedStyle(header).backgroundImage,
+        appBackground: getComputedStyle(appRoot).backgroundImage,
+        screenBackground: getComputedStyle(screen).backgroundImage,
+        remoteBackground: getComputedStyle(remote).backgroundImage,
+        programTitleSize: getComputedStyle(programTitle).fontSize,
       }
       firstFrameObserver.disconnect()
     })
