@@ -5,6 +5,6 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   base: './',
   plugins: [react(), tailwindcss()],
-  server: { host: '127.0.0.1', port: 5199, strictPort: true },
-  preview: { host: '127.0.0.1', port: 5199, strictPort: true },
+  server: { host: '127.0.0.1', port: 5207, strictPort: true },
+  preview: { host: '127.0.0.1', port: 5207, strictPort: true },
 })
