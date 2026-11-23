@@ -84,9 +84,14 @@ export function loadPrefs(): Prefs {
     const data = JSON.parse(raw) as Partial<Prefs>
     const volume = Number(data.volume)
     const rate = Number(data.rate)
+    // Earlier releases shipped with mute enabled by default. Migrate existing
+    // installs once so the TV starts with audible sound unless the user mutes it again.
+    const audioDefaultMigrated = window.localStorage.getItem('blankbox:audio-default-v2') === '1'
+    if (!audioDefaultMigrated) window.localStorage.setItem('blankbox:audio-default-v2', '1')
     return {
       ...DEFAULT_PREFS,
       ...data,
+      muted: audioDefaultMigrated ? data.muted === true : false,
       volume: Number.isFinite(volume) ? Math.max(0, Math.min(1, volume)) : DEFAULT_PREFS.volume,
       rate: Number.isFinite(rate) ? Math.max(0.25, Math.min(2, rate)) : DEFAULT_PREFS.rate,
       favs: Array.isArray(data.favs) ? data.favs.filter((id): id is string => typeof id === 'string') : [],
