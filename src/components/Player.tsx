@@ -125,6 +125,18 @@ function HlsVideo(props: EngineProps) {
     if (!video || !url) return
     let dead = false
     let detach: (() => void) | null = null
+    const isAppleMobile = /iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+    const nativeHls = video.canPlayType('application/vnd.apple.mpegurl') || video.canPlayType('application/x-mpegURL')
+    if (isAppleMobile && nativeHls) {
+      video.src = url
+      seekAndPlay(video, props.offsetSec, props.rate, () => props.onError('autoplay-blocked'))
+      return () => {
+        video.pause()
+        video.removeAttribute('src')
+        video.load()
+      }
+    }
     void import('hls.js').then(({ default: Hls }) => {
       if (dead) return
       if (Hls.isSupported()) {
@@ -455,8 +467,6 @@ export function CastButton({ program, offsetSec }: { program: Program; offsetSec
     const appleMobile = /iPhone|iPad|iPod/i.test(navigator.userAgent) ||
       (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
     setIsAppleMobile(appleMobile)
-    const video = document.querySelector<HTMLVideoElement>('[data-testid="crt-player"] video') as
-      (HTMLVideoElement & { webkitShowPlaybackTargetPicker?: () => void }) | null
 
     const ready = () => {
       if (!w.cast?.framework) return
