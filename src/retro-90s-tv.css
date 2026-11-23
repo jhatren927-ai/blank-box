@@ -2156,9 +2156,9 @@ html.tv-mode:not([data-tv-app="true"]) .bb-guide-scroll {
   }
 
   html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-remote-footer button {
-    min-height: 42px;
-    padding: 5px 8px;
-    font-size: 11px;
+    min-height: 46px;
+    padding: 6px 9px;
+    font-size: 12px;
   }
 
   html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-remote-section-label {
@@ -2174,37 +2174,39 @@ html.tv-mode:not([data-tv-app="true"]) .bb-guide-scroll {
   }
 
   html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-channel-rockers button {
-    min-height: 56px;
-    gap: 8px;
+    min-height: 70px;
+    gap: 9px;
     padding: 7px 10px;
     border-radius: 4px;
     font-size: 12px;
   }
 
   html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-channel-rockers button b {
-    font-size: 13px;
+    font-size: 14px;
   }
 
   html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-channel-rockers button svg {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
   }
 
   html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-number-pad {
     width: 100%;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 7px;
+    gap: 8px;
+    grid-template-rows: repeat(3, minmax(64px, 1fr));
+    min-height: 208px;
   }
 
   html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-number-pad button {
-    min-height: 52px;
-    padding: 5px 3px;
+    min-height: 64px;
+    padding: 6px 3px;
     border-radius: 4px;
-    font-size: 15px;
+    font-size: 17px;
   }
 
   html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-number-pad button.bb-number-function {
-    font-size: 11px;
+    font-size: 12px;
   }
 
   html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-remote-advanced summary {
