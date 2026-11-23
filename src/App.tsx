@@ -322,7 +322,10 @@ function AppContent() {
             next.focus({ preventScroll: true })
             // The website guide advances on its own. D-pad focus can move
             // between its items but must not reposition the guide viewport.
-            const insideAutoGuide = !!target?.closest('[data-testid="guide-viewport"]')
+            const insideAutoGuide = !!(
+              target?.closest('[data-testid="guide-viewport"]') ||
+              next.closest('[data-testid="guide-viewport"]')
+            )
             if (!insideAutoGuide) next.scrollIntoView({ block: 'nearest', inline: 'nearest' })
           }
           return
