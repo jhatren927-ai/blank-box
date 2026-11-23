@@ -1704,7 +1704,7 @@ html.tv-mode .bb-tv-guide-cast {
 html.tv-mode .bb-tv-guide-grid {
   display: grid;
   min-height: 0;
-  grid-template-rows: 36px minmax(0, 1fr);
+  grid-template-rows: 42px minmax(0, 1fr);
   overflow: hidden;
   border: 2px solid #010c32;
   background: #061949;
@@ -1714,7 +1714,7 @@ html.tv-mode .bb-tv-guide-grid {
 html.tv-mode .bb-tv-guide-time-row,
 html.tv-mode .bb-tv-guide-row {
   display: grid;
-  grid-template-columns: minmax(145px, 17vw) minmax(0, 1fr);
+  grid-template-columns: minmax(170px, 19vw) minmax(0, 1fr);
   min-width: 0;
 }
 
@@ -1722,7 +1722,7 @@ html.tv-mode .bb-tv-guide-time-row {
   border-bottom: 2px solid #020c2b;
   background: #101f57;
   color: #f4d56b;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 900;
 }
 
@@ -1773,7 +1773,7 @@ html.tv-mode .bb-tv-guide-row.is-selected {
 html.tv-mode .bb-tv-guide-channel {
   display: grid;
   min-width: 0;
-  grid-template-columns: 37px 1fr;
+  grid-template-columns: 52px minmax(0, 1fr);
   grid-template-rows: 1fr 1fr;
   align-content: center;
   align-items: center;
@@ -1787,7 +1787,7 @@ html.tv-mode .bb-tv-guide-channel {
 html.tv-mode .bb-tv-guide-channel strong {
   grid-row: 1 / span 2;
   color: #f4d56b;
-  font-size: 22px;
+  font-size: 26px;
   font-weight: 900;
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -1797,7 +1797,7 @@ html.tv-mode .bb-tv-guide-channel span {
   overflow: hidden;
   color: #fff;
   font-family: "Space Grotesk Variable", sans-serif;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 900;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1806,7 +1806,7 @@ html.tv-mode .bb-tv-guide-channel span {
 html.tv-mode .bb-tv-guide-channel small {
   overflow: hidden;
   color: #a8c1e6;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1863,15 +1863,15 @@ html.tv-mode .bb-tv-guide-program strong {
   -webkit-line-clamp: 2;
   color: #fff;
   font-family: "Space Grotesk Variable", sans-serif;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 800;
-  line-height: 1.15;
+  line-height: 1.2;
 }
 
 html.tv-mode .bb-tv-guide-program small {
   margin-top: 3px;
   color: #f2d56f;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
 }
 
@@ -2077,7 +2077,7 @@ html.tv-mode .bb-tv-return-button {
 @media (max-width: 900px) {
   html.tv-mode .bb-tv-guide-time-row,
   html.tv-mode .bb-tv-guide-row {
-    grid-template-columns: 125px minmax(0, 1fr);
+    grid-template-columns: 150px minmax(0, 1fr);
   }
 
   html.tv-mode .bb-tv-guide-top {
@@ -2085,13 +2085,13 @@ html.tv-mode .bb-tv-return-button {
   }
 
   html.tv-mode .bb-tv-guide-channel {
-    grid-template-columns: 31px minmax(0, 1fr);
+    grid-template-columns: 43px minmax(0, 1fr);
     column-gap: 4px;
     padding-inline: 5px;
   }
 
   html.tv-mode .bb-tv-guide-channel strong {
-    font-size: 18px;
+    font-size: 23px;
   }
 }
 
@@ -2108,7 +2108,7 @@ html.tv-mode .bb-tv-return-button {
   }
 
   html.tv-mode .bb-tv-guide-program strong {
-    font-size: 10px;
+    font-size: 12px;
   }
 
   html.tv-mode .bb-tv-guide-channel small {
