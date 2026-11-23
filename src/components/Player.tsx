@@ -980,8 +980,7 @@ export function Player({
         {crt && <div className="pointer-events-none absolute inset-0 z-10 crt-vignette" />}
       </div>
       {(!isPlayerFullscreen || showFullscreenInfo) && (
-      <div className="relative z-10 border-t-2 border-black bg-gradient-to-r from-[#001144] via-[#002288] to-[#001144] px-4 py-2.5">
-        <div data-testid="now-playing-bar">
+      <div data-testid="now-playing-bar" className="relative z-10 border-t-2 border-black bg-gradient-to-r from-[#001144] via-[#002288] to-[#001144] px-4 py-2.5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-blue-200">
