@@ -7,8 +7,8 @@ const network = {
   createdAt: 1,
   pin: null,
   channels: [
-    { id: 'one', number: 1, name: 'First Channel', callsign: 'ONE', theme: 'test', look: 'gold', programs: [] },
-    { id: 'two', number: 2, name: 'Second Channel', callsign: 'TWO', theme: 'test', look: 'blue', programs: [] },
+    { id: 'one', number: 1, name: 'First Channel', callsign: 'ONE', theme: 'test', look: 'gold', programs: [{ id: 'p-1', remoteId: 'r-1', source: 'archive', title: 'Show 1', durationSec: 3600, durationGuess: false }, { id: 'p-2', remoteId: 'r-2', source: 'archive', title: 'Show 2', durationSec: 3600, durationGuess: false }, { id: 'p-3', remoteId: 'r-3', source: 'archive', title: 'Show 3', durationSec: 3600, durationGuess: false }] },
+    { id: 'two', number: 2, name: 'Second Channel', callsign: 'TWO', theme: 'test', look: 'blue', programs: [{ id: 'p-4', remoteId: 'r-4', source: 'archive', title: 'Show 4', durationSec: 3600, durationGuess: false }, { id: 'p-5', remoteId: 'r-5', source: 'archive', title: 'Show 5', durationSec: 3600, durationGuess: false }, { id: 'p-6', remoteId: 'r-6', source: 'archive', title: 'Show 6', durationSec: 3600, durationGuess: false }] },
   ],
 }
 
@@ -82,28 +82,6 @@ test('guide D-pad changes the selected channel and OK tunes it', async ({ page }
 })
 
 test('guide left and right move across program listings instead of changing the time page', async ({ page }) => {
-  const listing = {
-    ...network,
-    channels: network.channels.map((channel, channelIndex) => ({
-      ...channel,
-      programs: Array.from({ length: 3 }, (_, index) => ({
-        id: `p-${channelIndex}-${index}`,
-        remoteId: `r-${channelIndex}-${index}`,
-        source: 'archive',
-        title: `Channel ${channelIndex + 1} Show ${index + 1}`,
-        durationSec: 3600,
-        durationGuess: false,
-      })),
-    })),
-  }
-  await page.addInitScript((value) => {
-    localStorage.setItem('blankbox:network:v1', JSON.stringify(value))
-    const prefs = JSON.parse(localStorage.getItem('blankbox:prefs:v1') || '{}')
-    prefs.muted = false
-    localStorage.setItem('blankbox:prefs:v1', JSON.stringify(prefs))
-    localStorage.setItem('blankbox:audio-default-v2', '1')
-  }, listing)
-  await page.reload()
   await expect(page.getByTestId('tv-experience')).toBeVisible()
   await page.keyboard.press('Enter')
   const guide = page.getByTestId('tv-guide-overlay')
