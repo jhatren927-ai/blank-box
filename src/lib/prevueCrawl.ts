@@ -15,18 +15,22 @@ export function usePrevueCrawl(
   firstCopyRef: RefObject<HTMLElement | null>,
   enabled = true,
 ): boolean {
-  const [looping, setLooping] = useState(false)
+  const [copyCount, setCopyCount] = useState(1)
 
   useEffect(() => {
     const viewport = viewportRef.current
     const firstCopy = firstCopyRef.current
     if (!enabled || !viewport || !firstCopy) {
-      setLooping(false)
+      setCopyCount(1)
       return
     }
 
     const measure = () => {
-      setLooping(viewport.clientHeight > 0 && firstCopy.scrollHeight > viewport.clientHeight + 2)
+      const rowHeight = firstCopy.scrollHeight
+      const neededCopies = rowHeight > 0 && viewport.clientHeight > 0
+        ? Math.max(2, Math.ceil(viewport.clientHeight / rowHeight) + 2)
+        : 1
+      setCopyCount(neededCopies)
     }
 
     measure()
@@ -42,7 +46,7 @@ export function usePrevueCrawl(
   }, [enabled, viewportRef, firstCopyRef])
 
   useEffect(() => {
-    if (!looping) return
+    if (copyCount < 2) return
     const viewport = viewportRef.current
     const firstCopy = firstCopyRef.current
     if (!viewport || !firstCopy) return
@@ -100,7 +104,7 @@ export function usePrevueCrawl(
       viewport.removeEventListener('pointerdown', pauseForInteraction)
       viewport.removeEventListener('keydown', pauseForInteraction)
     }
-  }, [looping, viewportRef, firstCopyRef])
+  }, [copyCount, viewportRef, firstCopyRef])
 
-  return looping
+  return copyCount
 }
