@@ -96,8 +96,12 @@ test('guide left and right move across program listings instead of changing the 
       })),
     })),
   }
-  await page.evaluate((value) => {
+  await page.addInitScript((value) => {
     localStorage.setItem('blankbox:network:v1', JSON.stringify(value))
+    const prefs = JSON.parse(localStorage.getItem('blankbox:prefs:v1') || '{}')
+    prefs.muted = false
+    localStorage.setItem('blankbox:prefs:v1', JSON.stringify(prefs))
+    localStorage.setItem('blankbox:audio-default-v2', '1')
   }, listing)
   await page.reload()
   await expect(page.getByTestId('tv-experience')).toBeVisible()
