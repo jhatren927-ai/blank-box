@@ -18,9 +18,6 @@ test.beforeEach(async ({ page }) => {
     if (message.type() === 'error') console.log('TV CONSOLE ERROR:', message.text())
   })
   await page.addInitScript(({ network }) => {
-    if (new URLSearchParams(location.search).get('nativeTest') === '1') {
-      document.documentElement.dataset.tvApp = 'true'
-    }
     // Make Cast availability deterministic in the browser test.
     ;(window as any).cast = { framework: { CastContext: { getInstance: () => ({
       setOptions() {},
