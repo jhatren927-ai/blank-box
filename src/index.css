@@ -3758,3 +3758,88 @@ html.tv-mode .bb-tv-guide-section #guide [data-testid="guide-viewport"] {
   html.tv-mode .bb-receiver-brand small { font-size: 6px; }
   html.tv-mode .bb-led-info { flex-wrap: wrap; }
 }
+
+
+/* Final guide-first proportions: utility panels stay compact; the guide owns the page. */
+html.tv-mode .bb-tv-main-grid {
+  display: grid;
+  grid-template-columns: minmax(240px, 300px) minmax(210px, 250px);
+  justify-content: space-between;
+  align-items: start;
+  gap: 16px;
+  width: 100%;
+}
+html.tv-mode .bb-tv-broadcast {
+  width: 100%;
+  max-width: 300px;
+  min-width: 0;
+}
+html.tv-mode .bb-tv-screen-bezel {
+  width: 100%;
+  max-width: 300px;
+  margin: 0;
+}
+html.tv-mode .bb-tv-screen-inner {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 0;
+}
+html.tv-mode .bb-tv-now-playing {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+  padding: 5px 7px;
+}
+html.tv-mode .bb-program-ident { gap: 6px; }
+html.tv-mode .bb-program-copy strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+}
+html.tv-mode .bb-program-copy span { font-size: 9px; }
+html.tv-mode .bb-program-progress { margin-top: 3px; }
+html.tv-mode .bb-cable-receiver {
+  width: 100%;
+  max-width: 250px;
+  min-width: 0;
+  padding: 7px;
+}
+html.tv-mode .bb-receiver-brand { padding-bottom: 4px; }
+html.tv-mode .bb-receiver-display { min-height: 34px; margin: 4px 0; }
+html.tv-mode .bb-led-channel { font-size: 19px; }
+html.tv-mode .bb-remote-footer { gap: 3px; margin: 4px 0; }
+html.tv-mode .bb-remote-footer button { min-height: 23px; font-size: 7px; }
+html.tv-mode .bb-remote-section-label { margin: 4px 0 2px; font-size: 7px; }
+html.tv-mode .bb-channel-rockers button { min-height: 26px; }
+html.tv-mode .bb-number-pad { gap: 2px; }
+html.tv-mode .bb-number-pad button { min-height: 23px; font-size: 9px; }
+html.tv-mode .bb-remote-advanced { margin-top: 4px; padding-top: 4px; }
+html.tv-mode .bb-tv-guide-section {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+html.tv-mode .bb-tv-guide-section #guide [data-testid="guide-viewport"] {
+  height: min(74vh, 820px);
+  min-height: 520px;
+}
+@media (max-width: 680px) {
+  html.tv-mode .bb-tv-main-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(126px, 38%);
+    justify-content: stretch;
+    gap: 7px;
+  }
+  html.tv-mode .bb-tv-broadcast,
+  html.tv-mode .bb-tv-screen-bezel,
+  html.tv-mode .bb-cable-receiver { max-width: none; }
+  html.tv-mode .bb-tv-now-playing { grid-template-columns: minmax(0, 1fr); }
+  html.tv-mode .bb-tv-guide-section #guide [data-testid="guide-viewport"] {
+    height: min(64vh, 600px);
+    min-height: 360px;
+  }
+}
+@media (max-width: 390px) {
+  html.tv-mode .bb-tv-main-grid { grid-template-columns: minmax(0, 1fr) 124px; }
+  html.tv-mode .bb-receiver-brand small { font-size: 5px; }
+}
