@@ -91,7 +91,7 @@ export function LicenseGate({ children }: { children: ReactNode }) {
 }
 
 function GateFrame({ children }: { children: ReactNode }) {
-  return <main className="flex min-h-screen items-center justify-center bg-[#090e19] px-4 py-10 text-slate-100"><section className="w-full max-w-md rounded-2xl border border-slate-700 bg-[#111a2b] p-6 shadow-2xl sm:p-8">{children}</section></main>
+  return <main className="bb-gate-frame flex min-h-screen items-center justify-center bg-[#090e19] px-4 py-10 text-slate-100"><section className="w-full max-w-md rounded-2xl border border-slate-700 bg-[#111a2b] p-6 shadow-2xl sm:p-8">{children}</section></main>
 }
 
 function AdminPanel({ token, onClose }: { token: string; onClose: () => void }) {
