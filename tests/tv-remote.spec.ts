@@ -562,6 +562,12 @@ test('desktop website keeps the player and remote compact together and makes the
       channelLabelGap: rect('.bb-channel-rockers').y - rect('.bb-cable-receiver > .bb-remote-section-label:nth-child(4)').bottom,
       keypadLabelGap: rect('.bb-number-pad').y - rect('.bb-cable-receiver > .bb-remote-section-label:nth-child(6)').bottom,
       advancedBottomGap: rect('[data-testid="cable-remote"]').bottom - rect('[data-testid="cable-remote"] .bb-remote-advanced').bottom,
+      keypad: rect('.bb-number-pad'),
+      firstKey: rect('.bb-number-pad button'),
+      rockers: rect('.bb-channel-rockers'),
+      firstRocker: rect('.bb-channel-rockers button'),
+      keypadFont: getComputedStyle(document.querySelector('.bb-number-pad button')!).fontSize,
+      keypadMinHeight: getComputedStyle(document.querySelector('.bb-number-pad button')!).minHeight,
     }
   })
 
@@ -587,6 +593,13 @@ test('desktop website keeps the player and remote compact together and makes the
   expect(layout.keypadLabelGap).toBeLessThanOrEqual(10)
   expect(layout.advancedBottomGap).toBeGreaterThanOrEqual(0)
   expect(layout.advancedBottomGap).toBeLessThanOrEqual(25)
+  expect(layout.keypad.width).toBeGreaterThan(layout.remote.width * 0.88)
+  expect(layout.rockers.width).toBeGreaterThan(layout.remote.width * 0.88)
+  expect(layout.firstKey.width).toBeGreaterThanOrEqual(50)
+  expect(layout.firstKey.height).toBeGreaterThanOrEqual(50)
+  expect(layout.firstRocker.width).toBeGreaterThanOrEqual(layout.remote.width * 0.40)
+  expect(layout.firstRocker.height).toBeGreaterThanOrEqual(54)
+  expect(Number.parseFloat(layout.keypadFont)).toBeGreaterThanOrEqual(14)
 
   await page.setViewportSize({ width: 390, height: 844 })
   writeFileSync('artifacts/website-layout-mobile.png', await page.screenshot({ fullPage: true }))
