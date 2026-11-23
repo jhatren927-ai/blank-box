@@ -15,7 +15,7 @@ import { Modal } from './components/ui/dialog.tsx'
 
 type View = 'tv' | 'build' | 'demand' | 'settings'
 
-export default function App() {
+function AppContent() {
   const store = useStore()
   const { network, prefs } = store
   const [view, setView] = useState<View>('tv')
@@ -395,4 +395,11 @@ function NavButton({
       {children}
     </button>
   )
+}
+
+
+import { LicenseGate } from './components/LicenseGate.tsx'
+
+export default function App() {
+  return <LicenseGate><AppContent /></LicenseGate>
 }
