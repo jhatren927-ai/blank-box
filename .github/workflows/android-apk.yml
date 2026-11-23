@@ -1,0 +1,107 @@
+name: Build Blank Box TV APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: blank-box-tv-apk
+  cancel-in-progress: false
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Restore the same sideload signing key between builds
+        uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: blank-box-tv-debug-signing-v1
+
+      - name: Install web dependencies
+        run: npm ci
+
+      - name: Install pinned Capacitor Android tooling
+        run: npm install --no-save --package-lock=false @capacitor/core@8.6.2 @capacitor/cli@8.6.2 @capacitor/android@8.6.2
+
+      - name: Build the bundled TV interface
+        run: npm run build
+
+      - name: Generate the native Android project
+        run: npx cap add android
+
+      - name: Copy the web app into the APK
+        run: npx cap sync android
+
+      - name: Configure Android TV launcher and immersive mode
+        run: node scripts/prepare-android-tv.mjs
+        env:
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
+
+      - name: Create the stable sideload signing key on the first build
+        shell: bash
+        run: |
+          mkdir -p "$HOME/.android"
+          if [ ! -f "$HOME/.android/debug.keystore" ]; then
+            keytool -genkeypair -v \
+              -keystore "$HOME/.android/debug.keystore" \
+              -storetype JKS \
+              -storepass android \
+              -alias androiddebugkey \
+              -keypass android \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Blank Box TV,O=Blank Box,C=US"
+          fi
+
+      - name: Build signed APK
+        run: |
+          cd android
+          chmod +x ./gradlew
+          ./gradlew --no-daemon assembleDebug
+
+      - name: Prepare download
+        run: |
+          mkdir -p release
+          cp android/app/build/outputs/apk/debug/app-debug.apk release/blank-box-tv.apk
+
+      - name: Save APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: blank-box-tv-apk
+          path: release/blank-box-tv.apk
+          retention-days: 30
+
+      - name: Publish the current APK at a permanent download link
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: tv-latest
+          name: Blank Box TV — Latest APK
+          body: |
+            Installable Blank Box TV app for Android TV and Amazon Fire TV.
+
+            This APK bundles the app locally. It does not open the Downloader browser.
+            Download blank-box-tv.apk and install it on your TV device.
+          files: release/blank-box-tv.apk
+          overwrite_files: true
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
