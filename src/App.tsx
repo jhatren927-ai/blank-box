@@ -174,7 +174,7 @@ function AppContent() {
             if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
               const nextIndex = activeIndex + (event.key === 'ArrowLeft' ? -1 : 1)
               destination = buttons[nextIndex]
-              // At the edge of the six-slot grid, page the guide by three hours.
+              // At the edge of the three-slot Prevue grid, page the guide by another 90 minutes.
               if (!destination && buttons.length > 0) {
                 setGuidePage((page) => page + (event.key === 'ArrowLeft' ? -1 : 1))
                 window.setTimeout(() => {
@@ -528,10 +528,6 @@ function AppContent() {
                 onLast={() => {
                   const last = prefs.recent.find((id) => id !== current?.id)
                   if (last) tune(last)
-                }}
-                onSurprise={() => {
-                  if (ordered.length === 0) return
-                  tune(ordered[Math.floor(Math.random() * ordered.length)].id)
                 }}
                 onHelp={() => setHelp(true)}
                 onDigit={enterDigit}
