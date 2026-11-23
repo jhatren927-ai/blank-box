@@ -33,7 +33,7 @@ interface TvExperienceProps {
 }
 
 const GUIDE_ROWS = 7
-const GUIDE_COLUMNS = 6
+const GUIDE_COLUMNS = 3
 const HALF_HOUR = 30 * 60 * 1000
 
 export function TvExperience({

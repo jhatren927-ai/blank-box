@@ -1,24 +1,10 @@
 import type { RefObject } from 'react'
-import {
-  ChevronDown,
-  ChevronUp,
-  Disc3,
-  Maximize,
-  Minus,
-  Plus,
-  Power,
-  Pencil,
-  Tv,
-  Volume2,
-  VolumeX,
-} from 'lucide-react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import type { Channel, Prefs, Program } from '../types.ts'
 import { clock, padChannel } from '../lib/format.ts'
 import { liveSlot, nextSlot } from '../lib/schedule.ts'
 import { Guide } from './Guide.tsx'
 import { CastButton, Player } from './Player.tsx'
-import { lookById } from '../lib/looks.ts'
-
 interface WebTvExperienceProps {
   channels: Channel[]
   channel: Channel | null
@@ -43,7 +29,6 @@ interface WebTvExperienceProps {
   onRate: () => void
   onLogo: () => void
   onLast: () => void
-  onSurprise: () => void
   onHelp: () => void
   onDigit: (digit: string) => void
   dial: string
@@ -73,7 +58,6 @@ export function WebTvExperience({
   onRate,
   onLogo,
   onLast,
-  onSurprise,
   onHelp,
   onDigit,
   dial,
@@ -129,34 +113,13 @@ export function WebTvExperience({
           </div>
           <div className="bb-program-progress"><span style={{ width: percent + '%' }} /></div>
 
-          <div className="bb-station-strip">
-            <div className="bb-strip-title"><Tv size={15} /> YOUR CHANNELS</div>
-            <div className="bb-station-list">
-              {channels.length === 0 ? (
-                <button type="button" className="bb-station-add" onClick={onNew}>
-                  <Plus size={18} /> CREATE YOUR FIRST CHANNEL
-                </button>
-              ) : channels.slice().sort((a, b) => a.number - b.number).map((item) => (
-                <div key={item.id} className={'bb-station-card' + (item.id === currentId ? ' is-current' : '')}>
-                  <button type="button" onClick={() => onTune(item.id)} className="bb-station-tune">
-                    <span className="bb-station-number">{padChannel(item.number)}</span>
-                    <span className={'bb-station-callsign ' + lookById(item.look).bug}>{item.callsign}</span>
-                    <span className="bb-station-name">{item.name}</span>
-                  </button>
-                  <button type="button" className="bb-station-edit" aria-label={'Edit ' + item.name} onClick={() => onEdit(item.id)}>
-                    <Pencil size={15} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
         </section>
 
         <aside className="bb-cable-receiver" data-testid="cable-remote">
           <div className="bb-receiver-brand">
             <div className="bb-receiver-brand-copy">
               <strong>BLANK BOX</strong>
-              <small>DIGITAL CABLE RECEIVER · MODEL 1995</small>
+              <small>DIGITAL CABLE TERMINAL · 1998</small>
             </div>
             <span className="bb-power-led" title="Power on" />
           </div>
@@ -171,12 +134,9 @@ export function WebTvExperience({
           </div>
 
           <div className="bb-remote-footer">
-            <button type="button" onClick={onNew} className="bb-add-channel" data-testid="tv-add-channel">
-              <Plus size={17} /> ADD CHANNEL
-            </button>
-            <button type="button" onClick={onSurprise} className="bb-surprise" data-testid="tv-surprise">
-              <Power size={16} /> SURPRISE ME
-            </button>
+            <button type="button" onClick={onNew} className="bb-add-channel" data-testid="tv-add-channel">ADD CH</button>
+            <button type="button" onClick={() => channel && onEdit(channel.id)} disabled={!channel} className="bb-edit-channel" data-testid="tv-edit-channel">EDIT CH</button>
+            <button type="button" onClick={onLast} className="bb-last-channel" data-testid="tv-last-channel">LAST</button>
           </div>
 
           <div className="bb-remote-section-label">CHANNEL CONTROL</div>
@@ -210,31 +170,14 @@ export function WebTvExperience({
 
           <div className="bb-remote-section-label">SOUND & PICTURE</div>
           <div className="bb-control-grid bb-control-grid-wide">
-            <button type="button" onClick={onMute} data-testid="tv-mute">
-              {prefs.muted ? <VolumeX size={17} /> : <Volume2 size={17} />}
-              {prefs.muted ? 'SOUND ON' : 'MUTE'}
-            </button>
-            <button type="button" onClick={() => onVolume(Math.max(0, Math.round((prefs.volume - 0.1) * 10) / 10))}>
-              <Minus size={17} /> VOL
-            </button>
-            <button type="button" onClick={() => onVolume(Math.min(1, Math.round((prefs.volume + 0.1) * 10) / 10))}>
-              <Plus size={17} /> VOL
-            </button>
-            <button type="button" onClick={onFullscreen} data-testid="tv-fullscreen">
-              <Maximize size={17} /> FULL SCREEN
-            </button>
-            <button type="button" onClick={onCrt} data-testid="tv-crt">
-              <Disc3 size={17} /> CRT {prefs.crt ? 'ON' : 'OFF'}
-            </button>
-            <button type="button" onClick={onAspect} data-testid="tv-aspect">
-              ASPECT {prefs.aspect}
-            </button>
-            <button type="button" onClick={onRate} data-testid="tv-speed">
-              <Disc3 size={17} /> SPEED {prefs.rate}×
-            </button>
-            <button type="button" onClick={onLogo} data-testid="tv-logo">
-              LOGO {prefs.logo ? 'ON' : 'OFF'}
-            </button>
+            <button type="button" onClick={onMute} data-testid="tv-mute">{prefs.muted ? 'SOUND ON' : 'MUTE'}</button>
+            <button type="button" onClick={() => onVolume(Math.max(0, Math.round((prefs.volume - 0.1) * 10) / 10))}>VOL −</button>
+            <button type="button" onClick={() => onVolume(Math.min(1, Math.round((prefs.volume + 0.1) * 10) / 10))}>VOL +</button>
+            <button type="button" onClick={onFullscreen} data-testid="tv-fullscreen">FULL SCREEN</button>
+            <button type="button" onClick={onCrt} data-testid="tv-crt">CRT {prefs.crt ? 'ON' : 'OFF'}</button>
+            <button type="button" onClick={onAspect} data-testid="tv-aspect">{prefs.aspect}</button>
+            <button type="button" onClick={onRate} data-testid="tv-speed">RATE {prefs.rate}×</button>
+            <button type="button" onClick={onLogo} data-testid="tv-logo">LOGO {prefs.logo ? 'ON' : 'OFF'}</button>
           </div>
 
           {castTarget && (
@@ -244,7 +187,6 @@ export function WebTvExperience({
           )}
 
           <div className="bb-receiver-tiny">
-            <span><span className="bb-green-dot" /> SIGNAL READY</span>
             <button type="button" onClick={onHelp}>REMOTE HELP</button>
           </div>
         </aside>

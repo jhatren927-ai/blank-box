@@ -89,7 +89,7 @@ export function nextSlot(channel: Channel, nowMs: number): AirSlot | null {
 export function guideWindow(nowMs: number): { start: number; end: number } {
   const slot = 30 * 60 * 1000
   const start = Math.floor(nowMs / slot) * slot
-  return { start, end: start + slot * 6 }
+  return { start, end: start + slot * 3 }
 }
 
 export function loopSeconds(channel: Channel): number {

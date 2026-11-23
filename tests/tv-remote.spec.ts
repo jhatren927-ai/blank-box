@@ -95,7 +95,8 @@ test('guide Left/Right browse program blocks and page the timeline at its edge',
   await expect(guide).toBeVisible()
   const firstRow = guide.locator('.bb-tv-guide-row').first()
   const programs = firstRow.getByTestId('tv-guide-program')
-  await expect.poll(() => programs.count()).toBeGreaterThanOrEqual(3)
+  await expect.poll(() => programs.count()).toBeGreaterThanOrEqual(2)
+  await expect(guide.locator('.bb-tv-guide-time-cells > div')).toHaveCount(3)
   await expect(firstRow.getByTestId('tv-guide-channel')).toBeFocused()
   await page.keyboard.press('ArrowRight')
   await expect(programs.nth(0)).toBeFocused()
@@ -131,7 +132,9 @@ test('regular website uses the original Downloader receiver layout and remote-on
   expect(guide).not.toBeNull()
   expect(remote!.x).toBeGreaterThan(picture!.x)
   expect(guide!.y).toBeGreaterThan(picture!.y)
-  expect(guide!.height).toBeLessThan(260)
+  expect(guide!.height).toBeGreaterThan(300)
+  await expect(page.locator('.bb-station-strip')).toHaveCount(0)
+  await expect(page.locator('[data-testid="guide-time-label"] + div > div')).toHaveCount(3)
 
   // Give the active program a playable URL so the receiver's Cast action is mounted.
   await page.evaluate(() => {
@@ -197,6 +200,13 @@ test('remote channel rockers use concise 90s-style labels', async ({ page }) => 
   await expect(page.getByTestId('tv-channel-down')).not.toContainText('CHANNEL')
 })
 
+test('receiver edit key opens the currently tuned channel editor', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.getByTestId('tv-edit-channel')).toBeEnabled()
+  await page.getByTestId('tv-edit-channel').click()
+  await expect(page.getByTestId('builder')).toBeVisible()
+})
+
 test('the previous browser layout remains available by explicit opt-in', async ({ page }) => {
   const response = await page.goto('/?classic=1')
   expect(response?.ok()).toBe(true)
@@ -226,10 +236,12 @@ test('website removes forced sign-in and saves a channel before videos are added
   await page.getByTestId('watch-channel').click()
 
   await expect(page.getByTestId('web-tv-receiver')).toBeVisible()
-  await expect(page.locator('.bb-station-card')).toHaveCount(3)
-  await expect(page.locator('.bb-station-name').filter({ hasText: /local/i })).toBeVisible()
+  const guideRows = page.locator('[data-testid="guide-row"]')
+  await expect(guideRows).toHaveCount(3)
+  await expect(guideRows.filter({ hasText: /local news/i })).toBeVisible()
 
   await page.reload()
-  await expect(page.locator('.bb-station-card')).toHaveCount(3)
-  await expect(page.locator('.bb-station-name').filter({ hasText: /local/i })).toBeVisible()
+  const persistedGuideRows = page.locator('[data-testid="guide-row"]')
+  await expect(persistedGuideRows).toHaveCount(3)
+  await expect(persistedGuideRows.filter({ hasText: /local news/i })).toBeVisible()
 })

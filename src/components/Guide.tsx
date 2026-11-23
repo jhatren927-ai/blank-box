@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import type { Channel } from '../types.ts'
 import { clock, dayLabel, padChannel } from '../lib/format.ts'
-import { lookById } from '../lib/looks.ts'
 import { guideWindow, liveSlot, slotsCovering } from '../lib/schedule.ts'
 
 export function Ticker({ channels, now }: { channels: Channel[]; now: number }) {
@@ -48,7 +47,7 @@ export function Guide({
   const shown = (favOnly ? channels.filter((channel) => favs.includes(channel.id)) : channels)
     .slice()
     .sort((a, b) => a.number - b.number)
-  const columns = 6
+  const columns = 3
   const span = guide.end - guide.start
   const marker = ((now - guide.start) / span) * 100
   // Render each channel exactly once. Manual scrolling keeps the guide stable
@@ -124,9 +123,7 @@ export function Guide({
                             <span className={`font-mono text-xl font-bold leading-none ${active ? 'text-black' : 'text-prevue-yellow'}`}>
                               {padChannel(channel.number)}
                             </span>
-                            <span className={`max-w-full truncate rounded-[2px] border px-1 font-heading text-[9px] font-extrabold ${lookById(channel.look).bug}`}>
-                              {channel.callsign}
-                            </span>
+                            <span className="bb-guide-mobile-callsign">{channel.callsign}</span>
                           </span>
                           <span className="min-w-0">
                             <span className={`block truncate font-heading text-sm font-bold uppercase ${active ? 'text-black' : 'text-white'}`}>
@@ -190,7 +187,7 @@ export function Guide({
                     (_, copy) => renderRows(true, copy),
                   )}
                 </div>
-                <div className="pointer-events-none absolute inset-y-0 left-[160px] right-0">
+                <div className="pointer-events-none absolute inset-y-0 left-[174px] right-0">
                   <div
                     data-testid="guide-now-marker"
                     className="absolute inset-y-0 w-0.5 bg-red-500 shadow-[0_0_8px_#ef4444]"
@@ -233,14 +230,11 @@ function GuideRow({
         type="button"
         data-testid={dup ? undefined : 'guide-tune'}
         onClick={() => onTune(channel.id)}
-        className={`flex flex-col items-start justify-center gap-1 border-r-2 border-black px-2 py-2 text-left hover:bg-[#0000aa] ${active ? 'bg-yellow-400 hover:bg-yellow-300' : ''}`}
+        className={`bb-guide-channel-button flex flex-col items-start justify-center gap-1 border-r-2 border-black px-2 py-2 text-left ${active ? 'bg-yellow-400 hover:bg-yellow-300' : ''}`}
       >
-        <span className={`font-mono text-xl font-bold leading-none ${active ? 'text-black' : 'text-prevue-yellow'}`}>
-          {padChannel(channel.number)}
-        </span>
-        <span className={`rounded-[2px] border px-1 font-heading text-[10px] font-extrabold tracking-wider ${lookById(channel.look).bug}`}>
-          {channel.callsign}
-        </span>
+        <span className="bb-guide-channel-number">{padChannel(channel.number)}</span>
+        <span className="bb-guide-channel-callsign">{channel.callsign}</span>
+        <span className="bb-guide-channel-name">{channel.name}</span>
       </button>
       <div className="relative h-16 overflow-hidden">
         {slots.length === 0 && (
@@ -255,13 +249,15 @@ function GuideRow({
               key={`${slot.program.id}-${slot.startMs}-${index}`}
               type="button"
               title={slot.program.title}
+              data-on-now={onNow ? 'true' : 'false'}
               onClick={() => onTune(channel.id)}
-              className={`absolute top-0 h-full overflow-hidden border-r-2 border-black px-2 py-1.5 text-left hover:bg-[#0000cc] ${onNow ? 'bg-[#0a1aa8]' : ''}`}
+              className={`bb-guide-program-cell absolute top-0 h-full overflow-hidden border-r-2 border-black px-2 py-1.5 text-left ${onNow ? 'bg-[#0a1aa8]' : ''}`}
               style={{ left: `${((left - windowStart) / span) * 100}%`, width: `${((right - left) / span) * 100}%` }}
             >
               <p className="line-clamp-2 font-heading text-[11px] font-bold uppercase leading-tight text-white sm:text-xs">
                 {slot.startMs < windowStart && <span className="text-prevue-yellow">◄ </span>}
                 {slot.program.title}
+                {slot.endMs > windowStart + span && <span className="text-prevue-yellow"> ►</span>}
               </p>
               <p className="mt-0.5 truncate font-mono text-[10px] text-yellow-300">{clock(slot.startMs)}</p>
             </button>
