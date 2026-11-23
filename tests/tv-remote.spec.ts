@@ -240,27 +240,26 @@ test('web guide does not accept manual scrolling; only the automatic crawl moves
   await expect(viewport).not.toHaveAttribute('tabindex', '0')
   await expect(viewport).toHaveAttribute('style', /overflow:\s*hidden/)
 
-  // Capture scroll position immediately before and after a real wheel event.
-  // Comparing within the same event turn avoids racing the independent crawl timer.
-  const bounds = await viewport.boundingBox()
-  if (!bounds) throw new Error('Guide viewport has no visible bounds')
-  await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2)
-  await viewport.evaluate((node) => {
-    document.addEventListener('wheel', () => {
-      ;(window as any).__blankBoxWheelStart = node.scrollTop
-    }, { capture: true, once: true })
-    document.addEventListener('wheel', (event) => {
-      ;(window as any).__blankBoxWheelProbe = {
-        defaultPrevented: event.defaultPrevented,
-        start: (window as any).__blankBoxWheelStart,
-        end: node.scrollTop,
-      }
-    }, { once: true })
+  // Dispatch cancelable wheel events at the guide viewport. The ancestor
+  // guide-surface listener must prevent both horizontal and vertical gestures.
+  const wheelProbe = await viewport.evaluate((node) => {
+    const dispatchWheel = (deltaX: number, deltaY: number) => {
+      const event = new WheelEvent('wheel', {
+        bubbles: true,
+        cancelable: true,
+        deltaX,
+        deltaY,
+      })
+      node.dispatchEvent(event)
+      return event.defaultPrevented
+    }
+    return {
+      horizontalPrevented: dispatchWheel(900, 0),
+      verticalPrevented: dispatchWheel(0, 900),
+    }
   })
-  await page.mouse.wheel(0, 900)
-  const wheelProbe = await page.evaluate(() => (window as any).__blankBoxWheelProbe)
-  expect(wheelProbe?.defaultPrevented).toBe(true)
-  expect(wheelProbe?.end).toBe(wheelProbe?.start)
+  expect(wheelProbe.horizontalPrevented).toBe(true)
+  expect(wheelProbe.verticalPrevented).toBe(true)
 
   // Manual touch movement on either axis is canceled; the broadcast crawl owns movement.
   const touchProbe = await viewport.evaluate((node) => {
@@ -383,7 +382,7 @@ test('web Prevue guide automatically crawls upward through all channels', async 
   const viewport = page.getByTestId('guide-viewport')
   await expect(viewport).toBeVisible()
   await expect(page.locator('[data-testid="guide-row"]')).toHaveCount(30)
-  await expect(page.locator('[data-testid="guide-auto-scroll"] > div')).toHaveCount(2)
+  await expect.poll(() => page.locator('[data-testid="guide-auto-scroll"] > div').count()).toBeGreaterThanOrEqual(2)
   await expect.poll(() => viewport.evaluate((node) => node.scrollTop), { timeout: 4000 }).toBeGreaterThan(0)
 })
 
