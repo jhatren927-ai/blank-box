@@ -1278,3 +1278,73 @@ html.tv-mode .bb-tv-console [data-testid="guide-mobile-list"] {
     transform: none;
   }
 }
+
+
+/* 10-foot private sign-in screen inside the installed TV app. */
+html.tv-mode .bb-gate-frame {
+  padding: 36px;
+}
+
+html.tv-mode .bb-gate-frame > section {
+  width: min(760px, 92vw);
+  max-width: 760px;
+  border: 2px solid #536b94;
+  border-radius: 10px;
+  background: linear-gradient(160deg, #182a49, #0d172b 72%);
+  padding: clamp(30px, 4vw, 54px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.13), 0 18px 60px rgba(0,0,0,.55);
+}
+
+html.tv-mode .bb-gate-frame h1 {
+  font-size: clamp(34px, 4vw, 52px);
+  line-height: 1.05;
+}
+
+html.tv-mode .bb-gate-frame p {
+  font-size: 16px;
+}
+
+html.tv-mode .bb-gate-frame label {
+  font-size: 17px;
+}
+
+html.tv-mode .bb-gate-frame input {
+  min-height: 62px;
+  border: 2px solid #667a9b;
+  border-radius: 5px;
+  background: #070f1d;
+  font-size: 23px;
+  padding: 12px 16px;
+}
+
+html.tv-mode .bb-gate-frame button {
+  min-height: 62px;
+  border: 2px solid #ffe58a;
+  border-bottom: 5px solid #83611e;
+  border-radius: 5px;
+  background: linear-gradient(180deg, #ffe995, #d4a33c);
+  color: #111725;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+html.tv-mode .bb-gate-frame input:focus-visible,
+html.tv-mode .bb-gate-frame button:focus-visible {
+  outline: 4px solid #fff2aa;
+  outline-offset: 4px;
+  box-shadow: 0 0 0 3px #111827, 0 0 24px rgba(255, 224, 118, .8);
+}
+
+html.tv-mode .bb-gate-frame form {
+  gap: 22px;
+}
+
+html.tv-mode .bb-gate-frame form > label {
+  display: block;
+  margin-bottom: 22px;
+}
+
+html.tv-mode .bb-gate-frame form > label input {
+  margin-top: 10px;
+}
+
