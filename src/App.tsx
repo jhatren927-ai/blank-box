@@ -291,10 +291,13 @@ function AppContent() {
                 : event.key === 'ArrowRight' ? dx
                   : event.key === 'ArrowUp' ? -dy : dy
               const cross = event.key === 'ArrowLeft' || event.key === 'ArrowRight' ? Math.abs(dy) : Math.abs(dx)
-              return { element, primary, score: primary + cross * 3 }
+              const aligned = event.key === 'ArrowLeft' || event.key === 'ArrowRight'
+                ? rect.top < origin.bottom && rect.bottom > origin.top
+                : rect.left < origin.right && rect.right > origin.left
+              return { element, primary, score: primary + cross * 3, aligned }
             })
             .filter((candidate) => candidate.primary > 4)
-            .sort((a, b) => a.score - b.score)
+            .sort((a, b) => Number(b.aligned) - Number(a.aligned) || a.score - b.score)
           if (candidates[0]) {
             event.preventDefault()
             candidates[0].element.focus({ preventScroll: true })
