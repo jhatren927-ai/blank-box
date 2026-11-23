@@ -51,7 +51,7 @@ function useVideoKnobs(
     }
 
     sync()
-    const events = ['loadedmetadata', 'canplay', 'playing', 'volumechange'] as const
+    const events = ['loadedmetadata', 'canplay', 'playing'] as const
     events.forEach((event) => video.addEventListener(event, sync))
     return () => events.forEach((event) => video.removeEventListener(event, sync))
   }, [ref, muted, volume, rate])
@@ -717,6 +717,20 @@ export function Player({
   const state = !target ? 'idle' : failed ? 'failed' : buffering ? 'buffering' : staticOn || !started ? 'tuning' : 'playing'
   const look = channel ? lookById(channel.look).bug : ''
 
+  // Unlock native HTML video audio inside the actual remote/click gesture.
+  // Updating React state alone is too late on TV browsers that enforce
+  // audible-autoplay restrictions: effects run after the user activation ends.
+  const handleUnmute = () => {
+    const video = frame.current?.querySelector('video')
+    if (video) {
+      video.defaultMuted = false
+      video.muted = false
+      video.volume = Math.max(0.05, Math.min(1, volume))
+      void video.play().catch(() => undefined)
+    }
+    onUnmute()
+  }
+
   return (
     <div
       ref={frame}
@@ -865,7 +879,7 @@ export function Player({
           <button
             type="button"
             data-testid="tap-for-sound-button"
-            onClick={onUnmute}
+            onClick={handleUnmute}
             className="absolute right-3 top-3 z-20 bg-yellow-400 px-3 py-2 font-mono text-xs font-bold text-black"
           >
             TAP FOR SOUND
