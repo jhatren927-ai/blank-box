@@ -1,3 +1,4 @@
+import { mkdirSync, writeFileSync } from 'node:fs'
 import { expect, test } from '@playwright/test'
 
 const network = {
@@ -418,6 +419,7 @@ test('native TV Prevue guide automatically crawls the complete channel lineup', 
 
 
 test('desktop website keeps the player and remote compact together and makes the guide immediately prominent', async ({ page }) => {
+  mkdirSync('artifacts', { recursive: true })
   await page.setViewportSize({ width: 1440, height: 900 })
   await page.goto('/')
 
@@ -448,6 +450,9 @@ test('desktop website keeps the player and remote compact together and makes the
     }
   })
 
+  console.log('PUBLIC WEBSITE DESKTOP LAYOUT:', JSON.stringify(layout))
+  writeFileSync('artifacts/website-layout-desktop.png', await page.screenshot({ fullPage: true }))
+
   expect(Math.abs(layout.player.y - layout.remote.y)).toBeLessThan(8)
   expect(layout.remote.x).toBeGreaterThan(layout.player.x)
   expect(layout.remote.x - layout.player.right).toBeLessThanOrEqual(20)
@@ -459,6 +464,7 @@ test('desktop website keeps the player and remote compact together and makes the
   expect(layout.guideTimeSize).toBe('11px')
 
   await page.setViewportSize({ width: 390, height: 844 })
+  writeFileSync('artifacts/website-layout-mobile.png', await page.screenshot({ fullPage: true }))
   const mobileType = await page.locator('.bb-tv-guide-section .bb-guide-program-cell p:first-child').first().evaluate(
     (element) => getComputedStyle(element).fontSize,
   )
