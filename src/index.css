@@ -4404,3 +4404,183 @@ html.tv-mode .bb-tv-guide-section #guide [data-testid="guide-viewport"] {
   }
 }
 
+
+
+/* Final cascade lock: legacy .bb-tv-console hardware selectors are more
+   specific than the earlier TV-mode rules, so these deliberate overrides
+   repeat that specificity to ensure compact dimensions actually win. */
+html.tv-mode .bb-tv-console .bb-tv-main-grid {
+  width: 100%;
+  max-width: 820px;
+  grid-template-columns: minmax(0, 1.75fr) minmax(260px, .95fr);
+  gap: 14px;
+}
+
+html.tv-mode .bb-tv-console .bb-tv-broadcast {
+  min-width: 0;
+  max-width: none;
+}
+
+html.tv-mode .bb-tv-console .bb-tv-screen-bezel {
+  width: 100%;
+  max-width: none;
+}
+
+html.tv-mode .bb-tv-console .bb-cable-receiver {
+  display: grid;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+  grid-template-areas:
+    "brand brand"
+    "display display"
+    "actions actions"
+    "channel-label access-label"
+    "rockers keypad"
+    "cast cast"
+    "advanced advanced";
+  align-content: start;
+  align-self: stretch;
+  gap: 4px 8px;
+  padding: 7px;
+  border: 2px solid #4774ae !important;
+  border-radius: 7px;
+  background: linear-gradient(155deg, #28558f 0%, #153967 44%, #091d3c 100%) !important;
+  color: #f1f6ff !important;
+}
+
+html.tv-mode .bb-tv-console .bb-receiver-brand {
+  grid-area: brand;
+  gap: 6px;
+  padding: 0 2px 4px;
+}
+
+html.tv-mode .bb-tv-console .bb-receiver-brand strong {
+  font-size: 15px;
+}
+
+html.tv-mode .bb-tv-console .bb-receiver-brand small {
+  font-size: 7px;
+}
+
+html.tv-mode .bb-tv-console .bb-receiver-display {
+  grid-area: display;
+  min-height: 38px;
+  margin: 0;
+  padding: 3px 7px;
+}
+
+html.tv-mode .bb-tv-console .bb-led-channel {
+  font-size: 24px;
+}
+
+html.tv-mode .bb-tv-console .bb-remote-footer {
+  display: grid;
+  grid-area: actions;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  margin: 0;
+}
+
+html.tv-mode .bb-tv-console .bb-remote-footer button {
+  min-width: 0;
+  min-height: 25px;
+  padding: 2px 4px;
+  border: 1px solid #ffe18a;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #fff0a0, #d8a936);
+  color: #17213a;
+  font-size: 8px;
+}
+
+html.tv-mode .bb-tv-console .bb-remote-section-label {
+  margin: 0;
+  color: #c7ddfa;
+  font-size: 7px;
+  line-height: 1.1;
+}
+
+html.tv-mode .bb-tv-console > .bb-cable-receiver > .bb-remote-section-label:nth-child(4) {
+  grid-area: channel-label;
+}
+
+html.tv-mode .bb-tv-console > .bb-cable-receiver > .bb-remote-section-label:nth-child(6) {
+  grid-area: access-label;
+}
+
+html.tv-mode .bb-tv-console .bb-channel-rockers {
+  display: grid;
+  grid-area: rockers;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+}
+
+html.tv-mode .bb-tv-console .bb-channel-rockers button {
+  min-width: 0;
+  min-height: 27px;
+  padding: 2px;
+  border: 1px solid #6f96c7;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #3c70ab, #1a447a);
+  color: #f4f8ff;
+  font-size: 8px;
+}
+
+html.tv-mode .bb-tv-console .bb-channel-rockers button b {
+  font-size: 9px;
+  color: #ffe58a;
+}
+
+html.tv-mode .bb-tv-console .bb-channel-rockers button svg {
+  width: 12px;
+  height: 12px;
+}
+
+html.tv-mode .bb-tv-console .bb-number-pad {
+  display: grid;
+  grid-area: keypad;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 3px;
+}
+
+html.tv-mode .bb-tv-console .bb-number-pad button {
+  min-width: 0;
+  min-height: 25px;
+  padding: 1px;
+  border: 1px solid #8eb6e2;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #e3efff, #94b8e2);
+  color: #09234a;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+html.tv-mode .bb-tv-console .bb-number-pad button.bb-number-function {
+  border-color: #ffe18a;
+  background: linear-gradient(180deg, #fff0a0, #d8a936);
+  color: #17213a;
+  font-size: 8px;
+}
+
+html.tv-mode .bb-tv-console .bb-receiver-cast {
+  grid-area: cast;
+  margin: 0;
+}
+
+html.tv-mode .bb-tv-console .bb-remote-advanced {
+  grid-area: advanced;
+  margin: 0;
+  border-top: 1px solid #5279a8;
+  padding-top: 3px;
+}
+
+html.tv-mode .bb-tv-console .bb-remote-advanced summary {
+  min-height: 21px;
+  padding: 3px 7px;
+  border: 1px solid #6486b7;
+  border-radius: 3px;
+  background: #102f5d;
+  color: #ffe58a;
+  font: 800 8px/1.15 "Courier New", monospace;
+}
