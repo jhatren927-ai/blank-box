@@ -77,7 +77,7 @@ export function Guide({
     >
       <div className="flex items-center justify-between gap-3 bg-prevue px-3 py-2">
         <h2 className="font-heading text-lg font-black uppercase tracking-tight text-prevue-yellow text-glow sm:text-xl">
-          {title} Prevue Guide
+          {title}
         </h2>
         <div className="flex items-center gap-2">
           <button
