@@ -76,7 +76,7 @@ export interface SearchHit {
 export const DEFAULT_PREFS: Prefs = {
   crt: true,
   aspect: '16:9',
-  muted: true,
+  muted: false,
   volume: 0.7,
   rate: 1,
   logo: true,
