@@ -36,7 +36,8 @@ function AppContent() {
   // Desktop browsers open directly into the EPG; TV browsers and the explicit ?tv=1 player route start on live picture.
   const [tvGuideOpen, setTvGuideOpen] = useState(() => {
     const params = new URLSearchParams(window.location.search)
-    const tvBrowser = /AFTT|Fire TV|Android TV|GoogleTV|BRAVIA/i.test(navigator.userAgent)
+    const tvBrowser = document.documentElement.dataset.tvApp === 'true'
+      || /AFTT|Fire TV|Android TV|GoogleTV|BRAVIA/i.test(navigator.userAgent)
     return params.get('classic') !== '1' && params.get('tv') !== '1' && !tvBrowser
   })
   const [tvMenuOpen, setTvMenuOpen] = useState(false)
