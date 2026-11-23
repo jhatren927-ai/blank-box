@@ -5,7 +5,6 @@ import { clock, padChannel } from '../lib/format.ts'
 import { liveSlot, nextSlot } from '../lib/schedule.ts'
 import { Guide } from './Guide.tsx'
 import { CastButton, Player } from './Player.tsx'
-remove look tag helper import
 interface WebTvExperienceProps {
   channels: Channel[]
   channel: Channel | null
@@ -30,7 +29,7 @@ interface WebTvExperienceProps {
   onRate: () => void
   onLogo: () => void
   onLast: () => void
-remove surprise prop  onHelp: () => void
+  onHelp: () => void
   onDigit: (digit: string) => void
   dial: string
 }
@@ -59,7 +58,7 @@ export function WebTvExperience({
   onRate,
   onLogo,
   onLast,
-remove surprise destructuring  onHelp,
+  onHelp,
   onDigit,
   dial,
 }: WebTvExperienceProps) {

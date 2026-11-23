@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { Channel } from '../types.ts'
 import { clock, dayLabel, padChannel } from '../lib/format.ts'
-remove look-specific modern badge stylingimport { guideWindow, liveSlot, slotsCovering } from '../lib/schedule.ts'
+import { guideWindow, liveSlot, slotsCovering } from '../lib/schedule.ts'
 
 export function Ticker({ channels, now }: { channels: Channel[]; now: number }) {
   const line =
