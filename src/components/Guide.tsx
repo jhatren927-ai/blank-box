@@ -52,47 +52,31 @@ export function Guide({
     .sort((a, b) => a.number - b.number)
   const columns = 3
   const span = guide.end - guide.start
-  const marker = ((now - guide.start) / span) * 100
+  const guideSurfaceRef = useRef<HTMLDivElement>(null)
   const desktopViewportRef = useRef<HTMLDivElement>(null)
   const desktopFirstCopyRef = useRef<HTMLDivElement>(null)
-  const desktopAutoScroll = usePrevueCrawl(desktopViewportRef, desktopFirstCopyRef, shown.length > 0)
+  const duplicateCopies = usePrevueCrawl(desktopViewportRef, desktopFirstCopyRef, shown.length > 0)
 
-  // Prevent manual vertical scrolling without relying on React's passive
-  // touch listeners (which cannot reliably cancel native touch movement).
-  // Horizontal touch gestures remain available for the time-slot matrix.
+  // The Prevue guide advances only under its own timed crawl. Block all
+  // manual wheel and touch-drag scrolling (both axes), using non-passive native
+  // listeners so cancellation works reliably in mobile browsers and TV WebViews.
   useEffect(() => {
-    const viewport = desktopViewportRef.current
-    if (!viewport) return
+    const surface = guideSurfaceRef.current
+    if (!surface) return
 
-    const preventVerticalWheel = (event: WheelEvent) => {
-      if (event.deltaY !== 0 && event.cancelable) event.preventDefault()
+    const preventManualWheel = (event: WheelEvent) => {
+      if ((event.deltaX !== 0 || event.deltaY !== 0) && event.cancelable) event.preventDefault()
     }
-    let touchOrigin: { x: number; y: number } | null = null
-    const rememberTouchStart = (event: TouchEvent) => {
-      const touch = event.touches[0]
-      touchOrigin = touch ? { x: touch.clientX, y: touch.clientY } : null
+    const preventManualTouchMove = (event: TouchEvent) => {
+      if (event.cancelable) event.preventDefault()
     }
-    const preventVerticalTouchMove = (event: TouchEvent) => {
-      const touch = event.touches[0]
-      if (!touch || !touchOrigin) return
-      const movedX = Math.abs(touch.clientX - touchOrigin.x)
-      const movedY = Math.abs(touch.clientY - touchOrigin.y)
-      if (movedY > movedX && event.cancelable) event.preventDefault()
-    }
-    const clearTouchOrigin = () => { touchOrigin = null }
 
-    viewport.addEventListener('wheel', preventVerticalWheel, { passive: false })
-    viewport.addEventListener('touchstart', rememberTouchStart, { passive: true })
-    viewport.addEventListener('touchmove', preventVerticalTouchMove, { passive: false })
-    viewport.addEventListener('touchend', clearTouchOrigin, { passive: true })
-    viewport.addEventListener('touchcancel', clearTouchOrigin, { passive: true })
+    surface.addEventListener('wheel', preventManualWheel, { passive: false })
+    surface.addEventListener('touchmove', preventManualTouchMove, { passive: false })
 
     return () => {
-      viewport.removeEventListener('wheel', preventVerticalWheel)
-      viewport.removeEventListener('touchstart', rememberTouchStart)
-      viewport.removeEventListener('touchmove', preventVerticalTouchMove)
-      viewport.removeEventListener('touchend', clearTouchOrigin)
-      viewport.removeEventListener('touchcancel', clearTouchOrigin)
+      surface.removeEventListener('wheel', preventManualWheel)
+      surface.removeEventListener('touchmove', preventManualTouchMove)
     }
   }, [])
 
@@ -148,8 +132,8 @@ export function Guide({
         </p>
       ) : (
         <>
-          <div className="overflow-x-auto">
-            <div className="min-w-[900px]">
+          <div ref={guideSurfaceRef} data-testid="guide-surface" className="overflow-hidden" style={{ touchAction: 'none', overscrollBehavior: 'none' }}>
+            <div className="min-w-0">
               <div className="grid grid-cols-[160px_minmax(0,1fr)] border-y-2 border-black bg-[#001144]">
                 <div data-testid="guide-time-label" className="border-r-2 border-black px-2 py-1 font-mono text-xs font-bold text-yellow-300">
                   {dayLabel(guide.start)}
@@ -167,25 +151,18 @@ export function Guide({
                 data-testid="guide-viewport"
                 role="region"
                 aria-label="Automatically advancing television program guide"
-                style={{ overflowY: 'hidden', overscrollBehaviorY: 'none', touchAction: 'pan-x' }}
-                className="bb-guide-scroll relative h-[min(72vh,760px)] min-h-[420px] overflow-y-hidden overflow-x-hidden overscroll-y-none touch-pan-x"
+                style={{ overflow: 'hidden', overscrollBehavior: 'none', touchAction: 'none' }}
+                className="bb-guide-scroll relative h-[min(72vh,760px)] min-h-[420px] overflow-hidden overscroll-none"
               >
                 <div data-testid="guide-auto-scroll" className="min-w-0">
                   <div ref={desktopFirstCopyRef}>
                     {renderRows(false)}
                   </div>
-                  {desktopAutoScroll && (
-                    <div aria-hidden="true">
+                  {Array.from({ length: Math.max(0, duplicateCopies - 1) }, (_, index) => (
+                    <div key={`crawl-copy-${index}`} aria-hidden="true">
                       {renderRows(true)}
                     </div>
-                  )}
-                </div>
-                <div className="pointer-events-none absolute inset-y-0 left-[174px] right-0">
-                  <div
-                    data-testid="guide-now-marker"
-                    className="absolute inset-y-0 w-0.5 bg-red-500 shadow-[0_0_8px_#ef4444]"
-                    style={{ left: marker + '%' }}
-                  />
+                  ))}
                 </div>
               </div>
             </div>
@@ -246,7 +223,7 @@ function GuideRow({
               data-on-now={onNow ? 'true' : 'false'}
               onClick={() => onTune(channel.id)}
               tabIndex={dup ? -1 : undefined}
-              className={`bb-guide-program-cell absolute top-0 h-full overflow-hidden border-r-2 border-black px-2 py-1.5 text-left ${onNow ? 'bg-[#0a1aa8]' : ''}`}
+              className={`bb-guide-program-cell absolute top-0 h-full overflow-hidden border-r-2 border-black px-2 py-1.5 text-left ${onNow ? 'bg-[#173d91] border-l-2 border-l-amber-300' : ''}`}
               style={{ left: `${((left - windowStart) / span) * 100}%`, width: `${((right - left) / span) * 100}%` }}
             >
               <p className="line-clamp-2 font-heading text-[11px] font-bold uppercase leading-tight text-white sm:text-xs">

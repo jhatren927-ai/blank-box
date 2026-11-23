@@ -3563,3 +3563,11 @@ html.tv-mode .bb-receiver-tiny {
     padding: 5px;
   }
 }
+
+
+/* A single warm live cue replaces the red rails across the Prevue timetable. */
+html.tv-mode .bb-tv-guide-section #guide .bb-guide-program-cell[data-on-now="true"],
+.bb-web-guide-wrap #guide .bb-guide-program-cell[data-on-now="true"] {
+  border-left: 2px solid #f4d66a;
+  background: #173d91;
+}

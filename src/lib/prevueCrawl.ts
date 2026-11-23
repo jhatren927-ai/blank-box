@@ -6,7 +6,7 @@ const USER_PAUSE_MS = 10000
 
 /**
  * Recreates the Prevue grid's slow upward channel crawl. The first copy is
- * measured against its viewport; a second copy makes the wrap seamless.
+ * measured against its viewport; enough repeated copies fill the viewport and make the wrap seamless.
  * The crawl pauses for four seconds after each screenful and briefly while
  * the viewer selects or navigates a guide item.
  */
@@ -14,19 +14,23 @@ export function usePrevueCrawl(
   viewportRef: RefObject<HTMLElement | null>,
   firstCopyRef: RefObject<HTMLElement | null>,
   enabled = true,
-): boolean {
-  const [looping, setLooping] = useState(false)
+): number {
+  const [copyCount, setCopyCount] = useState(1)
 
   useEffect(() => {
     const viewport = viewportRef.current
     const firstCopy = firstCopyRef.current
     if (!enabled || !viewport || !firstCopy) {
-      setLooping(false)
+      setCopyCount(1)
       return
     }
 
     const measure = () => {
-      setLooping(viewport.clientHeight > 0 && firstCopy.scrollHeight > viewport.clientHeight + 2)
+      const rowHeight = firstCopy.scrollHeight
+      const neededCopies = rowHeight > 0 && viewport.clientHeight > 0
+        ? Math.max(2, Math.ceil(viewport.clientHeight / rowHeight) + 2)
+        : 1
+      setCopyCount(neededCopies)
     }
 
     measure()
@@ -42,7 +46,7 @@ export function usePrevueCrawl(
   }, [enabled, viewportRef, firstCopyRef])
 
   useEffect(() => {
-    if (!looping) return
+    if (copyCount < 2) return
     const viewport = viewportRef.current
     const firstCopy = firstCopyRef.current
     if (!viewport || !firstCopy) return
@@ -65,7 +69,7 @@ export function usePrevueCrawl(
       previousTick = timestamp
       const loopHeight = firstCopy.scrollHeight
 
-      if (loopHeight > viewport.clientHeight + 2 &&
+      if (loopHeight > 0 &&
           timestamp >= screenPauseUntil &&
           timestamp >= interactionPauseUntil) {
         fractionalDistance += CRAWL_PIXELS_PER_SECOND * elapsed
@@ -78,8 +82,8 @@ export function usePrevueCrawl(
           distanceSincePause += wholePixels
         }
 
-        // The second identical lineup follows the first. Subtracting exactly
-        // one lineup height creates a seamless wrap without jumping backwards.
+        // Identical lineups follow one another. Subtracting exactly one
+        // lineup height creates a seamless wrap, even for short channel lists.
         while (viewport.scrollTop >= loopHeight) viewport.scrollTop -= loopHeight
 
         if (distanceSincePause >= viewport.clientHeight) {
@@ -100,7 +104,7 @@ export function usePrevueCrawl(
       viewport.removeEventListener('pointerdown', pauseForInteraction)
       viewport.removeEventListener('keydown', pauseForInteraction)
     }
-  }, [looping, viewportRef, firstCopyRef])
+  }, [copyCount, viewportRef, firstCopyRef])
 
-  return looping
+  return copyCount
 }
