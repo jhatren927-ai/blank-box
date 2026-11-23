@@ -2084,8 +2084,34 @@ html.tv-mode:not([data-tv-app="true"]) .bb-guide-scroll {
 }
 
 
-/* The tuning readout is not part of the player picture; suppress the
-   transient overlay so it cannot appear as a stray white tile. */
-html.tv-mode:not([data-tv-app="true"]) .bb-tv-screen-inner .bb-tv-dial {
-  display: none !important;
+
+/* Compact, top-aligned receiver controls: keep each label directly above its
+   buttons instead of distributing the grid rows across the full player height. */
+@media (min-width: 761px) {
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-cable-receiver {
+    align-self: stretch;
+    align-content: start;
+    grid-auto-rows: min-content;
+    row-gap: 7px;
+    padding: 10px;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-remote-section-label {
+    align-self: end;
+    margin-top: 3px;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-channel-rockers,
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-number-pad {
+    align-self: start;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-remote-footer {
+    margin-bottom: 3px;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-receiver-cast {
+    margin-top: 5px;
+    padding-top: 8px;
+  }
 }
