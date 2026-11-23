@@ -290,3 +290,991 @@ html.tv-mode [data-testid="remote-deck"] button:disabled {
     min-width: 92px;
   }
 }
+
+
+/* Full television-only skin: late-1990s cable receiver and electronic guide. */
+html.tv-mode body {
+  background:
+    radial-gradient(ellipse at 50% -20%, rgba(49, 74, 125, 0.35), transparent 55%),
+    linear-gradient(180deg, #111a2b 0%, #080d17 55%, #05080e 100%);
+  color: #e9edf6;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+html.tv-mode .bb-tv-header {
+  position: relative;
+  z-index: 40;
+  border-bottom: 5px solid #070b13;
+  background: linear-gradient(180deg, #293653 0%, #1a2741 48%, #111a2d 100%);
+  box-shadow: 0 4px 0 rgba(81, 111, 171, 0.25), 0 10px 26px rgba(0, 0, 0, 0.45);
+}
+
+html.tv-mode .bb-tv-header > div:first-child {
+  max-width: 1800px;
+  align-items: center;
+  padding: 15px 30px 10px;
+}
+
+html.tv-mode .bb-tv-header input[data-testid="network-name"] {
+  max-width: 100%;
+  color: #fff4b2;
+  font-family: "Space Grotesk Variable", sans-serif;
+  font-size: clamp(28px, 3vw, 44px);
+  font-weight: 900;
+  letter-spacing: -0.055em;
+  line-height: 1.05;
+  text-shadow: 0 2px 0 #10172a, 0 0 20px rgba(255, 215, 80, 0.15);
+}
+
+html.tv-mode .bb-tv-header > div:first-child p {
+  color: #aab8d4;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+}
+
+html.tv-mode .bb-tv-header > div:first-child > p {
+  color: #ffe58b;
+  font-size: 18px;
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 12px rgba(255, 221, 91, 0.32);
+}
+
+html.tv-mode .bb-tv-header nav {
+  max-width: 1800px;
+  gap: 10px;
+  padding: 0 30px 13px;
+}
+
+html.tv-mode .bb-tv-header nav button {
+  min-width: 145px;
+  min-height: 48px;
+  border: 1px solid #63769c;
+  border-bottom: 4px solid #0a1020;
+  border-radius: 4px;
+  padding: 0 20px;
+  background: linear-gradient(180deg, #46608f 0%, #263b67 52%, #1b2a4c 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 2px 0 #060a13;
+  color: #f5f7ff;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+html.tv-mode .bb-tv-header nav button[aria-current="page"],
+html.tv-mode .bb-tv-header nav button:focus {
+  border-color: #fff0a5;
+  background: linear-gradient(180deg, #fff0a8 0%, #f7c844 52%, #ce9419 100%);
+  color: #171a22;
+}
+
+html.tv-mode .bb-tv-console {
+  width: min(100% - 48px, 1780px);
+  margin: 0 auto;
+  padding: 0 0 28px;
+}
+
+html.tv-mode .bb-tv-console [data-testid="news-ticker"] {
+  height: 39px;
+  margin-top: 13px;
+  border: 2px solid #050b1b;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #071a53, #001039);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 2px 0 rgba(0,0,0,.65);
+}
+
+html.tv-mode .bb-tv-console [data-testid="news-ticker"] > span:first-child {
+  background: linear-gradient(180deg, #e74736, #a91e1f);
+  font-size: 11px;
+  letter-spacing: .14em;
+}
+
+html.tv-mode .bb-tv-console [data-testid="news-ticker"] .animate-ticker {
+  font-size: 13px;
+  color: #fff2a2;
+}
+
+.bb-tv-statusline {
+  display: flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid #2c3e60;
+  padding: 0 8px;
+  color: #8fa2c5;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .12em;
+}
+
+.bb-tv-status-left,
+.bb-tv-status-right {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.bb-on-air {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #ff7770;
+}
+
+.bb-on-air > span,
+.bb-power-led,
+.bb-green-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f0443e;
+  box-shadow: 0 0 8px rgba(255, 48, 48, .8);
+}
+
+.bb-tv-divider {
+  color: #4e6288;
+}
+
+.bb-stereo {
+  border: 1px solid #526a92;
+  border-radius: 2px;
+  padding: 3px 7px;
+  color: #dce8ff;
+  font-size: 9px;
+}
+
+.bb-tv-main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.9fr) minmax(330px, .78fr);
+  align-items: start;
+  gap: 22px;
+  padding: 20px 0 0;
+}
+
+.bb-tv-broadcast {
+  min-width: 0;
+}
+
+.bb-tv-screen-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 0 3px 12px;
+}
+
+.bb-micro-label {
+  display: block;
+  color: #8ca0c3;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .2em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.bb-tv-screen-heading h1 {
+  overflow: hidden;
+  max-width: min(72vw, 850px);
+  margin: 3px 0 0;
+  color: #fff1b1;
+  font-family: "Space Grotesk Variable", sans-serif;
+  font-size: clamp(22px, 2.5vw, 36px);
+  font-weight: 900;
+  letter-spacing: -.035em;
+  line-height: 1.05;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.bb-channel-bug {
+  display: flex;
+  min-width: 82px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 2px solid #76859d;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #222e44, #101827);
+  padding: 5px 10px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 3px 0 #050a12;
+}
+
+.bb-channel-bug span {
+  color: #a4b4d0;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.bb-channel-bug strong {
+  color: #ffe26d;
+  font-size: 23px;
+  line-height: 1;
+}
+
+.bb-tv-screen-bezel {
+  border: 5px ridge #78808a;
+  border-radius: 17px;
+  background: linear-gradient(145deg, #59616d 0%, #252b35 17%, #10151d 100%);
+  padding: 8px;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.35), 0 11px 20px rgba(0,0,0,.6), 0 0 0 2px #03060a;
+}
+
+.bb-tv-screen-inner {
+  position: relative;
+  overflow: hidden;
+  border: 3px solid #05070b;
+  border-radius: 9px;
+  background: #000;
+  box-shadow: inset 0 0 28px rgba(0,0,0,.9);
+}
+
+.bb-tv-screen-inner [data-testid="crt-player"] {
+  width: 100%;
+  border: 0 !important;
+  border-radius: 5px;
+  box-shadow: none !important;
+}
+
+.bb-tv-screen-inner [data-testid="playback"] {
+  border-radius: 5px;
+}
+
+.bb-tv-osd {
+  position: absolute;
+  z-index: 20;
+  inset: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+  color: #fff;
+  font-family: "IBM Plex Mono", monospace;
+  text-shadow: 0 2px 3px #000, 0 0 8px #000;
+}
+
+.bb-tv-osd-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bb-osd-channel {
+  border: 2px solid rgba(255,255,255,.8);
+  background: rgba(5, 8, 15, .74);
+  padding: 3px 9px;
+  color: #fff18a;
+  font-size: clamp(18px, 2vw, 28px);
+  font-weight: 800;
+}
+
+.bb-osd-callsign {
+  font-size: clamp(12px, 1.3vw, 17px);
+  font-weight: 800;
+  letter-spacing: .13em;
+}
+
+.bb-osd-clock {
+  margin-left: auto;
+  font-size: clamp(12px, 1.2vw, 16px);
+  font-weight: 700;
+}
+
+.bb-tv-osd-bottom {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+  border-left: 4px solid #ffe36d;
+  background: linear-gradient(90deg, rgba(3, 9, 25, .88), rgba(3, 9, 25, .45), transparent);
+  padding: 8px 12px;
+  font-size: clamp(11px, 1.2vw, 16px);
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.bb-tv-dial {
+  position: absolute;
+  top: 44%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px solid rgba(255,255,255,.85);
+  background: rgba(0,0,0,.8);
+  padding: 5px 24px;
+  color: #a4ff9c;
+  font-size: clamp(40px, 6vw, 74px);
+  font-weight: 800;
+  letter-spacing: .16em;
+}
+
+.bb-tv-now-playing {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) minmax(155px, .48fr);
+  align-items: center;
+  gap: 15px;
+  margin-top: 10px;
+  border: 1px solid #324c7b;
+  background: linear-gradient(180deg, #1b2d55, #101d3b);
+  padding: 12px 15px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.13), 0 3px 0 #050a15;
+}
+
+.bb-program-ident {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.bb-program-live {
+  border: 1px solid #ff918b;
+  background: linear-gradient(180deg, #e75045, #a91f21);
+  padding: 5px 8px;
+  color: white;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+
+.bb-program-channel {
+  color: #ffe987;
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.bb-program-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.bb-program-copy strong {
+  overflow: hidden;
+  color: #fff;
+  font-family: "Space Grotesk Variable", sans-serif;
+  font-size: clamp(15px, 1.5vw, 21px);
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bb-program-copy span,
+.bb-program-next span:last-child {
+  overflow: hidden;
+  color: #a7bbdf;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bb-program-next {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+  border-left: 1px solid #3a5078;
+  padding-left: 13px;
+}
+
+.bb-program-next strong {
+  overflow: hidden;
+  color: #ffec9b;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bb-program-progress {
+  height: 4px;
+  overflow: hidden;
+  background: #050b18;
+}
+
+.bb-program-progress span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #e8bd43, #fff49a);
+  box-shadow: 0 0 8px rgba(255, 219, 91, .6);
+}
+
+.bb-station-strip {
+  margin-top: 18px;
+  border: 1px solid #344a70;
+  background: linear-gradient(180deg, #182946, #0d182c);
+  padding: 10px 11px 12px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+.bb-strip-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 9px;
+  color: #ffdf78;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .17em;
+}
+
+.bb-station-list {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px 2px 8px;
+}
+
+.bb-station-card {
+  display: flex;
+  min-width: 175px;
+  min-height: 58px;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid #465a7c;
+  border-bottom: 3px solid #070d18;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #2b3b5d, #172642);
+  padding: 6px 7px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.14);
+}
+
+.bb-station-card.is-current {
+  border-color: #ffe38c;
+  background: linear-gradient(180deg, #fff0a1, #dbab34);
+  color: #171a23;
+}
+
+.bb-station-tune {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  gap: 7px;
+  text-align: left;
+}
+
+.bb-station-number {
+  color: #ffe477;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.bb-station-card.is-current .bb-station-number {
+  color: #181b21;
+}
+
+.bb-station-callsign {
+  border: 1px solid currentColor;
+  padding: 2px 4px;
+  font-size: 8px;
+  font-weight: 900;
+}
+
+.bb-station-name {
+  overflow: hidden;
+  min-width: 0;
+  color: #eaf0ff;
+  font-size: 10px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bb-station-card.is-current .bb-station-name {
+  color: #171a23;
+}
+
+.bb-station-edit {
+  display: grid;
+  width: 30px;
+  height: 34px;
+  flex: 0 0 30px;
+  place-items: center;
+  border-left: 1px solid rgba(255,255,255,.18);
+  color: #d4e1ff;
+}
+
+.bb-station-card.is-current .bb-station-edit {
+  color: #171a23;
+}
+
+.bb-station-add {
+  display: inline-flex;
+  min-height: 54px;
+  align-items: center;
+  gap: 10px;
+  border: 1px dashed #8296bc;
+  padding: 0 18px;
+  color: #fff0a0;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.bb-cable-receiver {
+  overflow: hidden;
+  border: 3px ridge #657080;
+  border-radius: 13px;
+  background: linear-gradient(145deg, #454c58 0%, #272e3a 17%, #171e2a 100%);
+  padding: 14px;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.3), 0 13px 25px rgba(0,0,0,.58), 0 0 0 2px #05080d;
+}
+
+.bb-receiver-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid #586274;
+  padding: 1px 2px 12px;
+}
+
+.bb-receiver-logo {
+  display: grid;
+  width: 44px;
+  height: 38px;
+  flex: 0 0 44px;
+  place-items: center;
+  border: 2px solid #8996a9;
+  border-radius: 4px;
+  background: linear-gradient(145deg, #f1d46b, #b17b22);
+  color: #131a27;
+  font-family: "Space Grotesk Variable", sans-serif;
+  font-size: 16px;
+  font-weight: 900;
+  box-shadow: inset 0 1px 2px rgba(255,255,255,.5), 0 2px 0 #090e16;
+}
+
+.bb-receiver-logo span {
+  color: #fff;
+}
+
+.bb-receiver-brand > div:nth-child(2) {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.bb-receiver-brand strong {
+  color: #f7f0d2;
+  font-family: "Space Grotesk Variable", sans-serif;
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  line-height: 1;
+}
+
+.bb-receiver-brand small {
+  color: #9eacc2;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  white-space: nowrap;
+}
+
+.bb-power-led {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 9px;
+  background: #4fdf71;
+  box-shadow: 0 0 10px rgba(67,255,112,.85);
+}
+
+.bb-receiver-display {
+  display: flex;
+  min-height: 73px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 13px 0;
+  border: 3px inset #202b2d;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #06110e, #0c1c16);
+  padding: 8px 12px;
+  box-shadow: inset 0 0 17px rgba(0,0,0,.9);
+}
+
+.bb-led-channel {
+  color: #8cff9b;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 44px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  line-height: 1;
+  text-shadow: 0 0 6px rgba(85,255,115,.8), 0 0 16px rgba(85,255,115,.38);
+}
+
+.bb-led-info {
+  display: flex;
+  align-items: end;
+  flex-direction: column;
+  gap: 4px;
+  color: #6ed987;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .1em;
+}
+
+.bb-led-clock {
+  color: #c0ffc8;
+  font-size: 11px;
+}
+
+.bb-remote-section-label {
+  margin: 14px 0 7px;
+  color: #b7c4d9;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .18em;
+}
+
+.bb-channel-rockers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.bb-channel-rockers button {
+  display: flex;
+  min-height: 57px;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: 1px solid #8190a5;
+  border-bottom: 4px solid #080d15;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #59677b, #313d50);
+  padding: 6px;
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.28);
+}
+
+.bb-channel-rockers button span {
+  color: #c9d4e6;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .05em;
+}
+
+.bb-channel-rockers button b {
+  color: #ffeb9a;
+  font-size: 11px;
+}
+
+.bb-number-pad {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.bb-number-pad button {
+  min-height: 43px;
+  border: 1px solid #8793a8;
+  border-bottom: 4px solid #070c14;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #536176, #303a4a);
+  color: #f4f5fa;
+  font-size: 18px;
+  font-weight: 900;
+  text-shadow: 0 1px 1px #000;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 1px 0 #080c14;
+}
+
+.bb-number-pad button:active,
+.bb-channel-rockers button:active,
+.bb-control-grid button:active,
+.bb-remote-footer button:active {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+}
+
+.bb-number-pad button.bb-number-function {
+  background: linear-gradient(180deg, #d0ad4f, #8b6420);
+  color: #131720;
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-shadow: none;
+}
+
+.bb-control-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.bb-control-grid button {
+  display: flex;
+  min-height: 39px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid #64728a;
+  border-bottom: 3px solid #070c13;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #37465e, #202d41);
+  padding: 5px;
+  color: #e5ebf5;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .04em;
+}
+
+.bb-control-grid-wide {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.bb-remote-footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.bb-remote-footer button {
+  display: flex;
+  min-height: 43px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid #fff0a4;
+  border-bottom: 4px solid #5d4314;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #ffe987, #c9962d);
+  padding: 5px;
+  color: #1b1b1b;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .04em;
+}
+
+.bb-remote-footer button.bb-surprise {
+  border-color: #8a9bb9;
+  border-bottom-color: #070d19;
+  background: linear-gradient(180deg, #536f9d, #2b4068);
+  color: #fff;
+}
+
+.bb-receiver-cast {
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+}
+
+.bb-receiver-tiny {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 12px;
+  border-top: 1px solid #4a5669;
+  padding-top: 9px;
+  color: #9caec9;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .1em;
+}
+
+.bb-receiver-tiny > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bb-green-dot {
+  width: 6px;
+  height: 6px;
+  background: #58e27c;
+  box-shadow: 0 0 8px rgba(68,255,122,.8);
+}
+
+.bb-receiver-tiny button {
+  color: #ffe58c;
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.bb-tv-guide-section {
+  margin-top: 30px;
+  border: 1px solid #30466f;
+  background: linear-gradient(180deg, rgba(20,35,64,.9), rgba(7,13,26,.95));
+  padding: 12px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 5px 15px rgba(0,0,0,.25);
+  scroll-margin-top: 16px;
+}
+
+.bb-guide-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 2px 4px 11px;
+}
+
+.bb-guide-heading h2 {
+  margin: 3px 0 0;
+  color: #fff0a0;
+  font-family: "Space Grotesk Variable", sans-serif;
+  font-size: clamp(19px, 2vw, 27px);
+  font-weight: 900;
+  letter-spacing: -.02em;
+}
+
+.bb-guide-key {
+  color: #a9bbda;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .1em;
+}
+
+.bb-guide-key span {
+  display: inline-block;
+  margin: 0 4px;
+  border: 1px solid #8d9eb9;
+  background: #243654;
+  padding: 3px 5px;
+  color: #fff0a0;
+}
+
+html.tv-mode .bb-tv-guide-section #guide {
+  margin-top: 0;
+  border: 2px solid #030b23;
+  border-radius: 4px;
+  box-shadow: none;
+}
+
+html.tv-mode .bb-tv-guide-section #guide > div:first-child {
+  min-height: 45px;
+  padding: 7px 12px;
+}
+
+html.tv-mode .bb-tv-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 3px 0;
+  color: #7186a8;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+
+html.tv-mode .bb-tv-console button:focus-visible,
+html.tv-mode .bb-tv-console a:focus-visible {
+  position: relative;
+  z-index: 30;
+  outline: 4px solid #fff09a;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 3px #101827, 0 0 24px rgba(255, 220, 92, .85);
+  transform: scale(1.035);
+}
+
+html.tv-mode .bb-station-list,
+html.tv-mode .bb-tv-console [data-testid="channel-list"],
+html.tv-mode .bb-tv-console [data-testid="guide-viewport"],
+html.tv-mode .bb-tv-console [data-testid="guide-mobile-list"] {
+  scrollbar-color: #536f9d #0a1427;
+  scrollbar-width: thin;
+}
+
+@media (max-width: 1050px) {
+  .bb-tv-main-grid {
+    grid-template-columns: minmax(0, 1.55fr) minmax(300px, .8fr);
+    gap: 14px;
+  }
+
+  .bb-cable-receiver {
+    padding: 11px;
+  }
+
+  .bb-tv-now-playing {
+    grid-template-columns: 1fr minmax(0, 1.5fr);
+  }
+
+  .bb-program-next {
+    display: none;
+  }
+}
+
+@media (max-width: 820px) {
+  html.tv-mode .bb-tv-console {
+    width: min(100% - 24px, 1780px);
+  }
+
+  .bb-tv-main-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .bb-cable-receiver {
+    max-width: none;
+  }
+
+  .bb-number-pad {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .bb-control-grid-wide {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-height: 820px) and (min-width: 821px) {
+  html.tv-mode .bb-tv-main-grid {
+    padding-top: 12px;
+  }
+
+  html.tv-mode .bb-tv-screen-heading {
+    padding-bottom: 7px;
+  }
+
+  html.tv-mode .bb-tv-screen-heading h1 {
+    font-size: 25px;
+  }
+
+  html.tv-mode .bb-tv-screen-bezel {
+    padding: 6px;
+  }
+
+  html.tv-mode .bb-tv-now-playing {
+    margin-top: 7px;
+    padding: 8px 11px;
+  }
+
+  html.tv-mode .bb-station-strip {
+    margin-top: 11px;
+  }
+
+  html.tv-mode .bb-cable-receiver {
+    padding: 10px;
+  }
+
+  html.tv-mode .bb-receiver-display {
+    min-height: 58px;
+    margin: 8px 0;
+  }
+
+  html.tv-mode .bb-led-channel {
+    font-size: 36px;
+  }
+
+  html.tv-mode .bb-remote-section-label {
+    margin-top: 9px;
+    margin-bottom: 5px;
+  }
+
+  html.tv-mode .bb-number-pad button {
+    min-height: 36px;
+  }
+
+  html.tv-mode .bb-channel-rockers button {
+    min-height: 46px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.tv-mode .bb-tv-console button:focus-visible {
+    transform: none;
+  }
+}
