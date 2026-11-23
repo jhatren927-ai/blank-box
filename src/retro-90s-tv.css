@@ -1776,3 +1776,43 @@ html.tv-mode:not([data-tv-app="true"]) .bb-guide-scroll {
     grid-template-columns: 112px minmax(0, 1fr) !important;
   }
 }
+
+
+/* The public header also stacks at phone widths; keep this selector as
+   specific as the desktop public palette rules above. */
+@media (max-width: 760px) {
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-header {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+    padding: 7px 10px;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-header > div:first-child {
+    grid-column: 1;
+    grid-row: 1;
+    width: 100%;
+    min-height: 0;
+    padding: 0;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-header input[data-testid="network-name"] {
+    font-size: 21px;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-header nav {
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
+    justify-content: flex-start;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 0 0 2px;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-header nav button {
+    min-width: 72px;
+    min-height: 32px;
+    padding: 0 9px;
+    font-size: 9px;
+  }
+}
