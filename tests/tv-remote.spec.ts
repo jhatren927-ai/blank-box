@@ -120,6 +120,8 @@ test('regular website uses the original Downloader receiver layout and remote-on
   await expect(page.getByTestId('cable-remote')).toBeVisible()
   await expect(page.getByTestId('prevue-grid')).toBeVisible()
   await expect(page.locator('.bb-tv-main-grid')).toHaveCSS('display', 'grid')
+  await expect(page.locator('.bb-tv-statusline, [data-testid="news-ticker"], .bb-tv-screen-heading, .bb-tv-osd')).toHaveCount(0)
+  await expect(page.locator('.bb-tv-guide-section h2')).toHaveText('PREVUE')
 
   const picture = await page.locator('.bb-tv-screen-bezel').boundingBox()
   const remote = await page.getByTestId('cable-remote').boundingBox()
@@ -129,6 +131,7 @@ test('regular website uses the original Downloader receiver layout and remote-on
   expect(guide).not.toBeNull()
   expect(remote!.x).toBeGreaterThan(picture!.x)
   expect(guide!.y).toBeGreaterThan(picture!.y)
+  expect(guide!.height).toBeLessThan(260)
 
   // Give the active program a playable URL so the receiver's Cast action is mounted.
   await page.evaluate(() => {
