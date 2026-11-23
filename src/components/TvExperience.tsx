@@ -236,6 +236,7 @@ export function TvExperience({
                             key={`${slot.program.id}-${slot.startMs}-${index}`}
                             type="button"
                             className={`bb-tv-guide-program${isNow ? ' is-now' : ''}`}
+                            data-testid="tv-guide-program"
                             style={{
                               left: `${((left - windowStart) / windowSpan) * 100}%`,
                               width: `${((right - left) / windowSpan) * 100}%`,
