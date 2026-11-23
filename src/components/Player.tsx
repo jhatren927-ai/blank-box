@@ -445,7 +445,6 @@ function DailymotionVideo(props: EngineProps) {
 
 export function CastButton({ program, offsetSec }: { program: Program; offsetSec: number }) {
   const [available, setAvailable] = useState(false)
-  const [airplayAvailable, setAirplayAvailable] = useState(false)
   const [isAppleMobile, setIsAppleMobile] = useState(false)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
@@ -458,7 +457,6 @@ export function CastButton({ program, offsetSec }: { program: Program; offsetSec
     setIsAppleMobile(appleMobile)
     const video = document.querySelector<HTMLVideoElement>('[data-testid="crt-player"] video') as
       (HTMLVideoElement & { webkitShowPlaybackTargetPicker?: () => void }) | null
-    setAirplayAvailable(Boolean(video && typeof video.webkitShowPlaybackTargetPicker === 'function'))
 
     const ready = () => {
       if (!w.cast?.framework) return
