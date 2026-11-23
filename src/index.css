@@ -2001,6 +2001,16 @@ html.tv-mode .bb-tv-menu-sound-actions button {
   letter-spacing: .04em;
 }
 
+html.tv-mode .bb-tv-menu-volume-status {
+  margin-top: 7px;
+  color: #f4d36f;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .12em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
 html.tv-mode .bb-tv-menu-actions {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
