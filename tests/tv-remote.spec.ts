@@ -302,5 +302,19 @@ test('native TV Prevue guide automatically crawls the complete channel lineup', 
   const rows = guide.getByTestId('tv-guide-rows')
   await expect(guide.getByTestId('tv-guide-channel')).toHaveCount(18)
   await expect(guide.getByTestId('tv-guide-auto-scroll').locator('.bb-tv-guide-crawl-copy')).toHaveCount(2)
+  const geometry = await rows.evaluate((node) => {
+    const first = node.querySelector<HTMLElement>('.bb-tv-guide-crawl-copy')
+    const crawl = node.querySelector<HTMLElement>('.bb-tv-guide-crawl')
+    return {
+      viewportClientHeight: node.clientHeight,
+      viewportScrollHeight: node.scrollHeight,
+      viewportOverflowY: getComputedStyle(node).overflowY,
+      crawlHeight: crawl?.getBoundingClientRect().height,
+      firstCopyHeight: first?.getBoundingClientRect().height,
+      firstCopyScrollHeight: first?.scrollHeight,
+      firstCopyStyleHeight: first?.style.height,
+    }
+  })
+  console.log('NATIVE PREVUE CRAWL GEOMETRY:', geometry)
   await expect.poll(() => rows.evaluate((node) => node.scrollTop), { timeout: 4000 }).toBeGreaterThan(0)
 })
