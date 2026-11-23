@@ -131,7 +131,7 @@ test('regular website uses the original Downloader receiver layout and remote-on
   expect(remote).not.toBeNull()
   expect(guide).not.toBeNull()
   expect(remote!.x).toBeGreaterThan(picture!.x)
-  expect(guide!.y).toBeGreaterThan(picture!.y)
+  expect(guide!.y).toBeLessThan(picture!.y)
   expect(guide!.height).toBeGreaterThan(300)
   await expect(page.locator('.bb-station-strip')).toHaveCount(0)
   await expect(page.locator('[data-testid="guide-time-label"] + div > div')).toHaveCount(3)
@@ -194,7 +194,7 @@ test('mobile website keeps the Prevue channel and time-slot matrix', async ({ pa
   await expect.poll(() => timetable.evaluate((element) => element.scrollWidth > element.clientWidth)).toBe(true)
 })
 
-test('web guide scrolls with wheel, touch and remote arrow keys', async ({ page }) => {
+test('web guide does not accept manual scrolling; only the automatic crawl moves its rows', async ({ page }) => {
   const response = await page.goto('/')
   expect(response?.ok()).toBe(true)
   await page.evaluate(() => {
@@ -204,12 +204,12 @@ test('web guide scrolls with wheel, touch and remote arrow keys', async ({ page 
     if (source) {
       value.channels = Array.from({ length: 30 }, (_, index) => ({
         ...source,
-        id: 'scroll-' + index,
+        id: 'fixed-' + index,
         number: index + 1,
-        name: 'Scroll Channel ' + (index + 1),
-        callsign: 'SC' + index,
+        name: 'Fixed Channel ' + (index + 1),
+        callsign: 'FX' + index,
         programs: (source.programs || []).map((program: any, programIndex: number) => ({
-          ...program, id: 'scroll-' + index + '-program-' + programIndex,
+          ...program, id: 'fixed-' + index + '-program-' + programIndex,
         })),
       }))
       localStorage.setItem(key, JSON.stringify(value))
@@ -218,14 +218,23 @@ test('web guide scrolls with wheel, touch and remote arrow keys', async ({ page 
   await page.reload()
   const viewport = page.getByTestId('guide-viewport')
   await expect(viewport).toBeVisible()
-  await expect(viewport).toHaveAttribute('aria-label', 'Scrollable television channel guide')
-  const before = await viewport.evaluate((node) => node.scrollTop)
-  await viewport.focus()
+  await expect(viewport).toHaveAttribute('aria-label', 'Automatically advancing television program guide')
+  await expect(viewport).not.toHaveAttribute('tabindex', '0')
+  await expect(viewport).toHaveCSS('overflow-y', 'hidden')
+
+  // A wheel gesture cannot reposition the guide. A remote key can move focus
+  // between guide entries, but cannot use the viewport as a scroll control.
+  const wheel = await viewport.evaluate((node) => {
+    const before = node.scrollTop
+    node.dispatchEvent(new WheelEvent('wheel', { bubbles: true, deltaY: 900 }))
+    return { before, after: node.scrollTop }
+  })
+  expect(wheel.after).toBe(wheel.before)
+
+  await viewport.locator('[data-testid="guide-tune"]').first().focus()
+  const beforeKey = await viewport.evaluate((node) => node.scrollTop)
   await page.keyboard.press('ArrowDown')
-  await expect.poll(() => viewport.evaluate((node) => node.scrollTop)).toBeGreaterThan(before)
-  const afterDown = await viewport.evaluate((node) => node.scrollTop)
-  await page.keyboard.press('PageDown')
-  await expect.poll(() => viewport.evaluate((node) => node.scrollTop)).toBeGreaterThan(afterDown)
+  await expect.poll(() => viewport.evaluate((node) => node.scrollTop)).toBe(beforeKey)
 })
 
 test('remote channel rockers use concise 90s-style labels', async ({ page }) => {
@@ -260,7 +269,7 @@ test('website removes forced sign-in and saves a channel before videos are added
   await expect(page.getByRole('button', { name: 'Admin' })).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Sign out' })).toHaveCount(0)
 
-  const addChannel = page.getByTestId('tv-add-channel')
+  const addChannel = page.getByTestId('guide-add-channel')
   await expect(addChannel).toBeVisible()
   await expect(addChannel).toBeInViewport()
   await expect(page.locator('.bb-receiver-logo')).toHaveCount(0)
