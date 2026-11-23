@@ -221,11 +221,11 @@ export function WebTvExperience({
 
           <div className="bb-remote-section-label">CHANNEL CONTROL</div>
           <div className="bb-channel-rockers">
-            <button type="button" data-testid="tv-channel-up" onClick={() => onStep(1)}>
-              <ChevronUp size={25} /><span>CHANNEL</span><b>UP</b>
+            <button type="button" aria-label="Channel up" title="Channel up" data-testid="tv-channel-up" onClick={() => onStep(1)}> 
+              <ChevronUp size={22} /><b>CH +</b>
             </button>
-            <button type="button" data-testid="tv-channel-down" onClick={() => onStep(-1)}>
-              <ChevronDown size={25} /><span>CHANNEL</span><b>DOWN</b>
+            <button type="button" aria-label="Channel down" title="Channel down" data-testid="tv-channel-down" onClick={() => onStep(-1)}> 
+              <ChevronDown size={22} /><b>CH −</b>
             </button>
           </div>
 

@@ -167,7 +167,17 @@ export function Guide({
               </div>
               <div
                 data-testid="guide-viewport"
-                className="relative h-[min(72vh,760px)] min-h-[480px] overflow-y-auto overflow-x-hidden"
+                role="region"
+                aria-label="Scrollable television channel guide"
+                tabIndex={0}
+                onKeyDown={(event) => {
+                  if (event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'PageDown' || event.key === 'PageUp') {
+                    event.preventDefault()
+                    const amount = event.key === 'PageDown' || event.key === 'PageUp' ? event.currentTarget.clientHeight * 0.85 : 88
+                    event.currentTarget.scrollBy({ top: event.key === 'ArrowUp' || event.key === 'PageUp' ? -amount : amount, behavior: 'smooth' })
+                  }
+                }}
+                className="bb-guide-scroll relative h-[min(72vh,760px)] min-h-[480px] overflow-y-auto overflow-x-hidden overscroll-y-contain focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-300"
               >
                 <div
                   data-testid="guide-auto-scroll"
