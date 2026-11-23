@@ -115,7 +115,7 @@ test('guide Left/Right browse program blocks and page the timeline at its edge',
 })
 
 
-test('regular website uses the original Downloader receiver layout and remote-only Cast button', async ({ page }) => {
+test('regular website keeps compact receiver panels above the dominant guide and remote-only Cast button', async ({ page }) => {
   const response = await page.goto('/')
   expect(response?.ok()).toBe(true)
   const receiver = page.getByTestId('web-tv-receiver')
@@ -135,7 +135,8 @@ test('regular website uses the original Downloader receiver layout and remote-on
   expect(remote).not.toBeNull()
   expect(guide).not.toBeNull()
   expect(remote!.x).toBeGreaterThan(picture!.x)
-  expect(guide!.y).toBeLessThan(picture!.y)
+  expect(guide!.y).toBeGreaterThan(picture!.y)
+  expect(guide!.width).toBeGreaterThan(picture!.width)
   expect(guide!.height).toBeGreaterThan(300)
   await expect(page.locator('.bb-station-strip')).toHaveCount(0)
   await expect(page.locator('[data-testid="guide-time-label"] + div > div')).toHaveCount(3)
@@ -238,7 +239,7 @@ test('web guide does not accept manual scrolling; only the automatic crawl moves
   await expect(viewport).toBeVisible()
   await expect(viewport).toHaveAttribute('aria-label', 'Automatically advancing television program guide')
   await expect(viewport).not.toHaveAttribute('tabindex', '0')
-  await expect(viewport).toHaveAttribute('style', /overflow:\\s*hidden/)
+  await expect(viewport).toHaveAttribute('style', /overflow:\s*hidden/)
 
   // Both horizontal and vertical wheel events must be canceled without
   // changing the viewport. Capture in the document's bubble phase, after the
