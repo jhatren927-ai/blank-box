@@ -32,34 +32,28 @@ function AppContent() {
   const screenRef = useRef<HTMLDivElement>(null)
   const dialTimer = useRef<number | null>(null)
   const cloudRestoreStarted = useRef(false)
-  const accountSyncStarted = useRef(false)
   const [accountSyncReady, setAccountSyncReady] = useState(false)
   const ordered = network.channels.slice().sort((a, b) => a.number - b.number)
   const current = ordered.find((channel) => channel.id === currentId) ?? null
 
   useEffect(() => {
-    if (accountSyncStarted.current) return
-    accountSyncStarted.current = true
-    let live = true
     const token = localStorage.getItem('blankbox-license-session')
     if (!token) return
     void (async () => {
       try {
         const cloudNetwork = await getAccountNetwork(token)
-        if (!live) return
         if (cloudNetwork) {
           store.replaceNetwork(cloudNetwork)
         } else {
           // First sign-in on this account: preserve the channels already on this device.
           await saveAccountNetwork(token, network)
         }
-        if (live) setAccountSyncReady(true)
+        setAccountSyncReady(true)
       } catch (error) {
         console.error('Blank Box account restore failed:', error)
       }
     })()
-    return () => { live = false }
-  }, [network, store])
+  }, [])
 
   useEffect(() => {
     if (!accountSyncReady) return
