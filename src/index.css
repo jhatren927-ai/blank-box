@@ -597,20 +597,6 @@ html.tv-mode .bb-tv-console [data-testid="news-ticker"] .animate-ticker {
   text-transform: uppercase;
 }
 
-.bb-tv-dial {
-  position: absolute;
-  top: 44%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  border: 2px solid rgba(255,255,255,.85);
-  background: rgba(0,0,0,.8);
-  padding: 5px 24px;
-  color: #a4ff9c;
-  font-size: clamp(40px, 6vw, 74px);
-  font-weight: 800;
-  letter-spacing: .16em;
-}
-
 .bb-tv-now-playing {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) minmax(155px, .48fr);
