@@ -74,7 +74,9 @@ function AppContent() {
   }, [accountSyncReady, network])
 
   useEffect(() => {
-    const timer = window.setInterval(() => setNow(Date.now()), 1000)
+    // A five-second clock tick keeps the EPG current without forcing a full app
+    // render every second on constrained Android TV WebViews.
+    const timer = window.setInterval(() => setNow(Date.now()), 5000)
     return () => window.clearInterval(timer)
   }, [])
 
