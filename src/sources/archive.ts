@@ -182,8 +182,10 @@ export const archiveAdapter: SourceAdapter = {
   fromHit: (hit) => resolveArchive(hit.id, hit.title, hit.year),
   fromHitMany: (hit) => resolveArchiveFiles(hit.id, hit.title, hit.year),
   fromPaste: async (text) => {
-    const match = text.trim().match(/(?:https?:\\/\\/(?:www\\.)?archive\\.org\\/details\\/)?([a-z0-9][a-z0-9._-]{4,99})/i)
-    if (!match) return []
-    return resolveArchiveFiles(decodeURIComponent(match[1]))
+    const identifier = text.trim()
+      .replace(/^https?:\/\/(?:www\.)?archive\.org\/details\//i, '')
+      .split(/[/?#]/)[0]
+    if (!identifier || !/^[a-z0-9][a-z0-9._-]{4,99}$/i.test(identifier)) return []
+    return resolveArchiveFiles(decodeURIComponent(identifier))
   },
 }
