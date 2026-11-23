@@ -179,13 +179,14 @@ test('iPhone Safari opens the native AirPlay picker for the current video', asyn
     const key = 'blankbox:network:v1'
     const value = JSON.parse(localStorage.getItem(key) || '{}')
     for (const channel of value.channels ?? []) {
-      for (const program of channel.programs ?? []) program.playUrl = 'https://example.com/test.mp4'
+      for (const program of channel.programs ?? []) program.playUrl = 'data:video/mp4;base64,AAAA'
     }
     localStorage.setItem(key, JSON.stringify(value))
   })
   await page.reload()
   const airplay = page.getByTestId('cast-button')
   await expect(airplay).toBeVisible()
+  await expect(page.locator('[data-testid="crt-player"] video')).toBeAttached()
   await expect(airplay).toContainText('AIRPLAY')
   await airplay.click()
   await expect(page.getByRole('status')).toContainText('Select your Apple TV')
