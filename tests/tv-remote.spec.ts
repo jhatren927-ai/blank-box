@@ -80,9 +80,13 @@ test('guide D-pad changes the selected channel and OK tunes it', async ({ page }
   expect(Math.abs(rowBoxes[0] - rowBoxes[1])).toBeLessThan(2)
   await expect(channelButtons.nth(0)).toBeFocused()
 
+  const rowsViewport = guide.getByTestId('tv-guide-rows')
+  const scrollBeforeSelection = await rowsViewport.evaluate((node) => node.scrollTop)
   await page.keyboard.press('ArrowDown')
   await expect(channelButtons.nth(1)).toBeFocused()
   await expect(channelButtons.nth(1)).toHaveAttribute('aria-pressed', 'true')
+  // Selection changes cannot yank the automatically crawling lineup.
+  await expect.poll(() => rowsViewport.evaluate((node) => Math.abs(node.scrollTop - scrollBeforeSelection))).toBeLessThan(20)
   await page.keyboard.press('Enter')
   await expect(guide).toBeHidden()
   await expect(page.getByTestId('tv-live-lower-third')).toContainText('Second Channel')
