@@ -238,7 +238,7 @@ test('web guide does not accept manual scrolling; only the automatic crawl moves
   await expect(viewport).toBeVisible()
   await expect(viewport).toHaveAttribute('aria-label', 'Automatically advancing television program guide')
   await expect(viewport).not.toHaveAttribute('tabindex', '0')
-  await expect(viewport).toHaveAttribute('style', /overflow-y:\s*hidden/)
+  await expect(viewport).toHaveAttribute('style', /overflow:\\s*hidden/)
 
   // Both horizontal and vertical wheel events must be canceled without
   // changing the viewport. Capture in the document's bubble phase, after the
