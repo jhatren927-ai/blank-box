@@ -9,6 +9,7 @@ import {
   Plus,
   Power,
   Pencil,
+  Star,
   Tv,
   Volume2,
   VolumeX,
@@ -44,6 +45,7 @@ interface TvExperienceProps {
   onRate: () => void
   onLogo: () => void
   onLast: () => void
+  onFav: (id: string) => void
   onSurprise: () => void
   onHelp: () => void
   onDigit: (digit: string) => void
@@ -74,6 +76,7 @@ export function TvExperience({
   onRate,
   onLogo,
   onLast,
+  onFav,
   onSurprise,
   onHelp,
   onDigit,
@@ -182,6 +185,9 @@ export function TvExperience({
                     <span className="bb-station-number">{padChannel(item.number)}</span>
                     <span className={'bb-station-callsign ' + lookById(item.look).bug}>{item.callsign}</span>
                     <span className="bb-station-name">{item.name}</span>
+                  </button>
+                  <button type="button" className="bb-station-fav" aria-label={prefs.favs.includes(item.id) ? 'Unfavorite ' + item.name : 'Favorite ' + item.name} aria-pressed={prefs.favs.includes(item.id)} onClick={() => onFav(item.id)}>
+                    <Star size={14} fill={prefs.favs.includes(item.id) ? 'currentColor' : 'none'} />
                   </button>
                   <button type="button" className="bb-station-edit" aria-label={'Edit ' + item.name} onClick={() => onEdit(item.id)}>
                     <Pencil size={15} />
