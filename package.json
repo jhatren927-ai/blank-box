@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "verify": "playwright test tests/tv-remote.spec.ts",
+    "verify": "node --test tests/tv-launch.test.mjs && playwright test tests/tv-remote.spec.ts",
     "verify:integration": "playwright test tests/network.spec.ts"
   },
   "dependencies": {
