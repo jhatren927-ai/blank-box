@@ -194,8 +194,7 @@ export function WebTvExperience({
 
         <aside className="bb-cable-receiver" data-testid="cable-remote">
           <div className="bb-receiver-brand">
-            <div className="bb-receiver-logo">BB<span>TV</span></div>
-            <div>
+            <div className="bb-receiver-brand-copy">
               <strong>BLANK BOX</strong>
               <small>DIGITAL CABLE RECEIVER · MODEL 1995</small>
             </div>
@@ -209,6 +208,15 @@ export function WebTvExperience({
               <span>{prefs.muted ? 'MUTE' : 'STEREO'}</span>
               <span className="bb-led-clock">{clock(now)}</span>
             </div>
+          </div>
+
+          <div className="bb-remote-footer">
+            <button type="button" onClick={onNew} className="bb-add-channel" data-testid="tv-add-channel">
+              <Plus size={17} /> ADD CHANNEL
+            </button>
+            <button type="button" onClick={onSurprise} className="bb-surprise" data-testid="tv-surprise">
+              <Power size={16} /> SURPRISE ME
+            </button>
           </div>
 
           <div className="bb-remote-section-label">CHANNEL CONTROL</div>
@@ -259,22 +267,13 @@ export function WebTvExperience({
               <Disc3 size={17} /> CRT {prefs.crt ? 'ON' : 'OFF'}
             </button>
             <button type="button" onClick={onAspect} data-testid="tv-aspect">
-              <Tv size={17} /> {prefs.aspect}
+              ASPECT {prefs.aspect}
             </button>
             <button type="button" onClick={onRate} data-testid="tv-speed">
               <Disc3 size={17} /> SPEED {prefs.rate}×
             </button>
             <button type="button" onClick={onLogo} data-testid="tv-logo">
-              <Tv size={17} /> LOGO {prefs.logo ? 'ON' : 'OFF'}
-            </button>
-          </div>
-
-          <div className="bb-remote-footer">
-            <button type="button" onClick={onNew} className="bb-add-channel" data-testid="tv-add-channel">
-              <Plus size={17} /> ADD CHANNEL
-            </button>
-            <button type="button" onClick={onSurprise} className="bb-surprise" data-testid="tv-surprise">
-              <Power size={16} /> SURPRISE ME
+              LOGO {prefs.logo ? 'ON' : 'OFF'}
             </button>
           </div>
 
