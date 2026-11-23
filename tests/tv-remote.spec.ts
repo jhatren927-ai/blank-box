@@ -98,8 +98,8 @@ test('guide left and right move across program listings instead of changing the 
   }
   await page.evaluate((value) => {
     localStorage.setItem('blankbox:network:v1', JSON.stringify(value))
-    window.location.reload()
   }, listing)
+  await page.reload()
   await expect(page.getByTestId('tv-experience')).toBeVisible()
   await page.keyboard.press('Enter')
   const guide = page.getByTestId('tv-guide-overlay')
