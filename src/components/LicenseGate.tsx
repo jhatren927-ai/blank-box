@@ -73,7 +73,7 @@ export function LicenseGate({ children }: { children: ReactNode }) {
         <input type="email" autoComplete="username" required value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-base text-white outline-none focus:border-yellow-300" />
       </label>
       <label className="block text-sm font-semibold text-slate-300">Six-digit passcode
-        <input type="password" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} autoComplete="one-time-code" required value={code} onChange={e => setCode(e.target.value.replace(/\\D/g, "").slice(0, 6))} placeholder="000000" className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-base text-white outline-none focus:border-yellow-300" />
+        <input type="password" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} autoComplete="one-time-code" required value={code} onChange={e => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="000000" className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-base text-white outline-none focus:border-yellow-300" />
       </label>
       {error && <p role="alert" className="rounded-lg bg-red-950/60 p-3 text-sm text-red-200">{error}</p>}
       <button disabled={busy} className="w-full rounded-xl bg-yellow-300 px-4 py-3 font-bold text-slate-950 disabled:opacity-60">{busy ? 'Checking…' : 'Sign in'}</button>
