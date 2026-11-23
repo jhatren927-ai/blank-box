@@ -18,6 +18,8 @@ interface TvExperienceProps {
   menuOpen: boolean
   onSelectGuideChannel: (id: string) => void
   onUnmute: () => void
+  onToggleMute: () => void
+  onVolumeChange: (volume: number) => void
   onCloseMenu: () => void
   onExitVod: () => void
   onProgramDuration: (programId: string, seconds: number) => void
@@ -48,6 +50,8 @@ export function TvExperience({
   menuOpen,
   onSelectGuideChannel,
   onUnmute,
+  onToggleMute,
+  onVolumeChange,
   onCloseMenu,
   onExitVod,
   onProgramDuration,
@@ -129,7 +133,7 @@ export function TvExperience({
               <time>{clock(now)}</time>
             </div>
             <div className="bb-tv-watch-hint" aria-hidden="true">
-              ▲ / ▼ CHANNEL <i /> OK GUIDE <i /> 0–9 DIRECT TUNE <i /> M SOUND <i /> BACK MENU
+              ▲ / ▼ CHANNEL <i /> OK GUIDE <i /> 0–9 DIRECT TUNE <i /> BACK MENU
             </div>
             {channel && showLowerThird && (
               <div className="bb-tv-live-lower-third" data-testid="tv-live-lower-third">
@@ -267,6 +271,17 @@ export function TvExperience({
             <p className="bb-tv-menu-kicker">YOUR PERSONAL CABLE SYSTEM</p>
             <h2>TELEVISION MENU</h2>
             <p className="bb-tv-menu-current">{currentChannel}{channel && live ? `  ·  ${live.program.title}` : ''}</p>
+            <div className="bb-tv-menu-sound-actions">
+              <button type="button" data-testid="tv-menu-sound" onClick={onToggleMute}>
+                SOUND {prefs.muted ? 'ON' : 'OFF'}
+              </button>
+              <button type="button" data-testid="tv-menu-volume-down" onClick={() => onVolumeChange(Math.max(0, prefs.volume - 0.1))}>
+                VOL −
+              </button>
+              <button type="button" data-testid="tv-menu-volume-up" onClick={() => onVolumeChange(Math.min(1, prefs.volume + 0.1))}>
+                VOL +
+              </button>
+            </div>
             <div className="bb-tv-menu-actions">
               <button type="button" data-testid="tv-menu-return" onClick={onCloseMenu}>RETURN TO BROADCAST</button>
               <button type="button" data-testid="tv-menu-build" onClick={onNew}>EDIT / ADD CHANNELS</button>
