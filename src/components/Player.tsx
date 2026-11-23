@@ -63,7 +63,7 @@ function StaticSnow() {
     const canvas = ref.current
     const ctx = canvas?.getContext('2d')
     if (!canvas || !ctx) return
-    let frame = 0
+    let timer = 0
     const image = ctx.createImageData(canvas.width, canvas.height)
     const draw = () => {
       for (let i = 0; i < image.data.length; i += 4) {
@@ -74,10 +74,12 @@ function StaticSnow() {
         image.data[i + 3] = 255
       }
       ctx.putImageData(image, 0, 0)
-      frame = requestAnimationFrame(draw)
+      // Static is decorative; 12fps is enough and avoids a full-rate canvas loop
+      // competing with video decoding on low-memory Android TV devices.
+      timer = window.setTimeout(draw, 1000 / 12)
     }
     draw()
-    return () => cancelAnimationFrame(frame)
+    return () => window.clearTimeout(timer)
   }, [])
   return <canvas ref={ref} width={160} height={90} className="h-full w-full [image-rendering:pixelated]" />
 }
@@ -133,12 +135,12 @@ function HlsVideo(props: EngineProps) {
           // Keep a useful forward buffer for variable home/TV Wi-Fi while
           // limiting memory use on low-RAM Fire TV and Android TV devices.
           lowLatencyMode: false,
-          maxBufferLength: 90,
-          maxMaxBufferLength: 180,
-          maxBufferSize: 120 * 1000 * 1000,
-          backBufferLength: 30,
+          maxBufferLength: 30,
+          maxMaxBufferLength: 45,
+          maxBufferSize: 48 * 1000 * 1000,
+          backBufferLength: 10,
           maxBufferHole: 0.8,
-          startFragPrefetch: true,
+          startFragPrefetch: false,
           highBufferWatchdogPeriod: 3,
           nudgeOffset: 0.2,
           nudgeMaxRetry: 5,
