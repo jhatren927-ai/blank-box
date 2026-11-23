@@ -92,7 +92,6 @@ export function WebTvExperience({
                 onCastTargetChange={onCastTargetChange}
                 onProgramDuration={onProgramDuration}
               />
-              {dial && <div className="bb-tv-dial" aria-hidden="true">{dial}</div>}
             </div>
           </div>
 
