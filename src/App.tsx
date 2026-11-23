@@ -447,7 +447,7 @@ function AppContent() {
                 setTvMenuOpen(false)
                 setHelp(true)
               }}
-
+            />
           ) : (
             <>
           <Ticker channels={ordered} now={now} />
