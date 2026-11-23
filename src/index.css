@@ -4613,3 +4613,73 @@ html.tv-mode .bb-tv-console .bb-cable-receiver {
 html.tv-mode .bb-tv-console > .bb-tv-guide-section {
   margin-block-start: 0 !important;
 }
+
+
+/* Reassert the narrow-screen layout after the desktop cascade lock above. */
+@media (max-width: 760px) {
+  html.tv-mode .bb-tv-console {
+    width: calc(100% - 16px);
+    margin: 8px auto 0;
+    row-gap: 10px;
+  }
+
+  html.tv-mode .bb-tv-console .bb-tv-main-grid {
+    width: 100%;
+    max-width: 560px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    align-items: start;
+  }
+
+  html.tv-mode .bb-tv-console .bb-tv-broadcast,
+  html.tv-mode .bb-tv-console .bb-cable-receiver {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+  }
+
+  html.tv-mode .bb-tv-console .bb-tv-screen-bezel {
+    width: 100%;
+    max-width: none;
+  }
+
+  html.tv-mode .bb-tv-console .bb-cable-receiver {
+    align-self: start;
+    grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+  }
+
+  html.tv-mode .bb-tv-console .bb-tv-guide-section {
+    width: 100%;
+    max-width: none;
+    padding: 5px;
+  }
+
+  html.tv-mode .bb-tv-console .bb-tv-guide-section #guide [data-testid="guide-viewport"] {
+    height: min(58vh, 520px);
+    min-height: 280px;
+  }
+}
+
+@media (max-width: 460px) {
+  html.tv-mode .bb-tv-console {
+    width: calc(100% - 12px);
+  }
+
+  html.tv-mode .bb-tv-console .bb-tv-main-grid {
+    max-width: 460px;
+  }
+
+  html.tv-mode .bb-tv-console .bb-cable-receiver {
+    gap: 5px 7px;
+    padding: 7px;
+  }
+
+  html.tv-mode .bb-tv-console .bb-number-pad {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  html.tv-mode .bb-tv-console .bb-tv-guide-section #guide .bb-guide-time-row,
+  html.tv-mode .bb-tv-console .bb-tv-guide-section #guide .bb-guide-row {
+    grid-template-columns: 112px minmax(0, 1fr) !important;
+  }
+}
