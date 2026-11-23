@@ -204,6 +204,12 @@ test('regular website uses the original Downloader receiver layout and remote-on
   const cast = page.getByTestId('cast-button')
   await expect(cast).toBeVisible()
   await expect(page.getByTestId('remote-cast-slot').getByTestId('cast-button')).toBeVisible()
+  const remoteBounds = await page.getByTestId('cable-remote').boundingBox()
+  const castBounds = await page.getByTestId('remote-cast-slot').boundingBox()
+  expect(remoteBounds).not.toBeNull()
+  expect(castBounds).not.toBeNull()
+  expect(remoteBounds!.bottom - castBounds!.bottom).toBeGreaterThanOrEqual(0)
+  expect(remoteBounds!.bottom - castBounds!.bottom).toBeLessThanOrEqual(20)
   await expect(page.locator('.bb-tv-screen-inner [data-testid="cast-button"]')).toHaveCount(0)
   await expect(page.locator('.bb-tv-console [data-testid="cast-button"]')).toHaveCount(1)
 
@@ -553,7 +559,7 @@ test('desktop website keeps the player and remote compact together and makes the
       remoteAlignContent: getComputedStyle(document.querySelector('[data-testid="cable-remote"]')!).alignContent,
       channelLabelGap: rect('.bb-channel-rockers').y - rect('.bb-cable-receiver > .bb-remote-section-label:nth-child(4)').bottom,
       keypadLabelGap: rect('.bb-number-pad').y - rect('.bb-cable-receiver > .bb-remote-section-label:nth-child(6)').bottom,
-      advancedBottomGap: rect('[data-testid="cable-remote"] .bb-remote-advanced').bottom - rect('[data-testid="cable-remote"]').bottom,
+      advancedBottomGap: rect('[data-testid="cable-remote"]').bottom - rect('[data-testid="cable-remote"] .bb-remote-advanced').bottom,
     }
   })
 
@@ -577,6 +583,7 @@ test('desktop website keeps the player and remote compact together and makes the
   expect(layout.channelLabelGap).toBeLessThanOrEqual(10)
   expect(layout.keypadLabelGap).toBeGreaterThanOrEqual(0)
   expect(layout.keypadLabelGap).toBeLessThanOrEqual(10)
+  expect(layout.advancedBottomGap).toBeGreaterThanOrEqual(0)
   expect(layout.advancedBottomGap).toBeLessThanOrEqual(25)
 
   await page.setViewportSize({ width: 390, height: 844 })
