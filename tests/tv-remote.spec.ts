@@ -295,6 +295,7 @@ test('native TV Prevue guide automatically crawls the complete channel lineup', 
     }
   })
   await page.reload()
+  await expect(page.getByTestId('tv-experience')).toBeVisible()
   await page.keyboard.press('Enter')
   const guide = page.getByTestId('tv-guide-overlay')
   await expect(guide).toBeVisible()
