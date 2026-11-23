@@ -242,9 +242,11 @@ test('web guide does not accept manual scrolling; only the automatic crawl moves
   // browser dispatches the wheel event; a manual 900 px scroll would be far larger.
   expect(Math.abs(afterWheel - beforeWheel)).toBeLessThan(10)
 
-  await viewport.locator('[data-testid="guide-tune"]').first().focus()
+  const firstProgram = viewport.locator('[data-testid="guide-tune"]').first()
+  await firstProgram.focus()
   const beforeKey = await viewport.evaluate((node) => node.scrollTop)
   await page.keyboard.press('ArrowDown')
+  // D-pad focus may change, but it must not call scrollIntoView on the guide.
   await expect.poll(async () => Math.abs((await viewport.evaluate((node) => node.scrollTop)) - beforeKey)).toBeLessThan(10)
 })
 
