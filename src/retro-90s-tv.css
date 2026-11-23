@@ -2085,20 +2085,29 @@ html.tv-mode:not([data-tv-app="true"]) .bb-guide-scroll {
 
 
 
-/* Compact, top-aligned receiver controls: keep each label directly above its
-   buttons instead of distributing the grid rows across the full player height. */
+/* Keep functional groups compact while using the full receiver height:
+   tuning keys stay together beneath their labels; extra height is reserved
+   for the advanced controls and the cast dock instead of spacing every row. */
 @media (min-width: 761px) {
   html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-cable-receiver {
     align-self: stretch;
-    align-content: start;
-    grid-auto-rows: min-content;
+    align-content: stretch;
+    grid-template-areas:
+      "brand brand"
+      "display display"
+      "actions actions"
+      "channel-label access-label"
+      "rockers keypad"
+      "advanced advanced"
+      "cast cast";
+    grid-template-rows: repeat(5, min-content) minmax(0, 1fr) min-content;
     row-gap: 7px;
     padding: 10px;
   }
 
   html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-remote-section-label {
     align-self: end;
-    margin-top: 3px;
+    margin-top: 0;
   }
 
   html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-channel-rockers,
@@ -2107,11 +2116,20 @@ html.tv-mode:not([data-tv-app="true"]) .bb-guide-scroll {
   }
 
   html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-remote-footer {
-    margin-bottom: 3px;
+    margin-bottom: 0;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-remote-advanced {
+    align-self: end;
+    width: 100%;
+    margin: 0;
   }
 
   html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-receiver-cast {
-    margin-top: 5px;
+    align-self: end;
+    width: 100%;
+    margin: 0;
+    border-top: 1px solid #5279a8;
     padding-top: 8px;
   }
 }
