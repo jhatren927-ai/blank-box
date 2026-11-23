@@ -1932,8 +1932,8 @@ html.tv-mode:not([data-tv-app="true"]) .bb-guide-scroll {
   }
   html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-cable-receiver {
     align-self: stretch;
-    align-content: space-between;
-    gap: 8px;
+    align-content: start;
+    gap: 4px 8px;
     padding: 10px;
   }
 }
@@ -1947,8 +1947,8 @@ html.tv-mode:not([data-tv-app="true"]) .bb-guide-scroll {
   }
   html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-cable-receiver {
     align-self: stretch;
-    align-content: space-between;
-    gap: 8px;
+    align-content: start;
+    gap: 4px 8px;
     padding: 10px;
   }
 }
@@ -1962,8 +1962,8 @@ html.tv-mode:not([data-tv-app="true"]) .bb-guide-scroll {
   }
   html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-cable-receiver {
     align-self: stretch;
-    align-content: space-between;
-    gap: 8px;
+    align-content: start;
+    gap: 4px 8px;
     padding: 10px;
   }
 }
