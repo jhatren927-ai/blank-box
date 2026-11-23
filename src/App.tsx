@@ -291,7 +291,7 @@ function AppContent() {
                 : event.key === 'ArrowRight' ? dx
                   : event.key === 'ArrowUp' ? -dy : dy
               const cross = event.key === 'ArrowLeft' || event.key === 'ArrowRight' ? Math.abs(dy) : Math.abs(dx)
-              return { element, primary, score: primary + cross * 1.7 }
+              return { element, primary, score: primary + cross * 3 }
             })
             .filter((candidate) => candidate.primary > 4)
             .sort((a, b) => a.score - b.score)
@@ -394,7 +394,6 @@ function AppContent() {
               now={now}
               vod={vod}
               prefs={prefs}
-              castTarget={castTarget}
               screenRef={screenRef}
               guideOpen={tvGuideOpen}
               selectedGuideId={guideSelectedId}
@@ -405,7 +404,6 @@ function AppContent() {
               onCloseGuide={() => setTvGuideOpen(false)}
               onCloseMenu={() => setTvMenuOpen(false)}
               onExitVod={() => setVod(null)}
-              onCastTargetChange={updateCastTarget}
               onUnmute={() => store.patchPrefs({ muted: false, volume: Math.max(prefs.volume, 0.4) })}
               onProgramDuration={(programId, seconds) => {
                 if (!current) return
