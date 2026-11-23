@@ -3096,3 +3096,106 @@ html.tv-mode .bb-tv-statusline {
     display: none;
   }
 }
+
+
+/* Prevue Channel presentation: a broadcast timetable, not modern cards. */
+.bb-web-guide-wrap #guide {
+  border: 2px solid #8a9db9;
+  border-radius: 0;
+  background: #000044;
+  box-shadow: inset 0 1px #c7d1e0, inset 0 -2px #00001d, 0 4px 12px #0009;
+}
+.bb-web-guide-wrap #guide > div:first-child {
+  border-bottom: 2px solid #879ab5;
+  border-radius: 0;
+  background: #07166c;
+  padding: 7px 10px;
+}
+.bb-web-guide-wrap #guide h2 {
+  color: #ffed91;
+  font-family: "Arial Narrow", Arial, sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-shadow: 1px 1px #15245c;
+}
+.bb-web-guide-wrap #guide [data-testid="guide-time-label"],
+.bb-web-guide-wrap #guide [data-testid="guide-time-label"] + div {
+  border-color: #8a9db9;
+  background: #182d8a;
+  color: #fff09a;
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  font-weight: 700;
+}
+.bb-web-guide-wrap #guide [data-testid="guide-row"] {
+  min-height: 64px;
+  border-bottom: 1px solid #687ca7;
+  background: #080c68;
+}
+.bb-web-guide-wrap #guide [data-testid="guide-row"]:nth-child(even) {
+  background: #111b79;
+}
+.bb-web-guide-wrap #guide [data-testid="guide-row"] > button {
+  min-height: 64px;
+  border-right: 2px solid #879ab5;
+  border-radius: 0;
+  background: transparent;
+  padding: 4px 8px;
+}
+.bb-web-guide-wrap #guide .bb-guide-channel-number {
+  color: #fff09a;
+  font-family: "Courier New", monospace;
+  font-size: 23px;
+  font-weight: 700;
+}
+.bb-web-guide-wrap #guide .bb-guide-channel-callsign {
+  color: #fff;
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .04em;
+}
+.bb-web-guide-wrap #guide .bb-guide-channel-name {
+  color: #b8caff;
+  font-family: "Courier New", monospace;
+  font-size: 9px;
+}
+.bb-web-guide-wrap #guide [data-testid="guide-row"] > div {
+  min-height: 64px;
+  height: 64px;
+  border-left: 0;
+}
+.bb-web-guide-wrap #guide .bb-guide-program-cell {
+  border-right: 1px solid #8192b7;
+  border-radius: 0;
+  background: #0b1678;
+  padding: 5px 8px;
+  box-shadow: inset 0 1px #ffffff16;
+}
+.bb-web-guide-wrap #guide .bb-guide-program-cell[data-on-now="true"] {
+  border-left: 3px solid #ff4545;
+  background: #172ca1;
+}
+.bb-web-guide-wrap #guide .bb-guide-program-cell p:first-child {
+  color: #fff;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.15;
+  text-transform: none;
+}
+.bb-web-guide-wrap #guide .bb-guide-program-cell p:last-child {
+  color: #fff09a;
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+}
+.bb-web-guide-wrap #guide [data-testid="guide-row"] > button.bg-yellow-400,
+.bb-web-guide-wrap #guide [data-testid="guide-row"] > button:focus-visible {
+  background: #fff09a;
+  color: #080b42;
+}
+@media (max-width: 640px) {
+  .bb-web-guide-wrap #guide > div:nth-child(2) { overflow-x: auto; }
+  .bb-web-guide-wrap #guide [data-testid="guide-viewport"] { height: min(58vh, 520px); min-height: 320px; }
+}
