@@ -82,8 +82,18 @@ test('guide D-pad changes the selected channel and OK tunes it', async ({ page }
 
 
 test('native APK launch activates TV mode without relying on Android TV user-agent detection', async ({ page }) => {
-  await page.addInitScript(() => {
-    document.documentElement.dataset.tvApp = 'true'
+  await page.route('**/*', async (route) => {
+    const url = new URL(route.request().url())
+    if (url.pathname !== '/' || route.request().method() !== 'GET') {
+      await route.continue()
+      return
+    }
+    const response = await route.fetch()
+    const html = await response.text()
+    await route.fulfill({
+      response,
+      body: html.replace('<head>', '<head><script>document.documentElement.dataset.tvApp = "true";</script>'),
+    })
   })
   await page.goto('/')
   await expect(page.getByTestId('tv-experience')).toBeVisible()
