@@ -13,6 +13,10 @@ const network = {
 }
 
 test.beforeEach(async ({ page }) => {
+  page.on('pageerror', (error) => console.log('TV PAGE ERROR:', error.stack || error.message))
+  page.on('console', (message) => {
+    if (message.type() === 'error') console.log('TV CONSOLE ERROR:', message.text())
+  })
   await page.addInitScript(({ network }) => {
     localStorage.setItem('blankbox:network:v1', JSON.stringify(network))
     localStorage.setItem('blankbox:prefs:v1', JSON.stringify({
@@ -20,7 +24,8 @@ test.beforeEach(async ({ page }) => {
       logo: false, shake: false, guideScroll: false, favs: [], recent: [],
     }))
   }, { network })
-  await page.goto('/?tv=1')
+  const response = await page.goto('/?tv=1')
+  console.log('TV TEST PAGE:', response?.status(), await page.title(), (await page.locator('body').innerText()).slice(0, 500))
   await expect(page.getByTestId('tv-experience')).toBeVisible()
 })
 
