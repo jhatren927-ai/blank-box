@@ -18,7 +18,6 @@ interface TvExperienceProps {
   menuOpen: boolean
   onSelectGuideChannel: (id: string) => void
   onGuidePageChange: (page: number) => void
-  onCloseGuide: () => void
   onUnmute: () => void
   onCloseMenu: () => void
   onExitVod: () => void
@@ -49,8 +48,6 @@ export function TvExperience({
   guidePage,
   menuOpen,
   onSelectGuideChannel,
-  onGuidePageChange,
-  onCloseGuide,
   onUnmute,
   onCloseMenu,
   onExitVod,
@@ -253,11 +250,9 @@ export function TvExperience({
 
           <footer className="bb-tv-guide-footer">
             <span>▲ ▼ <b>SELECT CHANNEL</b></span>
-            <span>OK <b>WATCH</b></span>
-            <span>◀ ▶ <b>TIME PAGE</b></span>
-            <span>BACK <b>CLOSE GUIDE</b></span>
-            <span>◀ ▶ <b>CHANGE TIME</b></span>
             <span>OK <b>WATCH CHANNEL</b></span>
+            <span>◀ ▶ <b>CHANGE TIME</b></span>
+            <span>BACK <b>CLOSE GUIDE</b></span>
           </footer>
         </section>
       )}
