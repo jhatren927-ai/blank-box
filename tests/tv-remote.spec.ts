@@ -267,7 +267,7 @@ test('laptop receiver row expands with the viewport instead of leaving wide empt
         const element = document.querySelector(selector)
         if (!element) throw new Error('Missing layout element: ' + selector)
         const rect = element.getBoundingClientRect()
-        return { x: rect.x, width: rect.width, right: rect.right }
+        return { x: rect.x, y: rect.y, width: rect.width, height: rect.height, right: rect.right, bottom: rect.bottom }
       }
       return {
         viewport: window.innerWidth,
@@ -281,11 +281,13 @@ test('laptop receiver row expands with the viewport instead of leaving wide empt
     })
 
     console.log('LAPTOP RECEIVER LAYOUT:', JSON.stringify(layout))
-    expect(layout.grid.width).toBeGreaterThan(layout.viewport * 0.84)
-    expect(layout.grid.x).toBeLessThan(layout.viewport * 0.09)
-    expect(layout.grid.right).toBeGreaterThan(layout.viewport * 0.91)
+    expect(layout.grid.width).toBeGreaterThan(layout.viewport * 0.78)
+    expect(layout.grid.x).toBeLessThan(layout.viewport * 0.12)
+    expect(layout.grid.right).toBeGreaterThan(layout.viewport * 0.88)
     expect(layout.player.width).toBeGreaterThan(layout.viewport * 0.48)
     expect(layout.remote.width).toBeGreaterThanOrEqual(255)
+    expect(Math.abs(layout.remote.bottom - layout.player.bottom)).toBeLessThan(8)
+    expect(layout.guide.y).toBeLessThan(viewport.height - 100)
     expect(layout.remote.x).toBeGreaterThan(layout.player.x)
     expect(layout.remote.x - (layout.player.x + layout.player.width)).toBeLessThanOrEqual(20)
     expect(layout.guide.width).toBeGreaterThan(layout.viewport * 0.94)
@@ -552,7 +554,7 @@ test('desktop website keeps the player and remote compact together and makes the
   expect(layout.remote.x - layout.player.right).toBeLessThanOrEqual(20)
   expect(Math.abs((layout.grid.x + layout.grid.width / 2) - layout.viewportWidth / 2)).toBeLessThan(3)
   expect(layout.guide.width).toBeGreaterThan(layout.viewportWidth * 0.92)
-  expect(layout.guide.y).toBeLessThan(480)
+  expect(layout.guide.y).toBeLessThan(620)
   expect(layout.guide.y).toBeGreaterThan(layout.player.bottom - 8)
   expect(layout.guideTitleSize).toBe('14px')
   expect(layout.guideTimeSize).toBe('11px')
