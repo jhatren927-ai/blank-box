@@ -1933,7 +1933,6 @@ html.tv-mode:not([data-tv-app="true"]) .bb-guide-scroll {
   html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-cable-receiver {
     align-self: stretch;
     align-content: space-between;
-    min-height: 100%;
     gap: 8px;
     padding: 10px;
   }
@@ -1949,7 +1948,6 @@ html.tv-mode:not([data-tv-app="true"]) .bb-guide-scroll {
   html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-cable-receiver {
     align-self: stretch;
     align-content: space-between;
-    min-height: 100%;
     gap: 8px;
     padding: 10px;
   }
@@ -1965,7 +1963,6 @@ html.tv-mode:not([data-tv-app="true"]) .bb-guide-scroll {
   html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-cable-receiver {
     align-self: stretch;
     align-content: space-between;
-    min-height: 100%;
     gap: 8px;
     padding: 10px;
   }
