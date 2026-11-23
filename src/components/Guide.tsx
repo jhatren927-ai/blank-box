@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Pencil, Plus } from 'lucide-react'
 import type { Channel } from '../types.ts'
 import { clock, dayLabel, padChannel } from '../lib/format.ts'
 import { lookById } from '../lib/looks.ts'
@@ -35,6 +36,8 @@ export function Guide({
   title,
   favs,
   onTune,
+  onNew,
+  onEdit,
 }: {
   channels: Channel[]
   currentId: string | null
@@ -42,6 +45,9 @@ export function Guide({
   title: string
   favs: string[]
   onTune: (id: string) => void
+  onEdit?: (id: string) => void
+  onNew?: () => void
+  onEdit?: (id: string) => void
 }) {
   const [favOnly, setFavOnly] = useState(false)
   const guide = guideWindow(now)
@@ -65,6 +71,7 @@ export function Guide({
       windowStart={guide.start}
       span={span}
       onTune={onTune}
+      onEdit={onEdit}
       dup={dup || copy > 0}
     />
   ))
@@ -80,6 +87,8 @@ export function Guide({
           {title}
         </h2>
         <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
+          {onNew && <button type="button" data-testid="tv-add-channel" onClick={onNew} className="rounded-sm border border-[#d7b65f] bg-[#d7b65f] px-3 py-1.5 font-mono text-[10px] font-bold uppercase tracking-wide text-[#151b2b] hover:bg-[#f0d47f]"> <Plus size={13} className="mr-1 inline" /> ADD CHANNEL</button>}
           <button
             type="button"
             data-testid="guide-favs-toggle"
@@ -90,15 +99,15 @@ export function Guide({
           >
             ★ {favOnly ? `MY ${favs.length}` : 'FAVS'}
           </button>
+          </div>
         </div>
-      </div>
       {shown.length === 0 ? (
         <p className="px-4 py-8 text-center font-mono text-sm text-blue-100">
           No channels yet. Tap an empty channel and type what you want to watch.
         </p>
       ) : (
         <>
-          <div data-testid="guide-mobile-list" className="max-h-[min(60vh,460px)] divide-y-2 divide-black overflow-y-auto sm:hidden">
+          <div data-testid="guide-mobile-list" className="bb-guide-mobile-list max-h-[min(58vh,520px)] divide-y divide-black overflow-y-auto sm:hidden">
             <div
               data-testid="guide-mobile-auto-scroll"
               className={shouldAutoScroll ? 'animate-guide-scroll' : ''}
@@ -118,17 +127,18 @@ export function Guide({
                           data-testid={copy === 0 ? 'guide-mobile-tune' : undefined}
                           tabIndex={copy === 0 ? 0 : -1}
                           onClick={() => onTune(channel.id)}
-                          className={`grid min-h-[82px] w-full grid-cols-[56px_1fr] gap-2 px-3 py-3 text-left ${active ? 'bg-yellow-400 text-black' : channel.number % 2 ? 'bg-prevue-deep' : 'bg-prevue-row'}`}
+                          className={`grid min-h-[88px] w-full grid-cols-[64px_1fr] gap-3 px-3 py-3 text-left ${active ? 'bg-[#e4c66e] text-[#151b2b]' : channel.number % 2 ? 'bg-[#06245c]' : 'bg-[#0b3476]'}`}
                         >
                           <span className="flex flex-col items-start gap-1">
                             <span className={`font-mono text-xl font-bold leading-none ${active ? 'text-black' : 'text-prevue-yellow'}`}>
                               {padChannel(channel.number)}
                             </span>
-                            <span className={`max-w-full truncate rounded-[2px] border px-1 font-heading text-[9px] font-extrabold ${lookById(channel.look).bug}`}>
+                            <span className={`max-w-full truncate rounded-[2px] border border-white/30 px-1 font-heading text-[9px] font-extrabold text-white ${lookById(channel.look).bug}`}>
                               {channel.callsign}
                             </span>
                           </span>
                           <span className="min-w-0">
+                            <span className={`mb-0.5 block truncate font-mono text-[10px] font-semibold uppercase tracking-wide ${active ? 'text-black/70' : 'text-[#f0d47f]'}`}>{channel.name}</span>
                             <span className={`block truncate font-heading text-sm font-bold uppercase ${active ? 'text-black' : 'text-white'}`}>
                               {live?.program.title ?? 'Off the air'}
                             </span>
@@ -153,13 +163,13 @@ export function Guide({
           </div>
           <div className="hidden overflow-x-auto sm:block">
             <div className="min-w-[900px]">
-              <div className="grid grid-cols-[160px_minmax(0,1fr)] border-y-2 border-black bg-[#001144]">
-                <div data-testid="guide-time-label" className="border-r-2 border-black px-2 py-1 font-mono text-xs font-bold text-yellow-300">
+              <div className="grid grid-cols-[180px_minmax(0,1fr)] border-y border-[#6688b8] bg-[#061b4c]">
+                <div data-testid="guide-time-label" className="border-r border-[#6688b8] px-3 py-2 font-mono text-xs font-bold text-[#f0d47f]">
                   {dayLabel(guide.start)}
                 </div>
                 <div className="grid" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
                   {Array.from({ length: columns }, (_, index) => (
-                    <div key={index} className="border-r border-blue-900 px-2 py-1 font-mono text-xs font-bold text-white">
+                    <div key={index} className="border-r border-[#31558b] px-3 py-2 font-mono text-sm font-bold text-[#f0d47f]">
                       {clock(guide.start + index * 30 * 60 * 1000)}
                     </div>
                   ))}
@@ -177,7 +187,7 @@ export function Guide({
                     event.currentTarget.scrollBy({ top: event.key === 'ArrowUp' || event.key === 'PageUp' ? -amount : amount, behavior: 'smooth' })
                   }
                 }}
-                className="bb-guide-scroll relative h-[min(72vh,760px)] min-h-[480px] overflow-y-auto overflow-x-hidden overscroll-y-contain focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-300"
+                className="bb-guide-scroll relative h-[min(56vh,620px)] min-h-[440px] overflow-y-auto overflow-x-hidden overscroll-y-contain focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#f0d47f]"
               >
                 <div
                   data-testid="guide-auto-scroll"
@@ -190,7 +200,7 @@ export function Guide({
                     (_, copy) => renderRows(true, copy),
                   )}
                 </div>
-                <div className="pointer-events-none absolute inset-y-0 left-[160px] right-0">
+                <div className="pointer-events-none absolute inset-y-0 left-[180px] right-0">
                   <div
                     data-testid="guide-now-marker"
                     className="absolute inset-y-0 w-0.5 bg-red-500 shadow-[0_0_8px_#ef4444]"
@@ -213,6 +223,7 @@ function GuideRow({
   windowStart,
   span,
   onTune,
+  onEdit,
   dup = false,
 }: {
   channel: Channel
@@ -221,27 +232,34 @@ function GuideRow({
   windowStart: number
   span: number
   onTune: (id: string) => void
+  onEdit?: (id: string) => void
   dup?: boolean
 }) {
   const slots = slotsCovering(channel, windowStart, windowStart + span)
   return (
     <div
       data-testid={dup ? undefined : 'guide-row'}
-      className={`grid grid-cols-[160px_minmax(0,1fr)] border-b-2 border-black ${channel.number % 2 ? 'bg-prevue-deep' : 'bg-prevue-row'}`}
+      className={`grid grid-cols-[180px_minmax(0,1fr)] border-b border-[#31558b] ${channel.number % 2 ? 'bg-[#08245c]' : 'bg-[#0b3476]'}`}
     >
-      <button
-        type="button"
-        data-testid={dup ? undefined : 'guide-tune'}
-        onClick={() => onTune(channel.id)}
-        className={`flex flex-col items-start justify-center gap-1 border-r-2 border-black px-2 py-2 text-left hover:bg-[#0000aa] ${active ? 'bg-yellow-400 hover:bg-yellow-300' : ''}`}
-      >
-        <span className={`font-mono text-xl font-bold leading-none ${active ? 'text-black' : 'text-prevue-yellow'}`}>
-          {padChannel(channel.number)}
-        </span>
-        <span className={`rounded-[2px] border px-1 font-heading text-[10px] font-extrabold tracking-wider ${lookById(channel.look).bug}`}>
-          {channel.callsign}
-        </span>
-      </button>
+      <div className={`flex min-w-0 items-stretch border-r border-[#31558b] ${active ? 'bg-[#e4c66e]' : 'bg-[#061b4c]'}`}>
+        <button
+          type="button"
+          data-testid={dup ? undefined : 'guide-tune'}
+          onClick={() => onTune(channel.id)}
+          className="flex min-w-0 flex-1 flex-col items-start justify-center gap-1 px-3 py-2 text-left hover:bg-[#17458b]"
+        >
+          <span className={`font-mono text-xl font-bold leading-none ${active ? 'text-[#171d2b]' : 'text-[#f0d47f]'}`}>
+            {padChannel(channel.number)}
+          </span>
+          <span className="max-w-full truncate font-heading text-[10px] font-extrabold tracking-wider text-white">
+            {channel.callsign}
+          </span>
+          <span className={`bb-station-name max-w-full truncate font-mono text-[10px] ${active ? 'text-[#171d2b]' : 'text-[#c6d5ec]'}`}>
+            {channel.name}
+          </span>
+        </button>
+        {onEdit && <button type="button" aria-label={`Edit ${channel.name}`} title={`Edit ${channel.name}`} onClick={() => onEdit(channel.id)} className="w-8 shrink-0 border-l border-[#31558b] text-[#d6c17d] hover:bg-[#17458b] hover:text-white"><Pencil size={13} className="mx-auto" /></button>}
+      </div>
       <div className="relative h-16 overflow-hidden">
         {slots.length === 0 && (
           <div className="flex h-full items-center px-3 font-mono text-xs uppercase text-blue-200">Off the air</div>
