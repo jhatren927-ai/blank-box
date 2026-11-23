@@ -61,6 +61,9 @@ export function LicenseGate({ children }: { children: ReactNode }) {
     localStorage.removeItem(TOKEN_KEY); setToken(''); setUser(null); setAdminOpen(false)
   }
 
+  // Playwright-only bypass. It is impossible in production builds because DEV is false.
+  if (import.meta.env.DEV && import.meta.env.VITE_E2E_TEST_MODE === 'true') return <>{children}</>
+
   if (checking) return <GateFrame><p className="text-slate-300">Checking your license…</p></GateFrame>
   if (!user) return <GateFrame>
     <div className="mb-7 text-center">
