@@ -17,7 +17,6 @@ interface TvExperienceProps {
   guidePage: number
   menuOpen: boolean
   onSelectGuideChannel: (id: string) => void
-  onChangeGuidePage: (direction: number) => void
   onUnmute: () => void
   onToggleMute: () => void
   onVolumeChange: (volume: number) => void
@@ -50,7 +49,6 @@ export function TvExperience({
   guidePage,
   menuOpen,
   onSelectGuideChannel,
-  onChangeGuidePage,
   onUnmute,
   onToggleMute,
   onVolumeChange,
