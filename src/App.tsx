@@ -386,11 +386,11 @@ function AppContent() {
   }
 
   return (
-    <div className="min-h-screen bg-chassis text-slate-100">
-      {!tvMode && <header className="sticky top-0 z-40 border-b border-black bg-[#0c1220]/95 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-end gap-3 px-3 py-2">
+    <div className={tvMode ? "min-h-screen bg-chassis text-slate-100" : "bb-web-shell min-h-screen text-slate-100"}>
+      {!tvMode && <header className="bb-web-header sticky top-0 z-40 backdrop-blur">
+        <div className="bb-web-header-inner mx-auto flex max-w-6xl items-end gap-3 px-3 py-2">
           <div className="min-w-0 flex-1">
-            <p className="font-heading text-[10px] font-black tracking-[0.28em] text-slate-500">{tvMode ? 'LOCAL CABLE TELEVISION  /  EST. 1995' : 'BLANK BOX'}</p>
+            <p className="bb-web-kicker font-heading text-[10px] font-black tracking-[0.28em]">{tvMode ? 'LOCAL CABLE TELEVISION  /  EST. 1995' : 'BLANK BOX'}</p>
             <input
               data-testid="network-name"
               aria-label="Network name"
@@ -400,12 +400,12 @@ function AppContent() {
               onBlur={() => {
                 if (!network.name.trim()) store.setName(networkName(String(Date.now())))
               }}
-              className="w-full bg-transparent font-heading text-2xl font-black uppercase tracking-tight text-white outline-none sm:text-3xl"
+              className="bb-web-network-name w-full bg-transparent font-heading text-2xl font-black uppercase tracking-tight outline-none sm:text-3xl"
             />
           </div>
-          <p className="pb-1 font-mono text-sm text-yellow-300 tabular-nums">{clock(now)}</p>
+          <p className="bb-web-clock pb-1 font-mono text-sm tabular-nums">{clock(now)}</p>
         </div>
-        <nav className="mx-auto flex max-w-6xl gap-2 overflow-x-auto px-3 pb-3">
+        <nav className="bb-web-nav mx-auto flex max-w-6xl gap-2 overflow-x-auto px-3 pb-3">
           <NavButton testId="nav-tv" active={view === 'tv'} onClick={() => setView('tv')}>
             {tvMode ? 'LIVE TV' : 'TV'}
           </NavButton>
@@ -503,7 +503,7 @@ function AppContent() {
               {dial}
             </div>
           )}
-          <main className="mx-auto grid w-full max-w-none grid-cols-1 items-start gap-4 px-3 py-4 lg:grid-cols-[minmax(0,2fr)_minmax(280px,0.85fr)] lg:gap-5">
+          <main className="bb-web-main mx-auto grid w-full max-w-none grid-cols-1 items-start gap-4 px-3 py-4 lg:grid-cols-[minmax(0,2fr)_minmax(280px,0.85fr)] lg:gap-5">
             <Player
               screenRef={screenRef}
               channel={current}
@@ -571,7 +571,7 @@ function AppContent() {
               onClearRecent={() => store.patchPrefs({ recent: [] })}
             />
           </main>
-          <div className="mx-auto w-full max-w-none px-3 pb-10">
+          <div className="bb-web-guide-wrap mx-auto w-full max-w-none px-3 pb-10">
             <Guide
               channels={ordered}
               currentId={current?.id ?? null}
