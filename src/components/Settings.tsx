@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { toDataURL } from 'qrcode'
-import { accounts } from '../auth/accounts.ts'
 import { cloudShareUrl, getCloudKeyFromInput, loadCloudNetwork, saveCloudNetwork } from '../lib/cloudSave.ts'
 import { isPin } from '../lib/pin.ts'
 import { decodeNetwork, encodeNetwork } from '../lib/sync.ts'
@@ -282,11 +281,7 @@ export function Settings({
 
       <div className="rounded-md border border-[#1e293b] bg-[#101624] p-4 font-mono text-sm text-slate-300">
         <p>Blank Box plays videos from the places you pick. Archive.org starts on free movies. YouTube keeps its own ads. Wikimedia, NASA, Vimeo, and Dailymotion use their public pages.</p>
-        <p className="mt-2">
-          {accounts.enabled
-            ? 'Signed in.'
-            : 'Saving with email is not on yet. Your lineup stays on this device until you save it online or copy the sync code.'}
-        </p>
+        <p className="mt-2">Your lineup is stored on this device. Use Save lineup online or the sync code to move it to another screen.</p>
       </div>
       {note && <p className="font-mono text-sm text-yellow-200">{note}</p>}
       <Modal open={resetOpen} onOpenChange={setResetOpen} title="Erase all channels?">
