@@ -17,14 +17,9 @@ function quote(value: string): string {
 }
 
 function buildQuery(text: string, options: SearchOptions): string {
-  // format:h.264 keeps the list to files the browser can play.
-  // The default collections are the public-domain and Creative Commons movie sets.
-  // "All of Archive.org" drops that collection limit and still skips grown-up subjects.
-  let query = `(title:${quote(text)} OR subject:${quote(text)}) AND mediatype:movies AND format:"h.264"`
-  if (!options.archiveAll) {
-    query +=
-      ' AND collection:(prelinger OR opensource_movies OR feature_films OR animationandcartoons OR classic_tv OR universal_newsreels OR documentary)'
-  }
+  // Search the full movies catalog. Do not require a specific format or collection:
+  // Archive.org metadata is inconsistent and those filters hide playable items.
+  let query = `(title:${quote(text)} OR subject:${quote(text)}) AND mediatype:movies`
   if (options.hideAdult) {
     query +=
       ' AND NOT subject:pornography AND NOT subject:erotica AND NOT subject:"adult film" AND NOT subject:xxx AND NOT subject:hentai'
@@ -133,26 +128,51 @@ function pickFile(files: IaFile[]): IaFile | null {
   return ranked[0] ?? null
 }
 
-export async function resolveArchive(identifier: string, title = 'Show', year?: string): Promise<Program | null> {
+function playableFiles(files: IaFile[]): IaFile[] {
+  return files.filter((file) => {
+    const name = file.name ?? ''
+    return !!name && /\\.(mp4|m4v|webm|ogv)$/i.test(name) && !/(thumb|_512kb|sample|\.gif$)/i.test(name)
+  }).sort((a, b) => {
+    const score = (file: IaFile) => {
+      const name = file.name ?? ''
+      const format = file.format ?? ''
+      return (/\\.mp4$/i.test(name) && /h\\.?264|mpeg4/i.test(format) ? 0 : /\\.mp4$/i.test(name) ? 1 : 2)
+    }
+    return score(a) - score(b) || Number(b.height || 0) - Number(a.height || 0)
+  })
+}
+
+async function resolveArchiveFiles(identifier: string, title = 'Show', year?: string): Promise<Program[]> {
   const response = await fetch(`https://archive.org/metadata/${encodeURIComponent(identifier)}`)
-  if (!response.ok) return null
-  const data = (await response.json()) as { files?: IaFile[]; metadata?: { title?: string; runtime?: string } }
-  const file = pickFile(data.files ?? [])
-  if (!file?.name) return null
-  const path = file.name.split('/').map(encodeURIComponent).join('/')
-  const seconds = fileLength(file) || parseClock(data.metadata?.runtime ?? '')
-  return {
-    id: uid(),
-    remoteId: identifier,
-    source: 'archive',
-    title: data.metadata?.title || title,
-    durationSec: seconds >= 15 ? Math.round(seconds) : 20 * 60,
-    durationGuess: seconds < 15,
-    playUrl: `https://archive.org/download/${encodeURIComponent(identifier)}/${path}`,
-    pageUrl: `https://archive.org/details/${encodeURIComponent(identifier)}`,
-    thumbnail: `https://archive.org/services/img/${identifier}`,
-    year,
+  if (!response.ok) return []
+  const data = (await response.json()) as {
+    files?: IaFile[]
+    metadata?: { title?: string; runtime?: string; mediatype?: string }
   }
+  if (data.metadata?.mediatype && data.metadata.mediatype !== 'movies') return []
+  const files = playableFiles(data.files ?? [])
+  return files.map((file, index) => {
+    const path = (file.name ?? '').split('/').map(encodeURIComponent).join('/')
+    const seconds = fileLength(file) || parseClock(data.metadata?.runtime ?? '')
+    const fileLabel = (file.name ?? '').split('/').pop() || `Video ${index + 1}`
+    return {
+      id: uid(),
+      remoteId: `${identifier}:${file.name}`,
+      source: 'archive' as const,
+      title: files.length > 1 ? `${data.metadata?.title || title} — ${fileLabel}` : (data.metadata?.title || title),
+      durationSec: seconds >= 15 ? Math.round(seconds) : 20 * 60,
+      durationGuess: seconds < 15,
+      playUrl: `https://archive.org/download/${encodeURIComponent(identifier)}/${path}`,
+      pageUrl: `https://archive.org/details/${encodeURIComponent(identifier)}`,
+      thumbnail: `https://archive.org/services/img/${identifier}`,
+      year,
+    }
+  })
+}
+
+export async function resolveArchive(identifier: string, title = 'Show', year?: string): Promise<Program | null> {
+  const programs = await resolveArchiveFiles(identifier, title, year)
+  return programs[0] ?? null
 }
 
 export const archiveAdapter: SourceAdapter = {
