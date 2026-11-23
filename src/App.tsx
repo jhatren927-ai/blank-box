@@ -12,6 +12,7 @@ import { LockScreen } from './components/LockScreen.tsx'
 import { OnDemand } from './components/OnDemand.tsx'
 import { Player, requestFullscreen } from './components/Player.tsx'
 import { TvExperience } from './components/TvExperience.tsx'
+import { WebTvExperience } from './components/WebTvExperience.tsx'
 import { Settings } from './components/Settings.tsx'
 import { Modal } from './components/ui/dialog.tsx'
 
@@ -20,6 +21,9 @@ type View = 'tv' | 'build' | 'demand' | 'settings'
 function AppContent() {
   const store = useStore()
   const { network, prefs } = store
+  // The native APK carries this marker before React starts. Browser visits use the original Downloader web receiver instead.
+  const isNativeTvApp = document.documentElement.dataset.tvApp === 'true'
+    || new URLSearchParams(window.location.search).get('nativeTest') === '1'
   const [view, setView] = useState<View>('tv')
   // The approved TV receiver is now the normal website experience. Add ?classic=1 only to open the retired browser layout.
   const [tvMode, setTvMode] = useState(() => new URLSearchParams(window.location.search).get('classic') !== '1')
@@ -91,12 +95,12 @@ function AppContent() {
   }, [])
 
   useEffect(() => {
-    if (!tvMode || !tvMenuOpen) return
+    if (!isNativeTvApp || !tvMode || !tvMenuOpen) return
     const timer = window.setTimeout(() => {
       document.querySelector<HTMLElement>('[data-testid="tv-menu-return"]')?.focus({ preventScroll: true })
     }, 100)
     return () => window.clearTimeout(timer)
-  }, [tvMode, tvMenuOpen])
+  }, [isNativeTvApp, tvMode, tvMenuOpen])
 
   useEffect(() => {
     if (cloudRestoreStarted.current) return
@@ -177,7 +181,7 @@ function AppContent() {
       }
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return
 
-      if (tvMode && view === 'tv') {
+      if (isNativeTvApp && tvMode && view === 'tv') {
         if (isBack) {
           event.preventDefault()
           if (tvGuideOpen) setTvGuideOpen(false)
@@ -404,7 +408,7 @@ function AppContent() {
 
   return (
     <div className={tvMode ? "min-h-screen bg-chassis text-slate-100" : "bb-web-shell min-h-screen text-slate-100"}>
-      {!tvMode && <header className="bb-web-header sticky top-0 z-40 backdrop-blur">
+      {(!tvMode || !isNativeTvApp) && <header className={tvMode ? 'bb-tv-header' : 'bb-web-header sticky top-0 z-40 backdrop-blur'}>
         <div className="bb-web-header-inner mx-auto flex max-w-6xl items-end gap-3 px-3 py-2">
           <div className="min-w-0 flex-1">
             <p className="bb-web-kicker font-heading text-[10px] font-black tracking-[0.28em]">{tvMode ? 'LOCAL CABLE TELEVISION  /  EST. 1995' : 'BLANK BOX'}</p>
@@ -446,72 +450,126 @@ function AppContent() {
           </NavButton>
         </nav>
       </header>}
-      {tvMode && view !== 'tv' && (
+      {isNativeTvApp && tvMode && view !== 'tv' && (
         <button type="button" data-testid="tv-return-button" className="bb-tv-return-button" onClick={() => setView('tv')}>← BACK TO TELEVISION</button>
       )}
 
       {view === 'tv' && (
         <>
           {tvMode ? (
-            <TvExperience
-              channels={ordered}
-              channel={current}
-              currentId={current?.id ?? null}
-              now={now}
-              vod={vod}
-              prefs={prefs}
-              screenRef={screenRef}
-              guideOpen={tvGuideOpen}
-              selectedGuideId={guideSelectedId}
-              guidePage={guidePage}
-              menuOpen={tvMenuOpen}
-              onSelectGuideChannel={setGuideSelectedId}
-              onCloseMenu={() => setTvMenuOpen(false)}
-              onExitVod={() => setVod(null)}
-              onUnmute={() => store.patchPrefs({ muted: false, volume: Math.max(prefs.volume, 0.4) })}
-              onToggleMute={() => store.patchPrefs({ muted: !prefs.muted })}
-              onVolumeChange={(volume) => store.patchPrefs({ volume, muted: false })}
-              onProgramDuration={(programId, seconds) => {
-                if (!current) return
-                const program = current.programs.find((item) => item.id === programId)
-                if (!program || Math.abs(program.durationSec - seconds) <= 2) return
-                store.saveChannel({
-                  ...current,
-                  programs: current.programs.map((item) => item.id === programId
-                    ? { ...item, durationSec: seconds, durationGuess: false }
-                    : item),
-                })
-              }}
-              onTune={tune}
-              onNew={() => {
-                setTvGuideOpen(false)
-                setTvMenuOpen(false)
-                setEditing(null)
-                setView('build')
-              }}
-              onDemand={() => {
-                setTvGuideOpen(false)
-                setTvMenuOpen(false)
-                setView('demand')
-              }}
-              onSettings={() => {
-                setTvGuideOpen(false)
-                setTvMenuOpen(false)
-                setView('settings')
-              }}
-              onLast={() => {
-                const last = prefs.recent.find((id) => id !== current?.id)
-                if (last) tune(last)
-              }}
-              onSurprise={() => {
-                if (ordered.length === 0) return
-                tune(ordered[Math.floor(Math.random() * ordered.length)].id)
-              }}
-              onHelp={() => {
-                setTvMenuOpen(false)
-                setHelp(true)
-              }}
-            />
+            isNativeTvApp ? (
+              <TvExperience
+                channels={ordered}
+                channel={current}
+                currentId={current?.id ?? null}
+                now={now}
+                vod={vod}
+                prefs={prefs}
+                screenRef={screenRef}
+                guideOpen={tvGuideOpen}
+                selectedGuideId={guideSelectedId}
+                guidePage={guidePage}
+                menuOpen={tvMenuOpen}
+                onSelectGuideChannel={setGuideSelectedId}
+                onCloseMenu={() => setTvMenuOpen(false)}
+                onExitVod={() => setVod(null)}
+                onUnmute={() => store.patchPrefs({ muted: false, volume: Math.max(prefs.volume, 0.4) })}
+                onToggleMute={() => store.patchPrefs({ muted: !prefs.muted })}
+                onVolumeChange={(volume) => store.patchPrefs({ volume, muted: false })}
+                onProgramDuration={(programId, seconds) => {
+                  if (!current) return
+                  const program = current.programs.find((item) => item.id === programId)
+                  if (!program || Math.abs(program.durationSec - seconds) <= 2) return
+                  store.saveChannel({
+                    ...current,
+                    programs: current.programs.map((item) => item.id === programId
+                      ? { ...item, durationSec: seconds, durationGuess: false }
+                      : item),
+                  })
+                }}
+                onTune={tune}
+                onNew={() => {
+                  setTvGuideOpen(false)
+                  setTvMenuOpen(false)
+                  setEditing(null)
+                  setView('build')
+                }}
+                onDemand={() => {
+                  setTvGuideOpen(false)
+                  setTvMenuOpen(false)
+                  setView('demand')
+                }}
+                onSettings={() => {
+                  setTvGuideOpen(false)
+                  setTvMenuOpen(false)
+                  setView('settings')
+                }}
+                onLast={() => {
+                  const last = prefs.recent.find((id) => id !== current?.id)
+                  if (last) tune(last)
+                }}
+                onSurprise={() => {
+                  if (ordered.length === 0) return
+                  tune(ordered[Math.floor(Math.random() * ordered.length)].id)
+                }}
+                onHelp={() => {
+                  setTvMenuOpen(false)
+                  setHelp(true)
+                }}
+              />
+            ) : (
+              <WebTvExperience
+                channels={ordered}
+                channel={current}
+                currentId={current?.id ?? null}
+                now={now}
+                vod={vod}
+                prefs={prefs}
+                castTarget={castTarget}
+                screenRef={screenRef}
+                onExitVod={() => setVod(null)}
+                onCastTargetChange={updateCastTarget}
+                onProgramDuration={(programId, seconds) => {
+                  if (!current) return
+                  const program = current.programs.find((item) => item.id === programId)
+                  if (!program || Math.abs(program.durationSec - seconds) <= 2) return
+                  store.saveChannel({
+                    ...current,
+                    programs: current.programs.map((item) => item.id === programId
+                      ? { ...item, durationSec: seconds, durationGuess: false }
+                      : item),
+                  })
+                }}
+                onTune={tune}
+                onStep={step}
+                onNew={() => {
+                  setEditing(null)
+                  setView('build')
+                }}
+                onEdit={(id) => {
+                  setEditing(ordered.find((channel) => channel.id === id) ?? null)
+                  setView('build')
+                }}
+                onMute={() => store.patchPrefs({ muted: !prefs.muted })}
+                onVolume={(volume) => store.patchPrefs({ volume, muted: false })}
+                onFullscreen={() => void requestFullscreen(screenRef.current)}
+                onCrt={() => store.patchPrefs({ crt: !prefs.crt })}
+                onAspect={() => store.patchPrefs({ aspect: prefs.aspect === '16:9' ? '4:3' : '16:9' })}
+                onRate={() => store.patchPrefs({ rate: nextRate(prefs.rate) })}
+                onLogo={() => store.patchPrefs({ logo: !prefs.logo })}
+                onLast={() => {
+                  const last = prefs.recent.find((id) => id !== current?.id)
+                  if (last) tune(last)
+                }}
+                onSurprise={() => {
+                  if (ordered.length === 0) return
+                  tune(ordered[Math.floor(Math.random() * ordered.length)].id)
+                }}
+                onHelp={() => setHelp(true)}
+                onDigit={enterDigit}
+                dial={dial}
+              />
+            )
           ) : (
             <>
           <div className="bb-web-broadcast-shell">
@@ -723,6 +781,7 @@ function NavButton({
       type="button"
       data-testid={testId}
       aria-pressed={active}
+      aria-current={active ? "page" : undefined}
       onClick={onClick}
       className={`h-11 shrink-0 rounded-sm px-4 font-mono text-sm font-bold ${active ? 'bg-yellow-400 text-black' : 'bg-[#1b2333] text-slate-100'}`}
     >
