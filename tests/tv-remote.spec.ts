@@ -200,6 +200,13 @@ test('remote channel rockers use concise 90s-style labels', async ({ page }) => 
   await expect(page.getByTestId('tv-channel-down')).not.toContainText('CHANNEL')
 })
 
+test('receiver edit key opens the currently tuned channel editor', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.getByTestId('tv-edit-channel')).toBeEnabled()
+  await page.getByTestId('tv-edit-channel').click()
+  await expect(page.getByTestId('builder')).toBeVisible()
+})
+
 test('the previous browser layout remains available by explicit opt-in', async ({ page }) => {
   const response = await page.goto('/?classic=1')
   expect(response?.ok()).toBe(true)
