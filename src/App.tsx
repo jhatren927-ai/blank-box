@@ -10,6 +10,7 @@ import { Guide, Ticker } from './components/Guide.tsx'
 import { LockScreen } from './components/LockScreen.tsx'
 import { OnDemand } from './components/OnDemand.tsx'
 import { Player, requestFullscreen } from './components/Player.tsx'
+import { TvExperience } from './components/TvExperience.tsx'
 import { Settings } from './components/Settings.tsx'
 import { Modal } from './components/ui/dialog.tsx'
 
@@ -19,6 +20,7 @@ function AppContent() {
   const store = useStore()
   const { network, prefs } = store
   const [view, setView] = useState<View>('tv')
+  const [tvMode, setTvMode] = useState(false)
   const [currentId, setCurrentId] = useState<string | null>(null)
   const [editing, setEditing] = useState<Channel | null>(null)
   const [vod, setVod] = useState<Program | null>(null)
@@ -72,17 +74,14 @@ function AppContent() {
     return () => window.clearInterval(timer)
   }, [])
 
-  // Put focus somewhere useful when the app opens on a TV. The viewer can
-  // immediately use the D-pad instead of needing a mouse or touchscreen.
+  // Focus a receiver control after the TV-specific interface is mounted.
   useEffect(() => {
-    if (!document.documentElement.classList.contains('tv-mode')) return
+    if (!tvMode) return
     const timer = window.setTimeout(() => {
-      const firstChannel = document.querySelector<HTMLElement>('[data-testid^="channel-btn-"]')
-      const firstAction = document.querySelector<HTMLElement>('[data-testid="new-channel"]')
-      ;(firstChannel ?? firstAction)?.focus({ preventScroll: true })
+      document.querySelector<HTMLElement>('[data-testid="tv-channel-up"]')?.focus({ preventScroll: true })
     }, 350)
     return () => window.clearTimeout(timer)
-  }, [])
+  }, [tvMode])
 
   useEffect(() => {
     if (cloudRestoreStarted.current) return
@@ -100,9 +99,10 @@ function AppContent() {
   }, [store])
 
   useEffect(() => {
-    const tvMode = new URLSearchParams(window.location.search).get('tv') === '1'
+    const enabled = new URLSearchParams(window.location.search).get('tv') === '1'
       || /AFTT|Fire TV|Android TV|GoogleTV|BRAVIA/i.test(navigator.userAgent)
-    document.documentElement.classList.toggle('tv-mode', tvMode)
+    setTvMode(enabled)
+    document.documentElement.classList.toggle('tv-mode', enabled)
     return () => document.documentElement.classList.remove('tv-mode')
   }, [])
 
@@ -132,6 +132,18 @@ function AppContent() {
     const pick = ordered[Math.floor(Math.random() * ordered.length)]
     tune(pick.id)
   })
+
+  function enterDigit(digit: string) {
+    const next = (dial + digit).slice(-3)
+    setDial(next)
+    if (dialTimer.current) window.clearTimeout(dialTimer.current)
+    dialTimer.current = window.setTimeout(() => {
+      const number = Number(next)
+      const match = ordered.find((channel) => channel.number === number)
+      if (match) tune(match.id)
+      setDial('')
+    }, 900)
+  }
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -208,15 +220,7 @@ function AppContent() {
       } else if (event.key === '?') {
         setHelp(true)
       } else if (/^\d$/.test(event.key)) {
-        const next = (dial + event.key).slice(-3)
-        setDial(next)
-        if (dialTimer.current) window.clearTimeout(dialTimer.current)
-        dialTimer.current = window.setTimeout(() => {
-          const number = Number(next)
-          const match = ordered.find((channel) => channel.number === number)
-          if (match) tune(match.id)
-          setDial('')
-        }, 900)
+        enterDigit(event.key)
       }
     }
     window.addEventListener('keydown', onKey)
@@ -238,10 +242,10 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-chassis text-slate-100">
-      <header className="sticky top-0 z-40 border-b border-black bg-[#0c1220]/95 backdrop-blur">
+      <header className={tvMode ? 'bb-tv-header' : 'sticky top-0 z-40 border-b border-black bg-[#0c1220]/95 backdrop-blur'}>
         <div className="mx-auto flex max-w-6xl items-end gap-3 px-3 py-2">
           <div className="min-w-0 flex-1">
-            <p className="font-heading text-[10px] font-black tracking-[0.28em] text-slate-500">BLANK BOX</p>
+            <p className="font-heading text-[10px] font-black tracking-[0.28em] text-slate-500">{tvMode ? 'LOCAL CABLE TELEVISION  /  EST. 1995' : 'BLANK BOX'}</p>
             <input
               data-testid="network-name"
               aria-label="Network name"
@@ -258,7 +262,7 @@ function AppContent() {
         </div>
         <nav className="mx-auto flex max-w-6xl gap-2 overflow-x-auto px-3 pb-3">
           <NavButton testId="nav-tv" active={view === 'tv'} onClick={() => setView('tv')}>
-            TV
+            {tvMode ? 'LIVE TV' : 'TV'}
           </NavButton>
           <NavButton
             testId="nav-guide"
@@ -276,13 +280,67 @@ function AppContent() {
             On Demand
           </NavButton>
           <NavButton testId="nav-settings" active={view === 'settings'} onClick={() => setView('settings')}>
-            Settings
+            {tvMode ? 'SETUP' : 'Settings'}
           </NavButton>
         </nav>
       </header>
 
       {view === 'tv' && (
         <>
+          {tvMode ? (
+            <TvExperience
+              channels={ordered}
+              channel={current}
+              currentId={current?.id ?? null}
+              now={now}
+              vod={vod}
+              prefs={prefs}
+              castTarget={castTarget}
+              screenRef={screenRef}
+              onExitVod={() => setVod(null)}
+              onCastTargetChange={updateCastTarget}
+              onProgramDuration={(programId, seconds) => {
+                if (!current) return
+                const program = current.programs.find((item) => item.id === programId)
+                if (!program || Math.abs(program.durationSec - seconds) <= 2) return
+                store.saveChannel({
+                  ...current,
+                  programs: current.programs.map((item) => item.id === programId
+                    ? { ...item, durationSec: seconds, durationGuess: false }
+                    : item),
+                })
+              }}
+              onTune={tune}
+              onStep={step}
+              onNew={() => {
+                setEditing(null)
+                setView('build')
+              }}
+              onEdit={(id) => {
+                setEditing(ordered.find((channel) => channel.id === id) ?? null)
+                setView('build')
+              }}
+              onMute={() => store.patchPrefs({ muted: !prefs.muted })}
+              onVolume={(volume) => store.patchPrefs({ volume, muted: false })}
+              onFullscreen={() => void requestFullscreen(screenRef.current)}
+              onCrt={() => store.patchPrefs({ crt: !prefs.crt })}
+              onAspect={() => store.patchPrefs({ aspect: prefs.aspect === '16:9' ? '4:3' : '16:9' })}
+              onRate={() => store.patchPrefs({ rate: nextRate(prefs.rate) })}
+              onLogo={() => store.patchPrefs({ logo: !prefs.logo })}
+              onLast={() => {
+                const last = prefs.recent.find((id) => id !== current?.id)
+                if (last) tune(last)
+              }}
+              onSurprise={() => {
+                if (ordered.length === 0) return
+                tune(ordered[Math.floor(Math.random() * ordered.length)].id)
+              }}
+              onHelp={() => setHelp(true)}
+              onDigit={enterDigit}
+              dial={dial}
+            />
+          ) : (
+            <>
           <Ticker channels={ordered} now={now} />
           {dial && (
             <div data-testid="dial-osd" className="pointer-events-none fixed left-1/2 top-24 z-40 -translate-x-1/2 bg-black/80 px-6 py-3 font-mono text-5xl font-bold text-green-400">
@@ -367,7 +425,9 @@ function AppContent() {
               onTune={tune}
             />
           </div>
-        </>
+
+            </>
+          )}        </>
       )}
 
       {view === 'build' && (
