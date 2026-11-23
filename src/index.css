@@ -1704,7 +1704,7 @@ html.tv-mode .bb-tv-guide-cast {
 html.tv-mode .bb-tv-guide-grid {
   display: grid;
   min-height: 0;
-  grid-template-rows: 36px minmax(0, 1fr);
+  grid-template-rows: 42px minmax(0, 1fr);
   overflow: hidden;
   border: 2px solid #010c32;
   background: #061949;
@@ -1714,7 +1714,7 @@ html.tv-mode .bb-tv-guide-grid {
 html.tv-mode .bb-tv-guide-time-row,
 html.tv-mode .bb-tv-guide-row {
   display: grid;
-  grid-template-columns: minmax(145px, 17vw) minmax(0, 1fr);
+  grid-template-columns: minmax(170px, 19vw) minmax(0, 1fr);
   min-width: 0;
 }
 
@@ -1722,7 +1722,7 @@ html.tv-mode .bb-tv-guide-time-row {
   border-bottom: 2px solid #020c2b;
   background: #101f57;
   color: #f4d56b;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 900;
 }
 
@@ -1773,7 +1773,7 @@ html.tv-mode .bb-tv-guide-row.is-selected {
 html.tv-mode .bb-tv-guide-channel {
   display: grid;
   min-width: 0;
-  grid-template-columns: 37px 1fr;
+  grid-template-columns: 52px minmax(0, 1fr);
   grid-template-rows: 1fr 1fr;
   align-content: center;
   align-items: center;
@@ -1787,7 +1787,7 @@ html.tv-mode .bb-tv-guide-channel {
 html.tv-mode .bb-tv-guide-channel strong {
   grid-row: 1 / span 2;
   color: #f4d56b;
-  font-size: 22px;
+  font-size: 26px;
   font-weight: 900;
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -1797,7 +1797,7 @@ html.tv-mode .bb-tv-guide-channel span {
   overflow: hidden;
   color: #fff;
   font-family: "Space Grotesk Variable", sans-serif;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 900;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1806,7 +1806,7 @@ html.tv-mode .bb-tv-guide-channel span {
 html.tv-mode .bb-tv-guide-channel small {
   overflow: hidden;
   color: #a8c1e6;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1863,15 +1863,15 @@ html.tv-mode .bb-tv-guide-program strong {
   -webkit-line-clamp: 2;
   color: #fff;
   font-family: "Space Grotesk Variable", sans-serif;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 800;
-  line-height: 1.15;
+  line-height: 1.2;
 }
 
 html.tv-mode .bb-tv-guide-program small {
   margin-top: 3px;
   color: #f2d56f;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 700;
 }
 
@@ -2077,7 +2077,7 @@ html.tv-mode .bb-tv-return-button {
 @media (max-width: 900px) {
   html.tv-mode .bb-tv-guide-time-row,
   html.tv-mode .bb-tv-guide-row {
-    grid-template-columns: 125px minmax(0, 1fr);
+    grid-template-columns: 150px minmax(0, 1fr);
   }
 
   html.tv-mode .bb-tv-guide-top {
@@ -2085,13 +2085,13 @@ html.tv-mode .bb-tv-return-button {
   }
 
   html.tv-mode .bb-tv-guide-channel {
-    grid-template-columns: 31px minmax(0, 1fr);
+    grid-template-columns: 43px minmax(0, 1fr);
     column-gap: 4px;
     padding-inline: 5px;
   }
 
   html.tv-mode .bb-tv-guide-channel strong {
-    font-size: 18px;
+    font-size: 23px;
   }
 }
 
@@ -2108,7 +2108,7 @@ html.tv-mode .bb-tv-return-button {
   }
 
   html.tv-mode .bb-tv-guide-program strong {
-    font-size: 10px;
+    font-size: 12px;
   }
 
   html.tv-mode .bb-tv-guide-channel small {
@@ -2140,5 +2140,141 @@ html.tv-mode .bb-tv-return-button {
   html.tv-mode .bb-tv-live-lower-third {
     transition: none;
     animation: none;
+  }
+}
+
+
+/* Regular website: carry the 1990s cable-guide identity beyond TV mode. */
+html:not(.tv-mode) body {
+  background: #050b1b;
+  color: #f4f0df;
+}
+
+.bb-web-shell {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 50% -15%, rgba(29, 65, 145, .42), transparent 58%),
+    linear-gradient(180deg, #0a1532 0%, #071127 46%, #050b19 100%);
+}
+
+.bb-web-header {
+  border-bottom: 3px solid #d4ad4e;
+  background: linear-gradient(180deg, rgba(9, 25, 67, .98), rgba(4, 13, 39, .98));
+  box-shadow: 0 7px 24px rgba(0, 0, 0, .42), inset 0 1px 0 rgba(255,255,255,.12);
+}
+
+.bb-web-header-inner {
+  min-height: 76px;
+  max-width: 1440px;
+}
+
+.bb-web-kicker {
+  color: #e5c66e;
+  letter-spacing: .24em;
+}
+
+.bb-web-network-name {
+  color: #fff7dc;
+  text-shadow: 0 2px 12px rgba(87, 132, 255, .32);
+  caret-color: #f4cf63;
+}
+
+.bb-web-network-name:focus {
+  text-shadow: 0 0 14px rgba(255, 219, 113, .34);
+}
+
+.bb-web-clock {
+  color: #ffdc72;
+  font-size: 15px;
+  font-weight: 800;
+  text-shadow: 0 0 10px rgba(255, 211, 92, .22);
+}
+
+.bb-web-nav {
+  max-width: 1440px;
+  padding-top: 2px;
+}
+
+.bb-web-nav button {
+  min-width: 94px;
+  border: 1px solid #536d9f;
+  border-bottom: 3px solid #172b58;
+  border-radius: 3px 3px 0 0;
+  background: linear-gradient(180deg, #1c3e83, #10275c);
+  color: #f4f0df;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.16);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.bb-web-nav button:hover,
+.bb-web-nav button:focus-visible {
+  border-color: #f0d27a;
+  background: linear-gradient(180deg, #3159a4, #183777);
+  outline: 2px solid #f5d77f;
+  outline-offset: 2px;
+}
+
+.bb-web-nav button[aria-pressed="true"] {
+  border-color: #f0d27a;
+  border-bottom-color: #f0d27a;
+  background: linear-gradient(180deg, #f5d879, #d8ad43);
+  color: #101a35;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 0 12px rgba(242,207,105,.18);
+}
+
+.bb-web-main {
+  max-width: 1440px;
+  gap: clamp(14px, 2vw, 28px);
+  padding: clamp(14px, 2vw, 26px) clamp(12px, 2vw, 24px);
+}
+
+.bb-web-guide-wrap {
+  max-width: 1440px;
+  padding-right: clamp(12px, 2vw, 24px);
+  padding-left: clamp(12px, 2vw, 24px);
+}
+
+.bb-web-guide-wrap #guide {
+  border: 2px solid #263e78;
+  border-radius: 4px;
+  background: #06163d;
+  box-shadow: 0 16px 38px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+.bb-web-guide-wrap #guide > div:first-child {
+  min-height: 54px;
+  padding: 10px 16px;
+  border-bottom: 2px solid #020a23;
+  background: linear-gradient(180deg, #173d91, #09235f);
+}
+
+.bb-web-guide-wrap #guide h2 {
+  color: #ffe36d;
+  letter-spacing: .07em;
+  text-shadow: 0 0 10px rgba(255,224,102,.25);
+}
+
+.bb-web-guide-wrap [data-testid="guide-time-label"],
+.bb-web-guide-wrap [data-testid="guide-time-label"] + div {
+  background: #071a49;
+}
+
+@media (max-width: 640px) {
+  .bb-web-header-inner {
+    min-height: 66px;
+    align-items: center;
+  }
+  .bb-web-network-name {
+    font-size: 1.45rem;
+  }
+  .bb-web-nav {
+    gap: 7px;
+    padding-bottom: 10px;
+  }
+  .bb-web-nav button {
+    min-width: auto;
+    padding-inline: 12px;
+    font-size: 11px;
   }
 }

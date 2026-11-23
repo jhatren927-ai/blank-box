@@ -99,3 +99,17 @@ test('guide left and right move across program listings instead of changing the 
   await page.keyboard.press('ArrowLeft')
   await expect(programs.nth(1)).toBeFocused()
 })
+
+
+test('regular website uses the retro cable design and remains navigable', async ({ page }) => {
+  const response = await page.goto('/')
+  expect(response?.ok()).toBe(true)
+  await expect(page.locator('.bb-web-shell')).toBeVisible()
+  await expect(page.locator('.bb-web-header')).toBeVisible()
+  await expect(page.locator('.bb-web-network-name')).toBeVisible()
+  await expect(page.locator('.bb-web-nav button')).toHaveCount(4)
+  await expect(page.getByTestId('prevue-grid')).toBeVisible()
+  await expect(page.getByTestId('nav-tv')).toHaveAttribute('aria-pressed', 'true')
+  const headerBorder = await page.locator('.bb-web-header').evaluate((element) => getComputedStyle(element).borderBottomColor)
+  expect(headerBorder).toBe('rgb(212, 173, 78)')
+})
