@@ -3229,3 +3229,13 @@ html.tv-mode .bb-tv-statusline {
     overflow: hidden;
   }
 }
+
+/* The actual website guide viewport is nested under #guide; this high-specificity
+   rule overrides the legacy receiver stylesheet while leaving the crawl hook free
+   to update scrollTop programmatically. */
+.bb-web-guide-wrap #guide [data-testid="guide-viewport"] {
+  overflow-y: hidden !important;
+  overscroll-behavior-y: none;
+  scrollbar-width: none;
+  touch-action: pan-x;
+}
