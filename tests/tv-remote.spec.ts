@@ -120,7 +120,7 @@ test('TV guide keeps D-pad focus and scrolls through long channel lineups', asyn
       }
     }),
   }
-  await page.evaluate((next) => localStorage.setItem('blankbox:network:v1', JSON.stringify(next)), longLineup)
+  await page.addInitScript((next) => localStorage.setItem('blankbox:network:v1', JSON.stringify(next)), longLineup)
   await page.reload()
   await expect(page.getByTestId('tv-experience')).toBeVisible()
   await page.keyboard.press('Enter')
