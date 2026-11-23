@@ -2665,12 +2665,11 @@ html.tv-mode .bb-tv-console .bb-remote-footer button.bb-surprise {
 html.tv-mode .bb-guide-scroll {
   height: min(72vh, 760px);
   min-height: 360px;
-  overflow-y: scroll !important;
-  overscroll-behavior-y: contain;
-  scrollbar-width: auto;
-  scrollbar-color: #b59a5d #07142e;
-  touch-action: pan-y;
-  -webkit-overflow-scrolling: touch;
+  overflow-y: hidden !important;
+  overscroll-behavior-y: none;
+  scrollbar-width: none;
+  touch-action: pan-x;
+  -webkit-overflow-scrolling: auto;
 }
 html.tv-mode .bb-guide-scroll:focus-visible {
   outline: 2px solid #d8bd7d;
