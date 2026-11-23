@@ -48,6 +48,7 @@ export function usePrevueCrawl(
     if (!viewport || !firstCopy) return
 
     let distanceSincePause = 0
+    let fractionalDistance = 0
     let screenPauseUntil = 0
     let interactionPauseUntil = 0
     let previousTick = performance.now()
@@ -67,9 +68,15 @@ export function usePrevueCrawl(
       if (loopHeight > viewport.clientHeight + 2 &&
           timestamp >= screenPauseUntil &&
           timestamp >= interactionPauseUntil) {
-        const distance = CRAWL_PIXELS_PER_SECOND * elapsed
-        viewport.scrollTop += distance
-        distanceSincePause += distance
+        fractionalDistance += CRAWL_PIXELS_PER_SECOND * elapsed
+        // Older TV WebViews round scrollTop writes to integer pixels. Carry
+        // sub-pixel movement forward instead of losing it on every timer tick.
+        const wholePixels = Math.floor(fractionalDistance)
+        if (wholePixels > 0) {
+          viewport.scrollTop += wholePixels
+          fractionalDistance -= wholePixels
+          distanceSincePause += wholePixels
+        }
 
         // The second identical lineup follows the first. Subtracting exactly
         // one lineup height creates a seamless wrap without jumping backwards.
