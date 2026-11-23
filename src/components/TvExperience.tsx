@@ -199,7 +199,11 @@ export function TvExperience({
               </div>
             </div>
 
-            <div className="bb-tv-guide-rows" data-testid="tv-guide-rows">
+            <div
+              className="bb-tv-guide-rows"
+              data-testid="tv-guide-rows"
+              style={{ gridTemplateRows: `repeat(${Math.max(1, visibleChannels.length)}, minmax(0, 1fr))` }}
+            >
               {visibleChannels.map((item) => {
                 const active = item.id === (selectedGuideId ?? currentId)
                 const slots = slotsCovering(item, windowStart, windowEnd)
