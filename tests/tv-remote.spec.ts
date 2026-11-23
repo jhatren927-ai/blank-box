@@ -33,6 +33,7 @@ test('TV menu is a single remote-friendly column and D-pad selects actions', asy
   await page.keyboard.press('Escape')
   const menu = page.getByTestId('tv-menu-overlay')
   await expect(menu).toBeVisible()
+  await expect(page.getByTestId('tv-menu-return')).toBeFocused()
 
   await expect(menu.getByTestId('cast-button')).toHaveCount(0)
   await expect(page.getByTestId('tv-menu-sound')).toContainText('SOUND ON')
@@ -50,7 +51,7 @@ test('TV menu is a single remote-friendly column and D-pad selects actions', asy
   expect(positions.every((position) => Math.abs(position.left - positions[0].left) < 2)).toBe(true)
   expect(positions.every((position, index) => index === 0 || position.top > positions[index - 1].top)).toBe(true)
 
-  await expect(buttons.nth(0)).toBeFocused()
+  await page.keyboard.press('ArrowDown')
   await page.keyboard.press('ArrowDown')
   await expect(buttons.nth(1)).toBeFocused()
   await page.keyboard.press('Enter')
