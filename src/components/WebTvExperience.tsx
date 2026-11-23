@@ -30,8 +30,6 @@ interface WebTvExperienceProps {
   onLogo: () => void
   onLast: () => void
   onHelp: () => void
-  onDigit: (digit: string) => void
-  dial: string
 }
 
 export function WebTvExperience({
@@ -60,7 +58,6 @@ export function WebTvExperience({
   onLast,
   onHelp,
   onDigit,
-  dial,
 }: WebTvExperienceProps) {
   const live = channel ? liveSlot(channel, now) : null
   const next = channel ? nextSlot(channel, now) : null
