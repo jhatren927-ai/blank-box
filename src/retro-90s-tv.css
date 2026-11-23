@@ -1105,7 +1105,12 @@ html.tv-mode .bb-tv-guide-rows {
   position: relative;
   height: 100%;
   min-height: 0;
-  overflow: hidden;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  overscroll-behavior-y: contain;
+  scrollbar-width: none;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
 }
 html.tv-mode .bb-tv-guide-crawl {
   width: 100%;
