@@ -104,7 +104,7 @@ function FileVideo({
       className="h-full w-full bg-black object-contain"
       src={program.playUrl}
       playsInline
-      preload="auto"
+      preload="metadata"
       autoPlay
       muted={muted}
       onLoadedMetadata={(event) => seekAndPlay(event.currentTarget, offsetSec, rate)}
@@ -135,10 +135,10 @@ function HlsVideo(props: EngineProps) {
           // Keep a useful forward buffer for variable home/TV Wi-Fi while
           // limiting memory use on low-RAM Fire TV and Android TV devices.
           lowLatencyMode: false,
-          maxBufferLength: 30,
-          maxMaxBufferLength: 45,
-          maxBufferSize: 48 * 1000 * 1000,
-          backBufferLength: 10,
+          maxBufferLength: 20,
+          maxMaxBufferLength: 30,
+          maxBufferSize: 32 * 1000 * 1000,
+          backBufferLength: 5,
           maxBufferHole: 0.8,
           startFragPrefetch: false,
           highBufferWatchdogPeriod: 3,
