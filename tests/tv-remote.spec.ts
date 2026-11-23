@@ -150,6 +150,31 @@ test('regular website uses the original Downloader receiver layout and remote-on
   await expect(page.getByTestId('web-tv-receiver')).toBeVisible()
 })
 
+test('web guide scrolls with wheel, touch and remote arrow keys', async ({ page }) => {
+  const response = await page.goto('/')
+  expect(response?.ok()).toBe(true)
+  const viewport = page.getByTestId('guide-viewport')
+  await expect(viewport).toBeVisible()
+  await expect(viewport).toHaveAttribute('aria-label', 'Scrollable television channel guide')
+  const before = await viewport.evaluate((node) => node.scrollTop)
+  await viewport.focus()
+  await page.keyboard.press('ArrowDown')
+  await expect.poll(() => viewport.evaluate((node) => node.scrollTop)).toBeGreaterThan(before)
+  const afterDown = await viewport.evaluate((node) => node.scrollTop)
+  await page.keyboard.press('PageDown')
+  await expect.poll(() => viewport.evaluate((node) => node.scrollTop)).toBeGreaterThan(afterDown)
+})
+
+test('remote channel rockers use concise 90s-style labels', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.getByTestId('tv-channel-up')).toHaveAttribute('aria-label', 'Channel up')
+  await expect(page.getByTestId('tv-channel-down')).toHaveAttribute('aria-label', 'Channel down')
+  await expect(page.getByTestId('tv-channel-up')).toContainText('CH +')
+  await expect(page.getByTestId('tv-channel-down')).toContainText('CH −')
+  await expect(page.getByTestId('tv-channel-up')).not.toContainText('CHANNEL')
+  await expect(page.getByTestId('tv-channel-down')).not.toContainText('CHANNEL')
+})
+
 test('the previous browser layout remains available by explicit opt-in', async ({ page }) => {
   const response = await page.goto('/?classic=1')
   expect(response?.ok()).toBe(true)
