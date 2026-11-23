@@ -282,6 +282,9 @@ export function TvExperience({
                 VOL +
               </button>
             </div>
+            <p className="bb-tv-menu-volume-status" data-testid="tv-menu-volume-value">
+              VOLUME {Math.round(prefs.volume * 100)}%
+            </p>
             <div className="bb-tv-menu-actions">
               <button type="button" data-testid="tv-menu-return" onClick={onCloseMenu}>RETURN TO BROADCAST</button>
               <button type="button" data-testid="tv-menu-build" onClick={onNew}>EDIT / ADD CHANNELS</button>
