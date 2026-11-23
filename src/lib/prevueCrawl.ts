@@ -7,8 +7,8 @@ const USER_PAUSE_MS = 10000
 /**
  * Recreates the Prevue grid's slow upward channel crawl. The first copy is
  * measured against its viewport; a second copy makes the wrap seamless.
- * The crawl pauses for four seconds after each screenful and briefly after
- * keyboard, remote, wheel, pointer, or touch interaction.
+ * The crawl pauses for four seconds after each screenful and briefly while
+ * the viewer selects or navigates a guide item.
  */
 export function usePrevueCrawl(
   viewportRef: RefObject<HTMLElement | null>,
@@ -91,16 +91,12 @@ export function usePrevueCrawl(
       }
     }
 
-    viewport.addEventListener('wheel', pauseForInteraction, { passive: true })
-    viewport.addEventListener('touchstart', pauseForInteraction, { passive: true })
     viewport.addEventListener('pointerdown', pauseForInteraction, { passive: true })
     viewport.addEventListener('keydown', pauseForInteraction)
 
     const timer = window.setInterval(tick, 50)
     return () => {
       window.clearInterval(timer)
-      viewport.removeEventListener('wheel', pauseForInteraction)
-      viewport.removeEventListener('touchstart', pauseForInteraction)
       viewport.removeEventListener('pointerdown', pauseForInteraction)
       viewport.removeEventListener('keydown', pauseForInteraction)
     }
