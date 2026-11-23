@@ -2358,7 +2358,7 @@ html:not(.tv-mode) body {
   cursor: pointer;
   font-family: inherit;
   font-weight: 650;
-  transition: transform 150ms ease, border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease, filter 150ms ease;
+  transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease, filter 150ms ease;
 }
 .bb-app-root button:disabled {
   cursor: not-allowed;
@@ -2548,4 +2548,10 @@ html.tv-mode .bb-tv-header nav button[aria-current="page"],
 }
 @media (prefers-reduced-motion: reduce) {
   .bb-app-root button { transition: none; }
+}
+
+
+/* Keep focus geometry fixed for directional remotes; focus is shown with the outline, not movement. */
+html.tv-mode .bb-tv-menu-actions button:focus-visible {
+  transform: none;
 }
