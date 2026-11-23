@@ -17,7 +17,6 @@ interface TvExperienceProps {
   guidePage: number
   menuOpen: boolean
   onSelectGuideChannel: (id: string) => void
-  onGuidePageChange: (page: number) => void
   onUnmute: () => void
   onCloseMenu: () => void
   onExitVod: () => void
