@@ -160,7 +160,7 @@ test('regular website uses the original Downloader receiver layout and remote-on
   await expect(page.getByTestId('web-tv-receiver')).toBeVisible()
 })
 
-test('iPhone Safari opens the native AirPlay picker for the current video', async ({ page }) => {}
+test('iPhone Safari opens the native AirPlay picker for the current video', async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(navigator, 'userAgent', {
       configurable: true,
