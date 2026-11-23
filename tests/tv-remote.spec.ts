@@ -34,6 +34,13 @@ test('TV menu is a single remote-friendly column and D-pad selects actions', asy
   const menu = page.getByTestId('tv-menu-overlay')
   await expect(menu).toBeVisible()
 
+  await expect(menu.getByTestId('cast-button')).toHaveCount(0)
+  await expect(page.getByTestId('tv-menu-sound')).toContainText('SOUND ON')
+  await page.getByTestId('tv-menu-sound').click()
+  await expect(page.getByTestId('tv-menu-sound')).toContainText('SOUND OFF')
+  await page.getByTestId('tv-menu-volume-up').click()
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('blankbox:prefs:v1') || '{}').volume)).toBeGreaterThan(0.7)
+
   const buttons = menu.locator('.bb-tv-menu-actions button')
   await expect(buttons).toHaveCount(7)
   const positions = await buttons.evaluateAll((items) => items.map((item) => {
