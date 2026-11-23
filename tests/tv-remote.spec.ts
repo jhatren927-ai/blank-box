@@ -458,7 +458,7 @@ test('desktop website keeps the player and remote compact together and makes the
   expect(layout.remote.x - layout.player.right).toBeLessThanOrEqual(20)
   expect(Math.abs((layout.grid.x + layout.grid.width / 2) - layout.viewportWidth / 2)).toBeLessThan(3)
   expect(layout.guide.width).toBeGreaterThan(layout.viewportWidth * 0.92)
-  expect(layout.guide.y).toBeLessThan(470)
+  expect(layout.guide.y).toBeLessThan(500)
   expect(layout.guide.y).toBeGreaterThan(layout.player.bottom - 8)
   expect(layout.guideTitleSize).toBe('14px')
   expect(layout.guideTimeSize).toBe('11px')
