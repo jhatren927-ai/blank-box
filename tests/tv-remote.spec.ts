@@ -238,12 +238,14 @@ test('web guide does not accept manual scrolling; only the automatic crawl moves
   await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2)
   await page.mouse.wheel(0, 900)
   const afterWheel = await viewport.evaluate((node) => node.scrollTop)
-  expect(afterWheel).toBe(beforeWheel)
+  // Allow the programmed 14 px/s crawl to advance a pixel or two while the
+  // browser dispatches the wheel event; a manual 900 px scroll would be far larger.
+  expect(Math.abs(afterWheel - beforeWheel)).toBeLessThan(10)
 
   await viewport.locator('[data-testid="guide-tune"]').first().focus()
   const beforeKey = await viewport.evaluate((node) => node.scrollTop)
   await page.keyboard.press('ArrowDown')
-  await expect.poll(() => viewport.evaluate((node) => node.scrollTop)).toBe(beforeKey)
+  await expect.poll(async () => Math.abs((await viewport.evaluate((node) => node.scrollTop)) - beforeKey)).toBeLessThan(10)
 })
 
 test('remote channel rockers use concise 90s-style labels', async ({ page }) => {
