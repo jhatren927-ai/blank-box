@@ -4,7 +4,7 @@ import { useStore } from './state.tsx'
 import { clock, padChannel } from './lib/format.ts'
 import { liveSlot, nextSlot } from './lib/schedule.ts'
 import { networkName } from './lib/names.ts'
-import { getAccountNetwork, loadCloudNetwork, saveAccountNetwork } from './lib/cloudSave.ts'
+import { loadCloudNetwork } from './lib/cloudSave.ts'
 import { CableBox, nextRate, useShakeTune } from './components/CableBox.tsx'
 import { Builder } from './components/Builder.tsx'
 import { Guide, Ticker } from './components/Guide.tsx'
@@ -50,42 +50,10 @@ function AppContent() {
   const screenRef = useRef<HTMLDivElement>(null)
   const dialTimer = useRef<number | null>(null)
   const cloudRestoreStarted = useRef(false)
-  const [accountSyncReady, setAccountSyncReady] = useState(false)
   const ordered = network.channels.slice().sort((a, b) => a.number - b.number)
   const current = ordered.find((channel) => channel.id === currentId) ?? null
   const currentLive = current ? liveSlot(current, now) : null
   const currentNext = current ? nextSlot(current, now) : null
-
-  useEffect(() => {
-    const token = localStorage.getItem('blankbox-license-session')
-    if (!token) return
-    void (async () => {
-      try {
-        const cloudNetwork = await getAccountNetwork(token)
-        if (cloudNetwork) {
-          store.replaceNetwork(cloudNetwork)
-        } else {
-          // First sign-in on this account: preserve the channels already on this device.
-          await saveAccountNetwork(token, network)
-        }
-        setAccountSyncReady(true)
-      } catch (error) {
-        console.error('Blank Box account restore failed:', error)
-      }
-    })()
-  }, [])
-
-  useEffect(() => {
-    if (!accountSyncReady) return
-    const token = localStorage.getItem('blankbox-license-session')
-    if (!token) return
-    const timer = window.setTimeout(() => {
-      void saveAccountNetwork(token, network).catch((error: unknown) => {
-        console.error('Blank Box automatic save failed:', error)
-      })
-    }, 900)
-    return () => window.clearTimeout(timer)
-  }, [accountSyncReady, network])
 
   useEffect(() => {
     // A five-second clock tick keeps the EPG current without forcing a full app
@@ -407,7 +375,7 @@ function AppContent() {
   }
 
   return (
-    <div className={tvMode ? "min-h-screen bg-chassis text-slate-100" : "bb-web-shell min-h-screen text-slate-100"}>
+    <div className={tvMode ? "bb-app-root min-h-screen bg-chassis text-slate-100" : "bb-app-root bb-web-shell min-h-screen text-slate-100"}>
       {(!tvMode || !isNativeTvApp) && <header className={tvMode ? 'bb-tv-header' : 'bb-web-header sticky top-0 z-40 backdrop-blur'}>
         <div className="bb-web-header-inner mx-auto flex max-w-6xl items-end gap-3 px-3 py-2">
           <div className="min-w-0 flex-1">
@@ -791,8 +759,7 @@ function NavButton({
 }
 
 
-import { LicenseGate } from './components/LicenseGate.tsx'
 
 export default function App() {
-  return <LicenseGate><AppContent /></LicenseGate>
+  return <AppContent />
 }
