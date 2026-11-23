@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Channel, Program } from './types.ts'
 import { useStore } from './state.tsx'
-import { clock } from './lib/format.ts'
+import { clock, padChannel } from './lib/format.ts'
+import { liveSlot, nextSlot } from './lib/schedule.ts'
 import { networkName } from './lib/names.ts'
 import { getAccountNetwork, loadCloudNetwork, saveAccountNetwork } from './lib/cloudSave.ts'
 import { CableBox, nextRate, useShakeTune } from './components/CableBox.tsx'
@@ -41,6 +42,8 @@ function AppContent() {
   const [accountSyncReady, setAccountSyncReady] = useState(false)
   const ordered = network.channels.slice().sort((a, b) => a.number - b.number)
   const current = ordered.find((channel) => channel.id === currentId) ?? null
+  const currentLive = current ? liveSlot(current, now) : null
+  const currentNext = current ? nextSlot(current, now) : null
 
   useEffect(() => {
     const token = localStorage.getItem('blankbox-license-session')
@@ -497,14 +500,41 @@ function AppContent() {
             />
           ) : (
             <>
-          <Ticker channels={ordered} now={now} />
+          <div className="bb-web-broadcast-shell">
+            <Ticker channels={ordered} now={now} />
+            <section className="bb-web-nowbar" aria-label="Current broadcast" data-testid="web-nowbar">
+              <div className="bb-web-nowbar-label"><span className="bb-web-onair-dot" /> ON AIR</div>
+              <div className="bb-web-nowbar-channel">
+                <strong>{current ? padChannel(current.number) : '---'}</strong>
+                <span>{current?.callsign ?? 'NO SIGNAL'}</span>
+              </div>
+              <div className="bb-web-nowbar-program">
+                <span className="bb-web-micro-label">NOW PLAYING</span>
+                <strong>{currentLive?.program.title ?? (current ? 'OFF THE AIR' : 'BUILD YOUR CHANNEL LINEUP')}</strong>
+              </div>
+              <div className="bb-web-nowbar-next">
+                <span className="bb-web-micro-label">COMING UP</span>
+                <strong>{currentNext?.program.title ?? 'STAY TUNED'}</strong>
+              </div>
+              <div className="bb-web-nowbar-time">{clock(now)}</div>
+            </section>
+          </div>
           {dial && (
             <div data-testid="dial-osd" className="pointer-events-none fixed left-1/2 top-24 z-40 -translate-x-1/2 bg-black/80 px-6 py-3 font-mono text-5xl font-bold text-green-400">
               {dial}
             </div>
           )}
           <main className="bb-web-main mx-auto grid w-full max-w-none grid-cols-1 items-start gap-4 px-3 py-4 lg:grid-cols-[minmax(0,2fr)_minmax(280px,0.85fr)] lg:gap-5">
-            <Player
+            <section className="bb-web-screen-column" aria-label="Television broadcast">
+              <div className="bb-web-screen-heading">
+                <div>
+                  <span className="bb-web-micro-label">NOW TUNED · LIVE CHANNEL</span>
+                  <h1>{current?.name ?? 'Your television starts here'}</h1>
+                  <p>{currentLive?.program.title ?? (current ? 'No program scheduled right now' : 'Add a channel to begin broadcasting')}</p>
+                </div>
+                <div className="bb-web-channel-bug"><span>CH</span><strong>{current ? padChannel(current.number) : '---'}</strong></div>
+              </div>
+              <Player
               screenRef={screenRef}
               channel={current}
               now={now}
@@ -529,7 +559,19 @@ function AppContent() {
                     : item),
                 })
               }}
-            />
+              />
+              <div className="bb-web-screen-caption">
+                <span><i className="bb-web-onair-dot" /> LIVE BROADCAST</span>
+                <span>{current ? current.callsign + ' · ' + current.name : 'BLANK BOX COMMUNITY TELEVISION'}</span>
+                <span>{prefs.muted ? 'SOUND MUTED' : 'STEREO SOUND'}</span>
+              </div>
+            </section>
+            <aside className="bb-web-console-column" aria-label="Cable box controls">
+              <div className="bb-web-console-heading">
+                <span className="bb-web-micro-label">YOUR RECEIVER</span>
+                <h2>CHANNEL SELECTOR</h2>
+                <p>Pick a station, adjust the picture, or tune directly.</p>
+              </div>
             <CableBox
               channels={ordered}
               currentId={current?.id ?? null}
@@ -570,8 +612,13 @@ function AppContent() {
               }}
               onClearRecent={() => store.patchPrefs({ recent: [] })}
             />
+            </aside>
           </main>
           <div className="bb-web-guide-wrap mx-auto w-full max-w-none px-3 pb-10">
+            <div className="bb-web-guide-intro">
+              <div><span className="bb-web-micro-label">WHAT'S ON TELEVISION</span><h2>THE PROGRAM GUIDE</h2></div>
+              <p>Browse the schedule. Select any channel to tune in.</p>
+            </div>
             <Guide
               channels={ordered}
               currentId={current?.id ?? null}
@@ -580,6 +627,9 @@ function AppContent() {
               favs={prefs.favs}
               onTune={tune}
             />
+            <footer className="bb-web-footer">
+              <span>BLANK BOX TELEVISION</span><span>YOUR NETWORK · YOUR LINEUP · YOUR AIRWAVES</span><span>EST. 1995</span>
+            </footer>
           </div>
 
             </>
