@@ -417,6 +417,8 @@ function AppContent() {
               onCloseMenu={() => setTvMenuOpen(false)}
               onExitVod={() => setVod(null)}
               onUnmute={() => store.patchPrefs({ muted: false, volume: Math.max(prefs.volume, 0.4) })}
+              onToggleMute={() => store.patchPrefs({ muted: !prefs.muted })}
+              onVolumeChange={(volume) => store.patchPrefs({ volume, muted: false })}
               onProgramDuration={(programId, seconds) => {
                 if (!current) return
                 const program = current.programs.find((item) => item.id === programId)
