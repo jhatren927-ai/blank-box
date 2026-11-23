@@ -72,6 +72,18 @@ function AppContent() {
     return () => window.clearInterval(timer)
   }, [])
 
+  // Put focus somewhere useful when the app opens on a TV. The viewer can
+  // immediately use the D-pad instead of needing a mouse or touchscreen.
+  useEffect(() => {
+    if (!document.documentElement.classList.contains('tv-mode')) return
+    const timer = window.setTimeout(() => {
+      const firstChannel = document.querySelector<HTMLElement>('[data-testid^="channel-btn-"]')
+      const firstAction = document.querySelector<HTMLElement>('[data-testid="new-channel"]')
+      ;(firstChannel ?? firstAction)?.focus({ preventScroll: true })
+    }, 350)
+    return () => window.clearTimeout(timer)
+  }, [])
+
   useEffect(() => {
     if (cloudRestoreStarted.current) return
     const key = new URLSearchParams(window.location.search).get('load')
@@ -124,6 +136,15 @@ function AppContent() {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null
+      // Android TV / Fire TV Back and Escape should return to the main TV screen,
+      // not leave the app or strand the viewer in a secondary screen.
+      if (event.key === 'Escape' || event.key === 'Backspace' || event.key === 'BrowserBack') {
+        if (view !== 'tv') {
+          event.preventDefault()
+          setView('tv')
+          return
+        }
+      }
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return
 
       // The TV remote's D-pad must scroll the guide when focus is anywhere
