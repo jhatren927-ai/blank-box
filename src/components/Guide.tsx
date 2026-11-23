@@ -226,12 +226,12 @@ function GuideRow({
               className={`bb-guide-program-cell absolute top-0 h-full overflow-hidden border-r-2 border-black px-2 py-1.5 text-left ${onNow ? 'bg-[#173d91] border-l-2 border-l-amber-300' : ''}`}
               style={{ left: `${((left - windowStart) / span) * 100}%`, width: `${((right - left) / span) * 100}%` }}
             >
-              <p className="line-clamp-2 font-heading text-[11px] font-bold uppercase leading-tight text-white sm:text-xs">
+              <p className="line-clamp-2 font-heading text-[14px] font-bold uppercase leading-tight text-white">
                 {slot.startMs < windowStart && <span className="text-prevue-yellow">◄ </span>}
                 {slot.program.title}
                 {slot.endMs > windowStart + span && <span className="text-prevue-yellow"> ►</span>}
               </p>
-              <p className="mt-0.5 truncate font-mono text-[10px] text-yellow-300">{clock(slot.startMs)}</p>
+              <p className="mt-0.5 truncate font-mono text-[11px] text-yellow-300">{clock(slot.startMs)}</p>
             </button>
           )
         })}
