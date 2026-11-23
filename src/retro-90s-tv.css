@@ -2133,3 +2133,99 @@ html.tv-mode:not([data-tv-app="true"]) .bb-guide-scroll {
     padding-top: 8px;
   }
 }
+
+
+/* Full-size remote controls:
+/* Full-size remote controls: use the receiver's full width for the rocker
+   pair and numeric keypad instead of squeezing the keypad into one column. */
+@media (min-width: 761px) {
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-cable-receiver {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "brand brand"
+      "display display"
+      "actions actions"
+      "channel-label channel-label"
+      "rockers rockers"
+      "access-label access-label"
+      "keypad keypad"
+      "advanced advanced"
+      "cast cast";
+    grid-template-rows: repeat(7, min-content) minmax(0, 1fr) min-content;
+    row-gap: 9px;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-remote-footer button {
+    min-height: 42px;
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-remote-section-label {
+    font-size: 10px;
+    line-height: 1.25;
+    letter-spacing: .12em;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-channel-rockers {
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-channel-rockers button {
+    min-height: 56px;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-channel-rockers button b {
+    font-size: 13px;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-channel-rockers button svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-number-pad {
+    width: 100%;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-number-pad button {
+    min-height: 52px;
+    padding: 5px 3px;
+    border-radius: 4px;
+    font-size: 15px;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-number-pad button.bb-number-function {
+    font-size: 11px;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-remote-advanced summary {
+    min-height: 32px;
+    padding: 7px 10px;
+    font-size: 10px;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-remote-advanced .bb-control-grid-wide button {
+    min-height: 40px;
+    font-size: 11px;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-receiver-cast > div {
+    width: 100%;
+  }
+
+  html.tv-mode:not([data-tv-app="true"]) .bb-tv-console .bb-receiver-cast [data-testid="cast-button"] {
+    width: 100%;
+    min-height: 48px;
+    justify-content: center;
+    font-size: 13px;
+  }
+}
