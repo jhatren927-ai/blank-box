@@ -31,6 +31,10 @@ function AppContent() {
   const [now, setNow] = useState(() => Date.now())
   const [help, setHelp] = useState(false)
   const [dial, setDial] = useState('')
+  const [tvGuideOpen, setTvGuideOpen] = useState(false)
+  const [tvMenuOpen, setTvMenuOpen] = useState(false)
+  const [guideSelectedId, setGuideSelectedId] = useState<string | null>(null)
+  const [guidePage, setGuidePage] = useState(0)
   const screenRef = useRef<HTMLDivElement>(null)
   const dialTimer = useRef<number | null>(null)
   const cloudRestoreStarted = useRef(false)
@@ -74,14 +78,13 @@ function AppContent() {
     return () => window.clearInterval(timer)
   }, [])
 
-  // Focus a receiver control after the TV-specific interface is mounted.
   useEffect(() => {
-    if (!tvMode) return
+    if (!tvMode || !tvMenuOpen) return
     const timer = window.setTimeout(() => {
-      document.querySelector<HTMLElement>('[data-testid="tv-channel-up"]')?.focus({ preventScroll: true })
-    }, 350)
+      document.querySelector<HTMLElement>('[data-testid="tv-menu-return"]')?.focus({ preventScroll: true })
+    }, 100)
     return () => window.clearTimeout(timer)
-  }, [tvMode])
+  }, [tvMode, tvMenuOpen])
 
   useEffect(() => {
     if (cloudRestoreStarted.current) return
@@ -119,6 +122,9 @@ function AppContent() {
     setCurrentId(id)
     setVod(null)
     setView('tv')
+    setTvGuideOpen(false)
+    setTvMenuOpen(false)
+    setGuideSelectedId(id)
     store.remember(id)
   }
 
@@ -150,19 +156,107 @@ function AppContent() {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null
-      // Android TV / Fire TV Back and Escape should return to the main TV screen,
-      // not leave the app or strand the viewer in a secondary screen.
-      if (event.key === 'Escape' || event.key === 'Backspace' || event.key === 'BrowserBack') {
-        if (view !== 'tv') {
-          event.preventDefault()
-          setView('tv')
-          return
-        }
+      const isBack = event.key === 'Escape' || event.key === 'Backspace' || event.key === 'BrowserBack'
+      const isAccept = event.key === 'Enter' || event.key === ' ' || event.key === 'Select' || event.key === 'DPAD_CENTER'
+
+      if (isBack && view !== 'tv') {
+        event.preventDefault()
+        setView('tv')
+        setTvGuideOpen(false)
+        setTvMenuOpen(false)
+        return
       }
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return
 
+      if (tvMode && view === 'tv') {
+        if (isBack) {
+          event.preventDefault()
+          if (tvGuideOpen) setTvGuideOpen(false)
+          else if (tvMenuOpen) setTvMenuOpen(false)
+          else setTvMenuOpen(true)
+          return
+        }
+
+        if (tvGuideOpen) {
+          if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+            event.preventDefault()
+            if (ordered.length === 0) return
+            const index = ordered.findIndex((item) => item.id === (guideSelectedId ?? currentId))
+            const nextIndex = (Math.max(0, index) + (event.key === 'ArrowUp' ? -1 : 1) + ordered.length) % ordered.length
+            setGuideSelectedId(ordered[nextIndex].id)
+            return
+          }
+          if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+            event.preventDefault()
+            setGuidePage((page) => Math.max(-24, Math.min(24, page + (event.key === 'ArrowLeft' ? -1 : 1))))
+            return
+          }
+          if (isAccept) {
+            event.preventDefault()
+            const selected = guideSelectedId ?? currentId
+            if (selected) tune(selected)
+            else setTvGuideOpen(false)
+            return
+          }
+          if (event.key === 'Guide' || event.key === 'g' || event.key === 'G') {
+            event.preventDefault()
+            setTvGuideOpen(false)
+            return
+          }
+          if (/^\\d$/.test(event.key)) {
+            enterDigit(event.key)
+            return
+          }
+          if (event.key === 'm' || event.key === 'M') {
+            store.patchPrefs({ muted: !prefs.muted })
+            return
+          }
+          return
+        }
+
+        if (!tvMenuOpen) {
+          if (isAccept || event.key === 'Guide' || event.key === 'g' || event.key === 'G') {
+            event.preventDefault()
+            setGuideSelectedId(currentId)
+            setGuidePage(0)
+            setTvGuideOpen(true)
+            return
+          }
+          if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+            event.preventDefault()
+            step(event.key === 'ArrowUp' ? 1 : -1)
+            return
+          }
+          if (/^\\d$/.test(event.key)) {
+            enterDigit(event.key)
+            return
+          }
+          if (event.key === 'm' || event.key === 'M') {
+            store.patchPrefs({ muted: !prefs.muted })
+            return
+          }
+          if (event.key === 'f' || event.key === 'F') {
+            void requestFullscreen(screenRef.current)
+            return
+          }
+          if (event.key === 'AudioVolumeUp' || event.key === 'VolumeUp') {
+            store.patchPrefs({ volume: Math.min(1, prefs.volume + 0.1), muted: false })
+            return
+          }
+          if (event.key === 'AudioVolumeDown' || event.key === 'VolumeDown') {
+            store.patchPrefs({ volume: Math.max(0, prefs.volume - 0.1), muted: false })
+            return
+          }
+          if (event.key === '?') {
+            setHelp(true)
+            return
+          }
+          return
+        }
+      }
+
       // The TV remote's D-pad must scroll the guide when focus is anywhere
-      // inside it; otherwise the global channel/focus navigation consumes Up/Down.
+      // inside it; otherwise the global focus navigation consumes Up/Down.
       const guideScroller = target?.closest<HTMLElement>(
         '[data-testid="guide-viewport"], [data-testid="guide-mobile-list"]',
       )
@@ -221,7 +315,7 @@ function AppContent() {
         void requestFullscreen(screenRef.current)
       } else if (event.key === '?') {
         setHelp(true)
-      } else if (/^\d$/.test(event.key)) {
+      } else if (/^\\d$/.test(event.key)) {
         enterDigit(event.key)
       }
     }
@@ -244,7 +338,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-chassis text-slate-100">
-      <header className={tvMode ? 'bb-tv-header' : 'sticky top-0 z-40 border-b border-black bg-[#0c1220]/95 backdrop-blur'}>
+      {!tvMode && <header className="sticky top-0 z-40 border-b border-black bg-[#0c1220]/95 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-end gap-3 px-3 py-2">
           <div className="min-w-0 flex-1">
             <p className="font-heading text-[10px] font-black tracking-[0.28em] text-slate-500">{tvMode ? 'LOCAL CABLE TELEVISION  /  EST. 1995' : 'BLANK BOX'}</p>
@@ -285,7 +379,10 @@ function AppContent() {
             {tvMode ? 'SETUP' : 'Settings'}
           </NavButton>
         </nav>
-      </header>
+      </header>}
+      {tvMode && view !== 'tv' && (
+        <button type="button" data-testid="tv-return-button" className="bb-tv-return-button" onClick={() => setView('tv')}>← BACK TO TELEVISION</button>
+      )}
 
       {view === 'tv' && (
         <>
@@ -299,8 +396,17 @@ function AppContent() {
               prefs={prefs}
               castTarget={castTarget}
               screenRef={screenRef}
+              guideOpen={tvGuideOpen}
+              selectedGuideId={guideSelectedId}
+              guidePage={guidePage}
+              menuOpen={tvMenuOpen}
+              onSelectGuideChannel={setGuideSelectedId}
+              onGuidePageChange={setGuidePage}
+              onCloseGuide={() => setTvGuideOpen(false)}
+              onCloseMenu={() => setTvMenuOpen(false)}
               onExitVod={() => setVod(null)}
               onCastTargetChange={updateCastTarget}
+              onUnmute={() => store.patchPrefs({ muted: false, volume: Math.max(prefs.volume, 0.4) })}
               onProgramDuration={(programId, seconds) => {
                 if (!current) return
                 const program = current.programs.find((item) => item.id === programId)
@@ -313,35 +419,35 @@ function AppContent() {
                 })
               }}
               onTune={tune}
-              onStep={step}
               onNew={() => {
+                setTvGuideOpen(false)
+                setTvMenuOpen(false)
                 setEditing(null)
                 setView('build')
               }}
-              onEdit={(id) => {
-                setEditing(ordered.find((channel) => channel.id === id) ?? null)
-                setView('build')
+              onDemand={() => {
+                setTvGuideOpen(false)
+                setTvMenuOpen(false)
+                setView('demand')
               }}
-              onMute={() => store.patchPrefs({ muted: !prefs.muted })}
-              onVolume={(volume) => store.patchPrefs({ volume, muted: false })}
-              onFullscreen={() => void requestFullscreen(screenRef.current)}
-              onCrt={() => store.patchPrefs({ crt: !prefs.crt })}
-              onAspect={() => store.patchPrefs({ aspect: prefs.aspect === '16:9' ? '4:3' : '16:9' })}
-              onRate={() => store.patchPrefs({ rate: nextRate(prefs.rate) })}
-              onLogo={() => store.patchPrefs({ logo: !prefs.logo })}
+              onSettings={() => {
+                setTvGuideOpen(false)
+                setTvMenuOpen(false)
+                setView('settings')
+              }}
               onLast={() => {
                 const last = prefs.recent.find((id) => id !== current?.id)
                 if (last) tune(last)
               }}
-              onFav={store.toggleFav}
               onSurprise={() => {
                 if (ordered.length === 0) return
                 tune(ordered[Math.floor(Math.random() * ordered.length)].id)
               }}
-              onHelp={() => setHelp(true)}
-              onDigit={enterDigit}
-              dial={dial}
-            />
+              onHelp={() => {
+                setTvMenuOpen(false)
+                setHelp(true)
+              }}
+
           ) : (
             <>
           <Ticker channels={ordered} now={now} />
