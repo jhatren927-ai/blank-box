@@ -37,6 +37,7 @@ test('TV menu is a single remote-friendly column and D-pad selects actions', asy
 
   await expect(page.getByTestId('cast-button')).toHaveCount(0)
   await expect(page.getByTestId('tv-menu-sound')).toContainText('SOUND ON')
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('blankbox:prefs:v1') || '{}').muted)).toBe(false)
   await page.getByTestId('tv-menu-sound').click()
   await expect(page.getByTestId('tv-menu-sound')).toContainText('SOUND OFF')
   await page.getByTestId('tv-menu-volume-up').click()
@@ -78,4 +79,41 @@ test('guide D-pad changes the selected channel and OK tunes it', async ({ page }
   await page.keyboard.press('Enter')
   await expect(guide).toBeHidden()
   await expect(page.getByTestId('tv-live-lower-third')).toContainText('Second Channel')
+})
+
+test('guide left and right move across program listings instead of changing the time page', async ({ page }) => {
+  const listing = {
+    ...network,
+    channels: network.channels.map((channel, channelIndex) => ({
+      ...channel,
+      programs: Array.from({ length: 3 }, (_, index) => ({
+        id: `p-${channelIndex}-${index}`,
+        remoteId: `r-${channelIndex}-${index}`,
+        source: 'archive',
+        title: `Channel ${channelIndex + 1} Show ${index + 1}`,
+        durationSec: 1800,
+        durationGuess: false,
+      })),
+    })),
+  }
+  await page.evaluate((value) => {
+    localStorage.setItem('blankbox:network:v1', JSON.stringify(value))
+    window.location.reload()
+  }, listing)
+  await expect(page.getByTestId('tv-experience')).toBeVisible()
+  await page.keyboard.press('Enter')
+  const guide = page.getByTestId('tv-guide-overlay')
+  await expect(guide).toBeVisible()
+  const firstRow = guide.locator('.bb-tv-guide-row').first()
+  const programs = firstRow.getByTestId('tv-guide-program')
+  await expect(programs).toHaveCount(3)
+  await expect(firstRow.getByTestId('tv-guide-channel')).toBeFocused()
+  await page.keyboard.press('ArrowRight')
+  await expect(programs.nth(0)).toBeFocused()
+  await page.keyboard.press('ArrowRight')
+  await expect(programs.nth(1)).toBeFocused()
+  await page.keyboard.press('ArrowRight')
+  await expect(programs.nth(2)).toBeFocused()
+  await page.keyboard.press('ArrowLeft')
+  await expect(programs.nth(1)).toBeFocused()
 })
