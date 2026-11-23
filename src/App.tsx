@@ -178,17 +178,41 @@ function AppContent() {
         }
 
         if (tvGuideOpen) {
-          if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+          if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
             event.preventDefault()
-            if (ordered.length === 0) return
-            const index = ordered.findIndex((item) => item.id === (guideSelectedId ?? currentId))
-            const nextIndex = (Math.max(0, index) + (event.key === 'ArrowUp' ? -1 : 1) + ordered.length) % ordered.length
-            setGuideSelectedId(ordered[nextIndex].id)
-            return
-          }
-          if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-            event.preventDefault()
-            setGuidePage((page) => Math.max(-24, Math.min(24, page + (event.key === 'ArrowLeft' ? -1 : 1))))
+            const rows = Array.from(document.querySelectorAll<HTMLElement>('.bb-tv-guide-row'))
+            const active = document.activeElement as HTMLElement | null
+            const activeRow = active?.closest<HTMLElement>('.bb-tv-guide-row') ?? rows.find((row) => row.dataset.channelId === (guideSelectedId ?? currentId))
+            if (!activeRow || rows.length === 0) return
+            const rowButtons = (row: HTMLElement) => Array.from(row.querySelectorAll<HTMLElement>(
+              '[data-testid="tv-guide-channel"], [data-testid="tv-guide-program"]',
+            ))
+            const buttons = rowButtons(activeRow)
+            const activeIndex = Math.max(0, buttons.indexOf(active as HTMLElement))
+            let destination: HTMLElement | undefined
+            if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+              const nextIndex = activeIndex + (event.key === 'ArrowLeft' ? -1 : 1)
+              destination = buttons[nextIndex]
+            } else {
+              const rowIndex = rows.indexOf(activeRow)
+              const nextRow = rows[rowIndex + (event.key === 'ArrowUp' ? -1 : 1)]
+              if (nextRow) {
+                const candidates = rowButtons(nextRow)
+                const activeRect = active?.getBoundingClientRect()
+                const centerX = activeRect ? activeRect.left + activeRect.width / 2 : 0
+                destination = candidates.sort((a, b) => {
+                  const aRect = a.getBoundingClientRect()
+                  const bRect = b.getBoundingClientRect()
+                  return Math.abs(aRect.left + aRect.width / 2 - centerX) - Math.abs(bRect.left + bRect.width / 2 - centerX)
+                })[0]
+              }
+            }
+            if (destination) {
+              const destinationRow = destination.closest<HTMLElement>('.bb-tv-guide-row')
+              if (destinationRow?.dataset.channelId) setGuideSelectedId(destinationRow.dataset.channelId)
+              destination.focus({ preventScroll: true })
+              destination.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+            }
             return
           }
           if (isAccept) {
