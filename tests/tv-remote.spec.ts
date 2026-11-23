@@ -19,6 +19,11 @@ test.beforeEach(async ({ page }) => {
     if (message.type() === 'error') console.log('TV CONSOLE ERROR:', message.text())
   })
   await page.addInitScript(({ network }) => {
+    // Mark the dedicated nativeTest route as the native TV shell so the public
+    // website palette is scoped separately from the Android TV presentation.
+    if (new URLSearchParams(window.location.search).get('nativeTest') === '1') {
+      document.documentElement.dataset.tvApp = 'true'
+    }
     // Make Cast availability deterministic in the browser test.
     ;(window as any).cast = { framework: { CastContext: { getInstance: () => ({
       setOptions() {},
@@ -142,7 +147,12 @@ test('regular website uses the original Downloader receiver layout and remote-on
   const firstFrameTheme = await page.evaluate(() => (window as any).__bbFirstFrameTheme)
   expect(firstFrameTheme?.tvMode).toBe(true)
   expect(firstFrameTheme?.headerBackground).toContain('linear-gradient')
+  expect(firstFrameTheme?.headerBackground).toContain('rgb(29, 74, 131)')
   expect(firstFrameTheme?.appBackground).toContain('radial-gradient')
+  expect(firstFrameTheme?.screenBackground).toContain('linear-gradient')
+  expect(firstFrameTheme?.screenBackground).toContain('rgb(40, 85, 143)')
+  expect(firstFrameTheme?.remoteBackground).toContain('linear-gradient')
+  expect(firstFrameTheme?.remoteBackground).toContain('rgb(40, 85, 143)')
   expect(firstFrameTheme?.programTitleSize).toBe('14px')
   await expect(page.locator('.bb-tv-broadcast')).toBeVisible()
   await expect(page.getByTestId('cable-remote')).toBeVisible()
