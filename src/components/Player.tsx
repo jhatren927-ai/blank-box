@@ -352,7 +352,7 @@ function YouTubeVideo(props: EngineProps) {
 function VimeoVideo(props: EngineProps) {
   const host = useRef<HTMLDivElement>(null)
   const propsRef = useRef(props)
-  const playerRef = useRef<{ setMuted: (muted: boolean) => Promise<void>; setVolume: (volume: number) => Promise<void>; setPlaybackRate: (rate: number) => Promise<number> } | null>(null)
+  const playerRef = useRef<{ setMuted: (muted: boolean) => Promise<boolean>; setVolume: (volume: number) => Promise<void>; setPlaybackRate: (rate: number) => Promise<number> } | null>(null)
   propsRef.current = props
   useEffect(() => {
     const node = host.current
