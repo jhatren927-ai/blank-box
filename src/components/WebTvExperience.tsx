@@ -30,6 +30,7 @@ interface WebTvExperienceProps {
   onLogo: () => void
   onLast: () => void
   onHelp: () => void
+  onDigit: (digit: string) => void
 }
 
 export function WebTvExperience({
