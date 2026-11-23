@@ -219,6 +219,30 @@ test('regular website uses the original Downloader receiver layout and remote-on
   await expect(page.getByTestId('web-tv-receiver')).toBeVisible()
 })
 
+test('fullscreen now-playing strip auto-hides after seven seconds and reappears on activity', async ({ page }) => {
+  await page.goto('/')
+  const nowPlaying = page.getByTestId('now-playing-bar')
+  await expect(nowPlaying).toBeVisible()
+
+  await page.locator('.bb-remote-advanced summary').click()
+  const fullscreenButton = page.getByTestId('tv-fullscreen')
+  await expect(fullscreenButton).toBeVisible()
+  await fullscreenButton.click()
+
+  await expect.poll(() => page.evaluate(
+    () => document.fullscreenElement?.getAttribute('data-testid') ?? null,
+  )).toBe('crt-player')
+  await expect(nowPlaying).toBeVisible()
+  await expect(nowPlaying).toBeHidden({ timeout: 9000 })
+
+  // Pointer movement inside the fullscreen player reveals the information again.
+  await page.mouse.move(700, 350)
+  await expect(nowPlaying).toBeVisible()
+
+  await page.keyboard.press('Escape')
+  await expect(nowPlaying).toBeVisible()
+})
+
 test('iPhone Safari opens the native AirPlay picker for the current video', async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(navigator, 'userAgent', {
