@@ -24,6 +24,8 @@ export function Settings({
   const [qrNote, setQrNote] = useState<string | null>(null)
   const [incoming, setIncoming] = useState('')
   const [note, setNote] = useState<string | null>(null)
+  const [importNote, setImportNote] = useState<string | null>(null)
+  const [importBusy, setImportBusy] = useState(false)
   const [pin, setPin] = useState('')
   const [pinAgain, setPinAgain] = useState('')
   const [resetOpen, setResetOpen] = useState(false)
@@ -67,7 +69,7 @@ export function Settings({
       }
     }).BarcodeDetector
     if (!Detector) {
-      setNote('This browser cannot read a camera code. Paste the code instead.')
+      setImportNote('This browser cannot read a camera code. Paste the code instead.')
       setScanning(false)
       return
     }
@@ -89,7 +91,7 @@ export function Settings({
             if (value) {
               setIncoming(value)
               setScanning(false)
-              setNote('Code found. Tap Load it.')
+              setImportNote('Code found. Tap Load it.')
               return
             }
             if (!stop) requestAnimationFrame(tick)
@@ -100,7 +102,7 @@ export function Settings({
         requestAnimationFrame(tick)
       })
       .catch(() => {
-        setNote('The camera did not open. Paste the code instead.')
+        setImportNote('The camera did not open. Paste the code instead.')
         setScanning(false)
       })
     return () => {
@@ -110,19 +112,24 @@ export function Settings({
   }, [scanning])
 
   async function applyImport() {
+    if (importBusy) return
+    setImportBusy(true)
+    setImportNote('Loading lineup…')
     try {
       const cloudKey = getCloudKeyFromInput(incoming)
       if (cloudKey) {
         const next = await loadCloudNetwork(cloudKey)
+        setImportNote(`Loaded ${next.name} (${next.channels.length} channels).`)
         onImport(next)
-        setNote(`Loaded ${next.name} from cloud.`)
         return
       }
       const next = await decodeNetwork(incoming)
+      setImportNote(`Loaded ${next.name}.`)
       onImport(next)
-      setNote(`Loaded ${next.name}.`)
     } catch (error) {
-      setNote(error instanceof Error ? error.message : 'That code did not work. Try copying it again.')
+      setImportNote(error instanceof Error ? error.message : 'That code did not work. Try copying it again.')
+    } finally {
+      setImportBusy(false)
     }
   }
 
@@ -219,18 +226,19 @@ export function Settings({
         <textarea
           data-testid="sync-import"
           value={incoming}
-          onChange={(event) => setIncoming(event.target.value)}
+          onChange={(event) => { setIncoming(event.target.value); setImportNote(null) }}
           placeholder="Paste a sync code or cloud restore link"
           className="mt-3 h-28 w-full rounded-sm bg-black/50 p-2 font-mono text-xs text-white outline-none focus:ring-1 focus:ring-yellow-300"
         />
         <div className="mt-2 flex flex-wrap gap-2">
-          <Button data-testid="sync-apply" onClick={() => void applyImport()} disabled={!incoming.trim()}>
-            Load it
+          <Button data-testid="sync-apply" onClick={() => void applyImport()} disabled={!incoming.trim() || importBusy}>
+            {importBusy ? 'Loading…' : 'Load it'}
           </Button>
           <Button variant="chassis" onClick={() => setScanning((value) => !value)}>
             {scanning ? 'Stop camera' : 'Scan a code'}
           </Button>
         </div>
+        <p data-testid="sync-import-status" role="status" aria-live="polite" aria-atomic="true" className="mt-3 min-h-12 rounded-sm border border-prevue-yellow/40 bg-black/40 p-3 font-mono text-sm text-yellow-100">{importNote ?? 'Enter the six-digit code, then select Load it. Results and errors will appear here.'}</p>
         {scanning && <video ref={videoRef} className="mt-3 aspect-video w-full max-w-sm bg-black" muted playsInline />}
       </div>
 
