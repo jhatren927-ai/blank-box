@@ -80,6 +80,17 @@ test('Backspace edits focused text instead of leaving the channel builder', asyn
   await expect(theme).toHaveValue('cartoon')
   await expect(page.getByTestId('builder')).toBeVisible()
 
+  // Enter advances to the actual content search field; Backspace must edit it too.
+  await page.keyboard.press('Enter')
+  const search = page.getByTestId('search-input')
+  await expect(search).toBeVisible()
+  await search.fill('cartoons')
+  await search.focus()
+  await page.keyboard.press('End')
+  await page.keyboard.press('Backspace')
+  await expect(search).toHaveValue('cartoon')
+  await expect(page.getByTestId('builder')).toBeVisible()
+
   // Escape remains the explicit cancel/back action outside text editing.
   await page.keyboard.press('Escape')
   await expect(page.getByTestId('tv-experience')).toBeVisible()
