@@ -136,8 +136,23 @@ function AppContent() {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
+      // Let the browser and focused controls own text editing, caret movement,
+      // IME composition, and standard modified shortcuts before TV navigation.
+      if (event.isComposing || event.key === 'Process') return
+      if (event.ctrlKey || event.metaKey || event.altKey) return
+
       const target = event.target as HTMLElement | null
-      const isBack = event.key === 'Escape' || event.key === 'Backspace' || event.key === 'BrowserBack'
+      const isEditableTarget = !!(
+        target && (
+          target.isContentEditable ||
+          target.closest('input, textarea, select, [contenteditable="true"], [role="textbox"], [role="searchbox"]')
+        )
+      )
+      // Backspace is an editing key on computers. Only interpret it as the
+      // hardware Back key in the native TV app, and never while editing text.
+      const isBack = event.key === 'Escape'
+        || event.key === 'BrowserBack'
+        || (isNativeTvApp && event.key === 'Backspace' && !isEditableTarget)
       const isAccept = event.key === 'Enter' || event.key === ' ' || event.key === 'Select' || event.key === 'DPAD_CENTER'
 
       if (isBack && view !== 'tv') {
@@ -147,7 +162,7 @@ function AppContent() {
         setTvMenuOpen(false)
         return
       }
-      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return
+      if (isEditableTarget) return
 
       if (isNativeTvApp && tvMode && view === 'tv') {
         if (isBack) {
