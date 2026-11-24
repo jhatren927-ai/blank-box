@@ -69,6 +69,28 @@ test.beforeEach(async ({ page }) => {
   await expect(page.getByTestId('tv-experience')).toBeVisible()
 })
 
+test('Backspace edits focused text instead of leaving the channel builder', async ({ page }) => {
+  await page.keyboard.press('Escape')
+  await page.getByTestId('tv-menu-build').click()
+  const theme = page.getByTestId('theme-input')
+  await expect(theme).toBeVisible()
+  await theme.fill('cartoons')
+  await page.keyboard.press('End')
+  await page.keyboard.press('Backspace')
+  await expect(theme).toHaveValue('cartoon')
+  await expect(page.getByTestId('builder')).toBeVisible()
+
+  // Escape remains the explicit cancel/back action outside text editing.
+  await page.keyboard.press('Escape')
+  await expect(page.getByTestId('tv-experience')).toBeVisible()
+  await expect(page.getByTestId('builder')).toHaveCount(0)
+})
+
+test('Backspace on the native TV screen still opens the remote menu', async ({ page }) => {
+  await page.keyboard.press('Backspace')
+  await expect(page.getByTestId('tv-menu-overlay')).toBeVisible()
+})
+
 test('TV menu is a single remote-friendly column and D-pad selects actions', async ({ page }) => {
   await page.keyboard.press('Escape')
   const menu = page.getByTestId('tv-menu-overlay')
