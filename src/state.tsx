@@ -12,6 +12,7 @@ interface Store {
   unlocked: boolean
   unlock: () => void
   setName: (name: string) => void
+  update: (recipe: (network: Network) => Network) => void
   saveChannel: (channel: Channel) => void
   deleteChannel: (id: string) => void
   replaceNetwork: (network: Network) => void
@@ -42,6 +43,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     },
     setName(name) {
       setNetwork((current) => ({ ...current, name }))
+    },
+    update(recipe) {
+      setNetwork((current) => recipe(current))
     },
     saveChannel(channel) {
       setNetwork((current) => ({

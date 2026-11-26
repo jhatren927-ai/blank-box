@@ -14,9 +14,11 @@ import { Player, requestFullscreen } from './components/Player.tsx'
 import { TvExperience } from './components/TvExperience.tsx'
 import { WebTvExperience } from './components/WebTvExperience.tsx'
 import { Settings } from './components/Settings.tsx'
+import { MasterControl } from './components/MasterControl.tsx'
 import { Modal } from './components/ui/dialog.tsx'
+import { runDue } from './lib/automations.ts'
 
-type View = 'tv' | 'build' | 'demand' | 'settings'
+type View = 'tv' | 'build' | 'demand' | 'settings' | 'master'
 
 function AppContent() {
   const store = useStore()
@@ -50,7 +52,11 @@ function AppContent() {
   const screenRef = useRef<HTMLDivElement>(null)
   const dialTimer = useRef<number | null>(null)
   const cloudRestoreStarted = useRef(false)
-  const ordered = network.channels.slice().sort((a, b) => a.number - b.number)
+  const ordered = network.channels.filter((channel) => !channel.signedOff).slice().sort((a, b) => a.number - b.number)
+  const networkRef = useRef(network)
+  networkRef.current = network
+  const updateRef = useRef(store.update)
+  updateRef.current = store.update
   const current = ordered.find((channel) => channel.id === currentId) ?? null
   const currentLive = current ? liveSlot(current, now) : null
   const currentNext = current ? nextSlot(current, now) : null
@@ -60,6 +66,21 @@ function AppContent() {
     // render every second on constrained Android TV WebViews.
     const timer = window.setInterval(() => setNow(Date.now()), 5000)
     return () => window.clearInterval(timer)
+  }, [])
+
+  useEffect(() => {
+    let cancel = false
+    const tick = () => {
+      void runDue(networkRef.current).then((next) => {
+        if (!cancel && next) updateRef.current(() => next)
+      })
+    }
+    tick()
+    const timer = window.setInterval(tick, 60_000)
+    return () => {
+      cancel = true
+      window.clearInterval(timer)
+    }
   }, [])
 
   useEffect(() => {
@@ -418,6 +439,9 @@ function AppContent() {
           <NavButton testId="nav-demand" active={view === 'demand'} onClick={() => setView('demand')}>
             On Demand
           </NavButton>
+          <NavButton testId="nav-master" active={view === 'master'} onClick={() => setView('master')}>
+            Master
+          </NavButton>
           <NavButton testId="nav-settings" active={view === 'settings'} onClick={() => setView('settings')}>
             {tvMode ? 'SETUP' : 'Settings'}
           </NavButton>
@@ -707,6 +731,7 @@ function AppContent() {
           }}
         />
       )}
+      {view === 'master' && <MasterControl now={now} onWatch={tune} />}
       {view === 'settings' && (
         <Settings
           network={network}

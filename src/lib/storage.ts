@@ -44,6 +44,7 @@ export function readNetwork(): Network | null {
       typeof data.id !== 'string'
     ) return null
     return {
+      ...(data as Network),
       version: 1,
       id: data.id,
       name: data.name,

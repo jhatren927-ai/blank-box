@@ -24,6 +24,23 @@ export interface Program {
   pageUrl?: string
   thumbnail?: string
   year?: string
+  language?: string
+  retired?: boolean
+  retiredReason?: string
+  keep?: boolean
+}
+
+export interface Daypart {
+  nightHour: number
+  morningWords: string
+  nightWords: string
+}
+
+export interface Takeover {
+  from: string
+  to: string
+  label: string
+  stash: Program[]
 }
 
 export interface Channel {
@@ -34,6 +51,65 @@ export interface Channel {
   theme: string
   look: string
   programs: Program[]
+  tagline?: string
+  signedOff?: boolean
+  daypart?: Daypart | null
+  takeover?: Takeover | null
+}
+
+export interface ChannelRule {
+  id: string
+  name: string
+  scope: string
+  enabled: boolean
+  minMinutes: number | null
+  maxMinutes: number | null
+  yearFrom: number | null
+  yearTo: number | null
+  mustInclude: string
+  mustExclude: string
+  sources: SourceId[]
+  blockDuplicates: boolean
+  hideAdult: boolean
+  maxTapes: number | null
+  language: string
+}
+
+export type AutomationWhen = 'open' | 'hourly' | 'daily' | 'weekly'
+
+export type AutomationAction =
+  | { kind: 'autofill'; query: string; source: SourceId; target: number }
+  | { kind: 'refresh'; query: string; source: SourceId }
+  | { kind: 'retire-dead' }
+  | { kind: 'shuffle' }
+  | { kind: 'daypart'; morningWords: string; nightWords: string; nightHour: number }
+  | { kind: 'takeover'; query: string; source: SourceId; from: string; to: string; label: string }
+
+export interface Automation {
+  id: string
+  name: string
+  enabled: boolean
+  when: AutomationWhen
+  channelId: string
+  action: AutomationAction
+  lastRun: number | null
+}
+
+export interface AutoLog {
+  id: string
+  at: number
+  automationId: string
+  message: string
+}
+
+export interface WrongReport {
+  id: string
+  programId: string
+  channelId: string
+  title: string
+  note: string
+  status: 'open' | 'fixed'
+  createdAt: number
 }
 
 export interface PinLock {
@@ -48,6 +124,14 @@ export interface Network {
   createdAt: number
   channels: Channel[]
   pin: PinLock | null
+  logoText?: string
+  blockedWords?: string[]
+  junkWords?: string[]
+  rules?: ChannelRule[]
+  automations?: Automation[]
+  automationLog?: AutoLog[]
+  reports?: WrongReport[]
+  lastCleanup?: string[]
 }
 
 export interface Prefs {
